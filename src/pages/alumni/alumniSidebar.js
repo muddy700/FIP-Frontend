@@ -6,10 +6,9 @@ import Icon from 'supercons'
 import { useState } from 'react';
 import Card from 'react-bootstrap/Card'
 import Accordion from 'react-bootstrap/Accordion'
-import '../styles/sidebar.css'
-// import '../App'
+import '../../styles/sidebar.css'
 
-const Sidebar2 = () => {
+const AlumniSidebar = () => {
 
     return (
         <ul className="list-wrapper">
@@ -76,4 +75,4 @@ const Sidebar2 = () => {
     )
 }
 
-export default Sidebar2
+export default AlumniSidebar

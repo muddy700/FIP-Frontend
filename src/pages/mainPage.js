@@ -1,12 +1,12 @@
 import React, {useState, useEffect} from 'react';
 import { BrowserRouter as Router, Switch , Route, useRouteMatch } from 'react-router-dom';
 import Header from '../components/header';
-import Sidebar2 from '../components/sidebar';
 import { AlumniHomePage } from './alumniHomePage';
 import { StudentHomePage } from './studentHomePage';
 import Sidebar from "react-sidebar";
 import './../styles/sidebar.css'
-import Contents from '../components/contents';
+import AlumniContents from './alumni/alumniContents';
+import AlumniSidebar from './alumni/alumniSidebar';
 
 const mql = window.matchMedia(`(min-width: 800px)`);
 
@@ -29,8 +29,9 @@ export const HomePage = () => {
   useEffect(() => {
     mediaQueryChanged()
   }, [mql])
-  const dataContent =  <Contents />
-  const sidebar = <Sidebar2 />
+  
+  const dataContent =  <AlumniContents />
+  const sidebar = <AlumniSidebar />
 
       const sidebarProps = {
         sidebar,
