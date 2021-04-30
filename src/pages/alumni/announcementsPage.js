@@ -1,10 +1,50 @@
 import { Divider } from 'antd'
-import React from 'react'
+import React, {useState} from 'react'
+import Icon from 'supercons'
 import { Card,Row, Col } from 'react-bootstrap'
 import Message from '../../components/message'
 import Accordion from 'react-bootstrap/Accordion'
 
+const announcementList = [
+    {
+        id: 1,
+        source: 'Admin',
+        title: 'Announcement Title Appears Here So That EveryOne Can See It Clearly',
+        date: '2 days ago',
+        contents: "On friday we will have technical issue we announce you that, the system will be down for 3 hoursFEHFUEHFEHRQEGRYQEGRGYYRQEQYRER On friday we will have technical issue, we announce you that, the system will be down for 3 hoursFEHFUEHFEHRQEGRYQEGRGYYRQEQYRER"
+    },
+    {
+        id: 2,
+        source: 'Admin',
+        title: 'Announcement Title Appears Here So That EveryOne Can See It Clearly',
+        date: '2 days ago',
+        contents: "On friday we will have technical issue we announce you that, the system will be down for 3 hoursFEHFUEHFEHRQEGRYQEGRGYYRQEQYRER On friday we will have technical issue, we announce you that, the system will be down for 3 hoursFEHFUEHFEHRQEGRYQEGRGYYRQEQYRER"
+    },
+    {
+        id: 3,
+        source: 'Admin',
+        title: 'Announcement Title Appears Here So That EveryOne Can See It Clearly',
+        date: '2 days ago',
+        contents: "On friday we will have technical issue we announce you that, the system will be down for 3 hoursFEHFUEHFEHRQEGRYQEGRGYYRQEQYRER On friday we will have technical issue, we announce you that, the system will be down for 3 hoursFEHFUEHFEHRQEGRYQEGRGYYRQEQYRER"
+    }
+]
 const AnnouncementsPage = () => {
+
+    const [isOpen, setIsOpen] = useState(false)
+    const [activeItem, setactIveItem] = useState(null)
+    const ida = 1;
+
+    const handleOpen = (id) => {
+        console.log(id)
+        setIsOpen(!isOpen)
+        if (!activeItem || id !== activeItem) {
+            setactIveItem(id)
+        }
+        else if (id === activeItem) {
+            setactIveItem(false)
+        }
+    }
+    // console.log(announcementList[1].id.toString())
     return (
         
         <div>
@@ -12,132 +52,33 @@ const AnnouncementsPage = () => {
                <Message  variant='info' >LATEST ANNOUNCEMENT</Message>  
             </div>
             <div className="announcements-container">
-                <Accordion className="announcement-card">
-                    <Card >
-                        <Accordion.Toggle as={Card.Header} variant="link" eventKey="0" >
-                            <h6>Announcement Title Appears Here So That EveryOne Can See It Clearly</h6>
-                        </Accordion.Toggle>
-                        <Accordion.Collapse eventKey="0"><>
-                            <Card.Body>
-                                On friday we will have technical issue,
-                                we announce you that, the system will be down for 3 hoursFEHFUEHFEHRQEGRYQEGRGYYRQEQYRER
-                                On friday we will have technical issue,
-                                we announce you that, the system will be down for 3 hoursFEHFUEHFEHRQEGRYQEGRGYYRQEQYRER
-                            </Card.Body>
-                            <Card.Footer className="text-muted">
-                                <Row>
-                                    <Col md={6}  style={{backgroundColor: ''}}><small><i>From: System Admin</i></small> </Col>
-                                    <Col md={6}  style={{textAlign: 'right'}}><small><i>2 days ago</i></small> </Col>
+                {announcementList.map((item) =>
+                    <Accordion className="announcement-card"  >
+                        <Card >
+                            <Accordion.Toggle as={Card.Header} variant="link" eventKey={item.id.toString()} onClick={e => { e.preventDefault(); handleOpen(item.id) }}>
+                                <Row style={{ display: 'flex' }}>
+                                    <Col md={11} xs={10} >
+                                        <h6>{item.title} </h6>
+                                    </Col>
+                                    <Col md={1} xs={1} >
+                                        {item.id === activeItem ?
+                                            <Icon glyph="down-caret" size={32} />
+                                            : <Icon glyph="right-caret" size={32} />}
+                                    </Col>
                                 </Row>
-                            </Card.Footer></>
-                        </Accordion.Collapse>
-                    </Card>
-                </Accordion>
-                <Accordion className="announcement-card">
-                    <Card >
-                        <Accordion.Toggle as={Card.Header} variant="link" eventKey="0" >
-                            <h6>Announcement Title Appears Here So That EveryOne Can See It Clearly</h6>
-                        </Accordion.Toggle>
-                        <Accordion.Collapse eventKey="0"><>
-                            <Card.Body>
-                                On friday we will have technical issue,
-                                we announce you that, the system will be down for 3 hoursFEHFUEHFEHRQEGRYQEGRGYYRQEQYRER
-                                On friday we will have technical issue,
-                                we announce you that, the system will be down for 3 hoursFEHFUEHFEHRQEGRYQEGRGYYRQEQYRER
-                            </Card.Body>
-                            <Card.Footer className="text-muted">
-                                <Row>
-                                    <Col md={6}  style={{backgroundColor: ''}}><small><i>From: System Admin</i></small> </Col>
-                                    <Col md={6}  style={{textAlign: 'right'}}><small><i>2 days ago</i></small> </Col>
-                                </Row>
-                            </Card.Footer></>
-                        </Accordion.Collapse>
-                    </Card>
-                </Accordion>
-                <Accordion className="announcement-card">
-                    <Card >
-                        <Accordion.Toggle as={Card.Header} variant="link" eventKey="0" >
-                            <h6>Announcement Title Appears Here So That EveryOne Can See It Clearly</h6>
-                        </Accordion.Toggle>
-                        <Accordion.Collapse eventKey="0"><>
-                            <Card.Body>
-                                On friday we will have technical issue,
-                                we announce you that, the system will be down for 3 hoursFEHFUEHFEHRQEGRYQEGRGYYRQEQYRER
-                                On friday we will have technical issue,
-                                we announce you that, the system will be down for 3 hoursFEHFUEHFEHRQEGRYQEGRGYYRQEQYRER
-                            </Card.Body>
-                            <Card.Footer className="text-muted">
-                                <Row>
-                                    <Col md={6}  style={{backgroundColor: ''}}><small><i>From: System Admin</i></small> </Col>
-                                    <Col md={6}  style={{textAlign: 'right'}}><small><i>2 days ago</i></small> </Col>
-                                </Row>
-                            </Card.Footer></>
-                        </Accordion.Collapse>
-                    </Card>
-                </Accordion>
-                <Accordion className="announcement-card">
-                    <Card >
-                        <Accordion.Toggle as={Card.Header} variant="link" eventKey="0" >
-                            <h6>Announcement Title Appears Here So That EveryOne Can See It Clearly</h6>
-                        </Accordion.Toggle>
-                        <Accordion.Collapse eventKey="0"><>
-                            <Card.Body>
-                                On friday we will have technical issue,
-                                we announce you that, the system will be down for 3 hoursFEHFUEHFEHRQEGRYQEGRGYYRQEQYRER
-                                On friday we will have technical issue,
-                                we announce you that, the system will be down for 3 hoursFEHFUEHFEHRQEGRYQEGRGYYRQEQYRER
-                            </Card.Body>
-                            <Card.Footer className="text-muted">
-                                <Row>
-                                    <Col md={6}  style={{backgroundColor: ''}}><small><i>From: System Admin</i></small> </Col>
-                                    <Col md={6}  style={{textAlign: 'right'}}><small><i>2 days ago</i></small> </Col>
-                                </Row>
-                            </Card.Footer></>
-                        </Accordion.Collapse>
-                    </Card>
-                </Accordion>
-                <Accordion className="announcement-card">
-                    <Card >
-                        <Accordion.Toggle as={Card.Header} variant="link" eventKey="0" >
-                            <h6>Announcement Title Appears Here So That EveryOne Can See It Clearly</h6>
-                        </Accordion.Toggle>
-                        <Accordion.Collapse eventKey="0"><>
-                            <Card.Body>
-                                On friday we will have technical issue,
-                                we announce you that, the system will be down for 3 hoursFEHFUEHFEHRQEGRYQEGRGYYRQEQYRER
-                                On friday we will have technical issue,
-                                we announce you that, the system will be down for 3 hoursFEHFUEHFEHRQEGRYQEGRGYYRQEQYRER
-                            </Card.Body>
-                            <Card.Footer className="text-muted">
-                                <Row>
-                                    <Col md={6}  style={{backgroundColor: ''}}><small><i>From: System Admin</i></small> </Col>
-                                    <Col md={6}  style={{textAlign: 'right'}}><small><i>2 days ago</i></small> </Col>
-                                </Row>
-                            </Card.Footer></>
-                        </Accordion.Collapse>
-                    </Card>
-                </Accordion>
-                <Accordion className="announcement-card">
-                    <Card >
-                        <Accordion.Toggle as={Card.Header} variant="link" eventKey="0" >
-                            <h6>Announcement Title Appears Here So That EveryOne Can See It Clearly</h6>
-                        </Accordion.Toggle>
-                        <Accordion.Collapse eventKey="0"><>
-                            <Card.Body>
-                                On friday we will have technical issue,
-                                we announce you that, the system will be down for 3 hoursFEHFUEHFEHRQEGRYQEGRGYYRQEQYRER
-                                On friday we will have technical issue,
-                                we announce you that, the system will be down for 3 hoursFEHFUEHFEHRQEGRYQEGRGYYRQEQYRER
-                            </Card.Body>
-                            <Card.Footer className="text-muted">
-                                <Row>
-                                    <Col md={6}  style={{backgroundColor: ''}}><small><i>From: System Admin</i></small> </Col>
-                                    <Col md={6}  style={{textAlign: 'right'}}><small><i>2 days ago</i></small> </Col>
-                                </Row>
-                            </Card.Footer></>
-                        </Accordion.Collapse>
-                    </Card>
-                </Accordion>
+                            </Accordion.Toggle>
+                            {activeItem === item.id ?
+                                <Accordion.Collapse eventKey={item.id.toString()} ><>
+                                    <Card.Body> {item.contents} </Card.Body>
+                                    <Card.Footer className="text-muted">
+                                        <Row>
+                                            <Col md={6} style={{ backgroundColor: '' }}><small><i>From: {item.source} </i></small> </Col>
+                                            <Col md={6} style={{ textAlign: 'right' }}><small><i>{item.date}</i></small> </Col>
+                                        </Row>
+                                    </Card.Footer></>
+                                </Accordion.Collapse> : ''}
+                        </Card>
+                    </Accordion>)}
             </div>
         </div>
         
