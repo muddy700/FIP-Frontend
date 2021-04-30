@@ -35,16 +35,16 @@ const AnnouncementsPage = () => {
     const ida = 1;
 
     const handleOpen = (id) => {
-        console.log(id)
-        setIsOpen(!isOpen)
-        if (!activeItem || id !== activeItem) {
+        if (!activeItem) {
             setactIveItem(id)
         }
         else if (id === activeItem) {
             setactIveItem(false)
+        } else if (id !== activeItem) {
+            setactIveItem(id)
         }
     }
-    // console.log(announcementList[1].id.toString())
+    
     return (
         
         <div>

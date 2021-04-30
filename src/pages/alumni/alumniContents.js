@@ -32,7 +32,7 @@ const AlumniContents = () => {
               <Route exact path={["/application_results"]}>
                 <ResultsPage />
               </Route>
-            <Route exact path={["/my_profile"]}>
+            <Route exact path={["/my_profile", "/"]}>
                 <ProfilePage />
               </Route>
             <Route exact path={["/my_cv"]}>
@@ -44,7 +44,7 @@ const AlumniContents = () => {
             <Route exact path={["/chat_page"]}>
                 <ChatPage />
               </Route>
-            <Route exact path={["/announcements", "/"]}>
+            <Route exact path={["/announcements"]}>
                 <AnnouncementsPage />
               </Route>
             <Route exact path={["/password"]}>
