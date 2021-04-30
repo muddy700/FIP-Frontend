@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 import Button from 'react-bootstrap/Button'
 import 'react-pro-sidebar/dist/css/styles.css';
 import { useState } from 'react';
-import '../../styles/contents.css'
+import '../../styles/alumni.css'
 import AvailablePosts from './availablePosts'
 import {DashboardPage} from './dashboardPage'
 import {PageNotFound} from '../pageNotFound'
@@ -29,7 +29,7 @@ const AlumniContents = () => {
             <Route exact path={["/available_posts"]}>
                 <AvailablePosts />
               </Route>
-              <Route exact path={["/application_results", "/"]}>
+              <Route exact path={["/application_results"]}>
                 <ResultsPage />
               </Route>
             <Route exact path={["/my_profile"]}>
@@ -44,7 +44,7 @@ const AlumniContents = () => {
             <Route exact path={["/chat_page"]}>
                 <ChatPage />
               </Route>
-            <Route exact path={["/announcements"]}>
+            <Route exact path={["/announcements", "/"]}>
                 <AnnouncementsPage />
               </Route>
             <Route exact path={["/password"]}>

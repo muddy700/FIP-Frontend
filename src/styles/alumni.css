@@ -1,0 +1,21 @@
+.content {
+    padding:16px 10%;
+    height: 100%;
+    /* background-color: red; */
+    /* place-items: center; */
+
+  }
+  
+.announcement-card {
+      margin-bottom: 20px;
+  }
+
+.announcements-container {
+     overflow-y: scroll;
+     margin-top: 10px;
+     max-height: 80vh;
+ }
+
+ .announcements-container::-webkit-scrollbar {
+     display: none;
+ }
