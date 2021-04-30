@@ -1,0 +1,44 @@
+.root-card {
+    margin-top: 50px;
+}
+
+.sidebar-card {
+    width: 256;
+    height: 100%;
+    background-color: #2f4050;
+    color: white;
+}
+
+.list-wrapper {
+    list-style-type: none;
+    padding-right: 30px;
+}
+
+.list-item {
+    display: block;
+    padding: 10px 0px;
+}
+
+ .divider {
+    margin: 8px 0;
+    height: 1;
+  }
+
+  .aside-link {
+  text-decoration: none;
+  color: white;
+}
+  .aside-link:hover {
+  /* text-decoration: none; */
+  color: white;
+}
+
+.inner-list-item {
+    display: block;
+    padding: 8px 0px;
+
+}
+
+ul {
+    list-style-type: none;
+}
