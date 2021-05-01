@@ -1,6 +1,7 @@
 import React from 'react'
 import Message from '../../components/message'
-import { Card, Row, Col } from 'react-bootstrap'
+import Icon from 'supercons'
+import { Card, Row, Col, Badge, FormControl,  InputGroup, Button} from 'react-bootstrap'
 
 const messages = [
     {
@@ -116,23 +117,35 @@ const ChatPage = () => {
             <Row >
                 <Col md={8} xs={12} style={{marginBottom: '15px'}}>
                     <div>
-                    <Message  variant='info' >LATEST MESSAGES</Message>  
+                        <Message  variant='info' >LATEST MESSAGES</Message>  
                     </div>
-                    <div className="messages-container">
-                        { messages.map((message) => (
-                            <p className={message.source === alumni ? "outgoing-messages" : "incoming-messages"} key={message.date}>
-                                <span><b>{message.source === alumni ? 'You' : message.source} </b></span>
-                                <p>{message.content} </p>
-                                <span style={{float: 'right'}}><i>{message.date} </i></span>
-                            </p>
-                        ))}
-                    </div>
+                    <Card className="chat-container">
+                        <Card.Body className="messages-container" style={{padding: 0}}>
+                            { messages.map((message) => (
+                                <p className={message.source === alumni ? "outgoing-messages" : "incoming-messages"} key={message.date}>
+                                    <span><b>{message.source === alumni ? 'You' : message.source} </b></span>
+                                    <p>{message.content} </p>
+                                    <span style={{float: 'right'}}><i>{message.date} </i></span>
+                                </p>
+                            ))}
+                        </Card.Body>
+                        <InputGroup className="" >
+                            <FormControl
+                            placeholder="Type a message here..."
+                            aria-label="Message Content"
+                            aria-describedby="basic-addon2"
+                            />
+                            <InputGroup.Append>
+                                <Button variant="outline-primary">
+                                    <Icon glyph="send-fill" size={20} />
+                                </Button>
+                            </InputGroup.Append>
+                        </InputGroup>
+                    </Card>
                 </Col>
                 <Col md={{span: 3, offset: 1}} xs={12} style={{marginBottom: '10px'}}>
-                    <div>
-                    </div>
                     <Card>
-                        <Message  variant='info' >ACTIVE ALUMNI</Message>  
+                        <Message  variant='info' >ACTIVE ALUMNI <Badge variant="info" style={{float: 'right'}}>15</Badge></Message>  
                         <Card.Body className="active-alumni-list">
                             {activeAlumni.map((item) => (<>
                                 <p key={item.id}>{item.regNo}</p> <hr /></>

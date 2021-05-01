@@ -53,7 +53,7 @@ const AlumniContents = () => {
               <Route path="*">
                 <PageNotFound />
               </Route>
-            </Switch> 
+          </Switch>
         </div>
     </Router>
     )

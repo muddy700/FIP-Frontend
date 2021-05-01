@@ -1,7 +1,6 @@
 .content {
-    padding:16px 8%;
-    height: 100%;
-    /* padding-bottom: 5%; */
+    padding: 1px 8%;
+    height: 90vh;
     /* background-color: red; */
   }
   
@@ -19,13 +18,15 @@
    margin-bottom: 10px;
  }
 
- .messages-container {
+ .chat-container {
    max-height: 80vh;
-   overflow-y: scroll;
-   /* margin-bottom: 50px; */
-   border: 1px solid black;
-   border-radius: 10px;
+   overflow-y: auto;
    padding: 5px;
+ }
+
+ .messages-container {
+   /* height: 90%; */
+   overflow-y: scroll;
  }
 
  .outgoing-messages, .incoming-messages {
