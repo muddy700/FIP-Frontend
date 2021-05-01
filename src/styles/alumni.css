@@ -1,9 +1,8 @@
 .content {
-    padding:16px 10%;
+    padding:16px 8%;
     height: 100%;
+    /* padding-bottom: 5%; */
     /* background-color: red; */
-    /* place-items: center; */
-
   }
   
 .announcement-card {
@@ -16,6 +15,60 @@
      max-height: 80vh;
  }
 
- .announcements-container::-webkit-scrollbar {
-     display: none;
+ .user-info-row {
+   margin-bottom: 10px;
  }
+
+ .messages-container {
+   max-height: 80vh;
+   overflow-y: scroll;
+   /* margin-bottom: 50px; */
+   border: 1px solid black;
+   border-radius: 10px;
+   padding: 5px;
+ }
+
+ .outgoing-messages, .incoming-messages {
+   height: auto;
+   padding: 1% 2%;
+   width: fit-content;
+   max-width: 80%;
+   border-radius: 10px;
+   clear: both;
+   margin-bottom: 1%;
+  }
+  
+  .incoming-messages {
+     background-color: lightgray;
+     float: left;
+ }
+
+.outgoing-messages {
+    background-color: lightblue;
+    float: right;
+}
+
+.active-alumni-list {
+  text-align: center;
+  max-height: 400px;
+  overflow-y: scroll;
+}
+
+/* Hide scrolbar for chrome, safari and opera */
+.announcements-container::-webkit-scrollbar {
+  display: none;
+}
+.messages-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrolbar for IE, Edge and Firefox */
+.announcements-container {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.messages-container {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

@@ -1,7 +1,7 @@
 import { Divider } from 'antd'
 import React, {useState} from 'react'
 import Icon from 'supercons'
-import { Card,Row, Col } from 'react-bootstrap'
+import { Card, Row, Col } from 'react-bootstrap'
 import Message from '../../components/message'
 import Accordion from 'react-bootstrap/Accordion'
 
