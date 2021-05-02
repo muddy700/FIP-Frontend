@@ -1,28 +1,25 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { BrowserRouter as Router, Switch, Route} from 'react-router-dom';
 import { LoginPage } from './pages/loginPage'
 import { HomePage } from './pages/mainPage';
 import { PageNotFound } from './pages/pageNotFound';
 
 export const App = () => {
+  const [activePage, setActivePage] = useState(2)
+
+  const login = <LoginPage />
+  const home = <HomePage />
+
+  const components = {
+    1: login,
+    2: home
+  }
 
     return (
-    <Router>
       <div className="app">
         <div className="app-container">
-            <Switch>
-              <Route exact path="/login">
-                <LoginPage />
-              </Route>
-              <Route exact path={["/home", "/"]}>
-                <HomePage />
-              </Route>
-              <Route path="*">
-                <PageNotFound />
-              </Route>
-            </Switch> 
+          {components[activePage]}
         </div>
       </div>
-    </Router>
     );
   }

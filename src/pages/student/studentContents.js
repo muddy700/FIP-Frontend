@@ -7,18 +7,14 @@ import '../../styles/alumni.css'
 import AvailablePosts from './availablePosts'
 import {DashboardPage} from './dashboardPage'
 import {PageNotFound} from '../pageNotFound'
-import ResultsPage from './resultsPage';
 import ProfilePage from './profilePage';
-import CvPage from './cvPage';
 import ProjectsPage from './projectsPage';
-import AnnouncementsPage from './announcementsPage';
-import ChatPage from './chatPage';
 import PasswordPage from './passwordPage';
-import { PostDetails } from './postDetails';
+import { FieldInfoPage } from './fieldInfoPage'
 
 
 
-const AlumniContents = () => {
+const StudentContents = () => {
 
     return (
       <div className="content">
@@ -29,26 +25,14 @@ const AlumniContents = () => {
             <Route exact path={["/available_posts"]}>
                 <AvailablePosts />
               </Route>
-            <Route exact path={["/post_details"]}>
-                <PostDetails />
-              </Route>
-              <Route exact path={["/application_results"]}>
-                <ResultsPage />
+              <Route exact path={["/field_info"]}>
+                <FieldInfoPage />
               </Route>
             <Route exact path={["/my_profile"]}>
                 <ProfilePage />
               </Route>
-            <Route exact path={["/my_cv"]}>
-                <CvPage />
-              </Route>
             <Route exact path={["/my_projects"]}>
                 <ProjectsPage />
-              </Route>
-            <Route exact path={["/chat_page"]}>
-                <ChatPage />
-              </Route>
-            <Route exact path={["/announcements"]}>
-                <AnnouncementsPage />
               </Route>
             <Route exact path={["/password"]}>
                 <PasswordPage />
@@ -61,4 +45,4 @@ const AlumniContents = () => {
     )
 }
 
-export default AlumniContents
+export default StudentContents

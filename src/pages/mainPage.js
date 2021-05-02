@@ -1,17 +1,20 @@
 import React, {useState, useEffect} from 'react';
 import { BrowserRouter as Router, Switch , Route, useRouteMatch } from 'react-router-dom';
 import Header from '../components/header';
-import { AlumniHomePage } from './alumniHomePage';
-import { StudentHomePage } from './studentHomePage';
 import Sidebar from "react-sidebar";
 import './../styles/sidebar.css'
 import AlumniContents from './alumni/alumniContents';
 import AlumniSidebar from './alumni/alumniSidebar';
 import { Card, Row, Col, Badge, FormControl,  InputGroup, Button} from 'react-bootstrap'
+import StudentContents from './student/studentContents';
+import StudentSidebar from './student/studentSidebar';
 
 const mql = window.matchMedia(`(min-width: 800px)`);
 
 export const HomePage = () => {
+    // let { path, url } = useRouteMatch();
+  const loggedUser = 'alumni';
+
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarDocked, setsidebarDocked] = useState(true)
   const [collapse, setCollapse] = useState(false)
@@ -31,11 +34,21 @@ export const HomePage = () => {
     mediaQueryChanged()
   }, [mql])
   
-  const dataContent =  <AlumniContents />
-  const sidebar = <AlumniSidebar />
+  var activeContents;
+  var activeSidebar;
+
+  if (loggedUser === 'alumni') {
+     activeContents =  <AlumniContents />
+    activeSidebar = <AlumniSidebar />
+    
+  }
+  else if (loggedUser === 'student') {
+    activeContents =  <StudentContents />
+    activeSidebar = <StudentSidebar />
+  }
 
       const sidebarProps = {
-        sidebar,
+        sidebar: activeSidebar,
         docked: sidebarDocked,
       collapsed: collapse,
       sidebarClassName: "sidebar-card",
@@ -50,20 +63,20 @@ export const HomePage = () => {
         onSetOpen: onSetSidebarOpen,
       rootClassName: "root-card"
     };
-  return (
+  return (<Router>
     <div className="main-page-container" style={{height: '100vh', overflowY: 'hidden'}}>
       <Header changeCollapse={changeCollapse} />
       <Sidebar {...sidebarProps}>
         <div style={{border: 'none', padding: 'none'}}>
           <Card.Body style={{overflowY: 'auto', maxHeight: '90vh', padding: 0, border: 'none'}}>
-            {dataContent}
+            {activeContents}
           </Card.Body>
           <div style={{ backgroundColor: '#2F4050', textAlign: 'center', color: 'white', paddingBottom: '7px', paddingTop: '2px' }}>
             <i>CIVE-FIP@2021</i>
           </div>
         </div>
       </Sidebar>
-    </div>
+    </div> </Router>
     );
   }
 

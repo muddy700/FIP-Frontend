@@ -1,5 +1,5 @@
 import React from 'react'
-import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route, Link, useRouteMatch } from 'react-router-dom';
 import Button from 'react-bootstrap/Button'
 import 'react-pro-sidebar/dist/css/styles.css';
 import Icon from 'supercons'
@@ -8,12 +8,14 @@ import Card from 'react-bootstrap/Card'
 import Accordion from 'react-bootstrap/Accordion'
 import '../../styles/sidebar.css'
 
+
 const AlumniSidebar = () => {
+    let { path, url } = useRouteMatch();
 
     return (
         <ul className="list-wrapper">
             <li className="list-item">
-                <Link to = "/dashboard" className="aside-link">
+                <Link to = "dashboard" className="aside-link">
                      <Icon glyph="grid" size={32} /> <span>Dashboard</span>
                 </Link>
             </li>

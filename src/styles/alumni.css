@@ -1,5 +1,5 @@
 .content {
-    padding: 1px 8%;
+    padding: 16px 8%;
     height: 90vh;
     /* background-color: red; */
   }
@@ -72,4 +72,19 @@
 .messages-container {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+.list-items:nth-child(even) {
+  /* background: #CCC; */
+  /* padding:0; */
+  /* border-radius: 10px; */
+}
+
+.post-details-list li:nth-child(even) {
+  background: #CCC;
+}
+
+.post-properties {
+  font-weight: bold;
+
 }
