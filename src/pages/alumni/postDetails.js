@@ -5,11 +5,11 @@ import { Button, Row, Col, Card, InputGroup, FormControl, Table } from 'react-bo
 export const PostDetails = () => {
     return (
         <Card >
-            <Card.Title>
-                <Message  variant='info' >LATEST AVAILABLE POSTS</Message>  
-            </Card.Title>
+            <div>
+                <Message  variant='info' >Post Details</Message>  
+            </div>
             <Card style={{padding: '16px'}}>
-                <Card.Body style={{ padding: 0}}>
+                <Card.Body style={{ padding: 0, overflow: 'scroll'}}>
                     <Table striped bordered hover>
                             <tbody>
                                 <tr>
@@ -31,7 +31,7 @@ export const PostDetails = () => {
                                 <tr>
                                     <td className="post-properties">DESCRIPTION</td>
                                     <td>
-                                        cdgvf fdsgd fwqe e4r5 rwedwq d eewf ewr qwd w
+                                        cdgvffdsgdfwqee4r5rwedwqdeewfwqwd w
                                         cdgvf fdsgd fwqe e4r5 rwedwq d eewf ewr qwd w
                                         cdgvf fdsgd fwqe e4r5 rwedwq d eewf ewr qwd w
                                         cdgvf fdsgd fwqe e4r5 rwedwq d eewf ewr qwd w

@@ -4,7 +4,7 @@ import Card   from 'react-bootstrap/Card'
 import Button  from 'react-bootstrap/Button'
 import Message from '../../components/message';
 import '../../styles/alumni.css'
-
+import Icon from 'supercons'
   
 const columns = [
   {
@@ -21,31 +21,10 @@ const columns = [
     // ellipsis: 'true'
   },
   {
-    title: 'Address',
-    dataIndex: 'address',
-    key: 'address',
-    // ellipsis: 'true',
-  },
-  {
     title: 'Professions',
     key: 'professions',
     // ellipsis: 'true',
-    dataIndex: 'professions',
-    render: professions => (
-      <>
-        {professions.map(tag => {
-          let color = tag.length > 5 ? 'geekblue' : 'green';
-          if (tag === 'loser') {
-            color = 'volcano';
-          }
-          return (
-            <Tag color={color} key={tag}>
-              {tag.toUpperCase()}
-            </Tag>
-          );
-        })}
-      </>
-    ),
+    dataIndex: 'professions'
   },
   {
     title: 'Status',
@@ -63,7 +42,8 @@ const columns = [
     key: 'action',
     render: (text, record) => (
       <Space size="middle">
-        <Button size="sm">Confirm</Button>
+        <Button variant="link" size="sm"><Icon glyph="view" size={32} /></Button>
+        <Button size="sm" variant="link">Confirm</Button>
         <Button variant="danger" size="sm">Drop</Button>
       </Space>
     ),
@@ -75,48 +55,42 @@ const data = [
     key: '1',
     sn: '1',
     organization: 'John Brown',
-    address: 'New York No. 1 Lake Park',
-    professions: ['nice', 'developer'],
+    professions: 'developer',
     status: 'pending',
   },
   {
     key: '2',
     sn: '2',
     organization: 'John Brown',
-    address: 'New York No. 1 Lake Park',
-    professions: ['nice', 'developer'],
+    professions: 'developer',
     status: 'rejected',
   },
   {
     key: '3',
     sn: '3',
     organization: 'John Brown Mka csd ncsdc',
-    address: 'New York No. 1 Lake Park',
-    professions: ['nice', 'developer'],
+    professions: 'nice', 
     status: 'accepted',
   },
   {
     key: '4',
     sn: '4',
     organization: 'John Brown',
-    address: 'New York No. 1 Lake Park',
-    professions: ['nice', 'developer'],
+    professions: 'nice', 
     status: 'pending',
   },
   {
     key: '5',
     sn: '5',
     organization: 'John Brown',
-    address: 'New York No. 1 Lake Park',
-    professions: ['nice', 'developer'],
+    professions: 'nice',
     status: 'accepted',
   },
   {
     key: '6',
     sn: '6',
     organization: 'John Brown',
-    address: 'New York No. 1 Lake Park',
-    professions: ['nice', 'developer'],
+    professions: 'nice',
     status: 'pending',
   },
 ];
