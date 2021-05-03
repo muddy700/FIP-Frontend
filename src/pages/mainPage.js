@@ -8,12 +8,16 @@ import AlumniSidebar from './alumni/alumniSidebar';
 import { Card, Row, Col, Badge, FormControl,  InputGroup, Button} from 'react-bootstrap'
 import StudentContents from './student/studentContents';
 import StudentSidebar from './student/studentSidebar';
+import { useSelector}  from 'react-redux'
+import { selectUserData } from '../slices/userSlice'
 
 const mql = window.matchMedia(`(min-width: 800px)`);
 
 export const HomePage = () => {
     // let { path, url } = useRouteMatch();
-  const loggedUser = 'alumni';
+  const user = useSelector(selectUserData)
+  
+  const userRole = user.designation;
 
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarDocked, setsidebarDocked] = useState(true)
@@ -37,12 +41,12 @@ export const HomePage = () => {
   var activeContents;
   var activeSidebar;
 
-  if (loggedUser === 'alumni') {
+  if (userRole === 'alumni') {
      activeContents =  <AlumniContents />
     activeSidebar = <AlumniSidebar />
     
   }
-  else if (loggedUser === 'student') {
+  else if (userRole === 'student') {
     activeContents =  <StudentContents />
     activeSidebar = <StudentSidebar />
   }

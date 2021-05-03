@@ -49,7 +49,7 @@ const AnnouncementsPage = () => {
         
         <div>
             <div>
-               <Message  variant='info' >LATEST ANNOUNCEMENT</Message>  
+               <Message  variant='info' >Latest Announcements</Message>  
             </div>
             <div className="announcements-container">
                 {announcementList.map((item) =>

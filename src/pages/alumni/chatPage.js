@@ -117,7 +117,7 @@ const ChatPage = () => {
             <Row >
                 <Col md={8} xs={12} style={{marginBottom: '15px'}}>
                     <div>
-                        <Message  variant='info' >LATEST MESSAGES</Message>  
+                        <Message  variant='info' >Latest Messages</Message>  
                     </div>
                     <Card className="chat-container">
                         <Card.Body className="messages-container" style={{padding: 0}}>

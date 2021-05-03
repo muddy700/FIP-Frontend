@@ -1,13 +1,18 @@
 import React from 'react'
-import { Card, Button, Row, Col, Form } from 'react-bootstrap'
+import '../../styles/alumni.css'
+import { Card, Row, Col } from 'react-bootstrap'
+import { useSelector}  from 'react-redux'
+import { selectUserData } from '../../slices/userSlice'
 
 export const DashboardPage = () => {
+  const user = useSelector(selectUserData)
+
     return (
-        <Card>
+        <Card className="dashboard-container">
             <Card.Header>
                 <Row>
-                    <Col md={4}>Logged In As Mbungi</Col>
-                    <Col md={{span: 2, offset:6}}>12/05/2021</Col>
+                    <Col md={4}>Logged In As: {user.username} </Col>
+                    <Col md={{span: 2, offset:6}} xs={{span: 6}}>12/05/2021</Col>
                 </Row>
             </Card.Header>
         </Card>

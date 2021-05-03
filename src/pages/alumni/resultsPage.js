@@ -99,7 +99,7 @@ const ResultsPage = () => {
   return (
        <Card >
         <Card.Header >
-          <Message variant='info' >Dear Timotheo, You have approved with the folloving companies</Message>
+          <Message variant='info' >Dear Timotheo, You have applied the folloving companies</Message>
         </Card.Header>
         <Card.Body style={{ overflowX:'scroll'}}  >
         <Table columns={columns} dataSource={data} pagination={{pageSize: 5}} column={{ellipsis: true}} />

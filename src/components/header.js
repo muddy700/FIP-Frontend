@@ -5,8 +5,12 @@ import Nav from 'react-bootstrap/Nav'
 import Button from 'react-bootstrap/Button'
 import '../styles/header.css'
 import Icon from 'supercons'
+import { useSelector}  from 'react-redux'
+import { selectUserData } from '../slices/userSlice'
 
-const Header = ({changeCollapse, value}) => {
+const Header = ({ changeCollapse, value }) => {
+  const user = useSelector(selectUserData)
+    
     return (
         <div className="header-card">
             <Navbar className="header-card" sticky="top" fixed="top" >
@@ -16,7 +20,7 @@ const Header = ({changeCollapse, value}) => {
                 <Nav className="mr-auto">
                 <Icon glyph="list" size={32} onClick={changeCollapse} />
                 </Nav>
-                <span href="#pricing" style={{color: 'white', marginRight: '15px'}}>Alumni</span>
+                <span href="#pricing" style={{ color: 'white', marginRight: '15px' }}> {user.username} </span>
                 <Icon glyph="door-leave" size={32} onClick="" />
             </Navbar>
         </div>

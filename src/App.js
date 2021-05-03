@@ -1,11 +1,12 @@
 import React, {useState} from 'react';
-import { BrowserRouter as Router, Switch, Route} from 'react-router-dom';
 import { LoginPage } from './pages/loginPage'
 import { HomePage } from './pages/mainPage';
-import { PageNotFound } from './pages/pageNotFound';
+import { useSelector}  from 'react-redux'
+import { selectAppData } from './slices/appSlice'
 
 export const App = () => {
-  const [activePage, setActivePage] = useState(2)
+  const appInfo = useSelector(selectAppData)
+  const pageNumber = appInfo.activePage;
 
   const login = <LoginPage />
   const home = <HomePage />
@@ -18,7 +19,7 @@ export const App = () => {
     return (
       <div className="app">
         <div className="app-container">
-          {components[activePage]}
+          {components[pageNumber]}
         </div>
       </div>
     );

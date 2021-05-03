@@ -82,3 +82,10 @@
   font-weight: bold;
 
 }
+
+.dashboard-container {
+  font-family: "Trebuchet MS", Helvetica, sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 14px;
+}
