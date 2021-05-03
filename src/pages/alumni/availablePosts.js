@@ -22,9 +22,9 @@ const AvailablePostsPage = () => {
     return (
         
         <Card style={{marginBottom: '10px'}}>
-            <div>
+            <Card.Header>
                 <Message  variant='info' >Latest Available Posts</Message>  
-            </div>
+            </Card.Header>
             <Card.Body style={{padding: '0 16px 16px 16px'}}>
                 <Row style={{marginBottom: '16px'}}>
                     <Col md={{ span: 3, offset: 9 }}>

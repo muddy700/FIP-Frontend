@@ -21,9 +21,9 @@ const ProfilePage = () => {
             <Row >
                 <Col md={7} xs={12} style={{ marginBottom: '50px' }}>
                     <Card>
-                        <div>
+                        <Card.Header>
                             <Message  variant='info' >Personal Details</Message>  
-                        </div>
+                        </Card.Header>
                          <Card style={{padding: '16px'}}>
                 <Card.Body style={{ padding: 0, overflowX: 'scroll'}}>
                     <Table striped bordered hover>

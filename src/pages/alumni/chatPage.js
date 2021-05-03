@@ -116,9 +116,9 @@ const ChatPage = () => {
         <div style={{ width: '100%', height: '100%' }}>
             <Row >
                 <Col md={8} xs={12} style={{marginBottom: '15px'}}>
-                    <div>
+                    <Card.Header>
                         <Message  variant='info' >Latest Messages</Message>  
-                    </div>
+                    </Card.Header>
                     <Card className="chat-container">
                         <Card.Body className="messages-container" style={{padding: 0}}>
                             { messages.map((message) => (
@@ -145,7 +145,9 @@ const ChatPage = () => {
                 </Col>
                 <Col md={{span: 3, offset: 1}} xs={12} style={{marginBottom: '10px'}}>
                     <Card>
-                        <Message  variant='info' >ACTIVE ALUMNI <Badge variant="info" style={{float: 'right'}}>15</Badge></Message>  
+                        {/* <Card.Header> */}
+                            <Message variant='info' >ONLINE ALUMNI<Badge variant="info" style={{ float: 'right' }}>15</Badge></Message>
+                        {/* </Card.Header> */}
                         <Card.Body className="active-alumni-list">
                             {activeAlumni.map((item) => (<>
                                 <p key={item.id}>{item.regNo}</p> <hr /></>

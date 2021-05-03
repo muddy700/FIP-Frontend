@@ -48,9 +48,9 @@ const AnnouncementsPage = () => {
     return (
         
         <div>
-            <div>
+            <Card.Header>
                <Message  variant='info' >Latest Announcements</Message>  
-            </div>
+            </Card.Header>
             <div className="announcements-container">
                 {announcementList.map((item) =>
                     <Accordion className="announcement-card"  >
