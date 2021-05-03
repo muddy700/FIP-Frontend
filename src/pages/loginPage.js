@@ -57,7 +57,7 @@ export const LoginPage = () => {
                         <Row className="login-form-rows">
                             <Col md={12} style={{marginBottom: '8px'}}>Username</Col>
                             <Col md={12} >
-                                <input style={{}} className="inputs" type="text" onChange={onFormChange} placeholder="Username" name="username" value={loginCredentials.username} /> <br />
+                                <input style={{}} className="inputs" type="text" onChange={onFormChange} placeholder="Username" name="username" value={loginCredentials.username} autoFocus/> <br />
                             </Col>
                         </Row>
                         <Row className="login-form-rows">
