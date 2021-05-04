@@ -43,22 +43,18 @@ const CvPage = () => {
         {
             id: 1,
             name: 'Database',
-            status: false
         },
         {
             id: 2,
             name: 'Security',
-            status: false
         },
         {
             id: 3,
             name: 'Networking',
-            status: false
         },
         {
             id: 4,
             name: 'Software Developer',
-            status: true
         }
     ]
 
@@ -67,7 +63,6 @@ const CvPage = () => {
     const [experienceInfo, setExperienceInfo] = useState(workExperience)
     const [certificateInfo, setCertificateInfo] = useState(certificate)
     const [alumniSkills, setAlumniSkills] = useState([])
-    const [skillsData, setSkillsData] = useState(skillsList)
 
     const onPersonalInfoChange = (e) => {
         e.preventDefault()
@@ -136,25 +131,15 @@ const CvPage = () => {
         console.log(saveExperianceInfo)
     }
 
-    const handleAlumniSkills = (e, name) => {
-        var newSkills;
-        const newList = skillsData.map(data => {
-            if (data.name === name) {
-                return {...data, status: !data.status}
-            }
-            else {return data}
-        })
-        setSkillsData(newList)
+    const handleAlumniSkills = (e) => {
+        const name = e.target.value;
         const isThere = alumniSkills.find((skill) => skill === name)
-        if (isThere) {
-            newSkills = alumniSkills.filter(skill => skill !== isThere)
-            setAlumniSkills(newSkills)
 
+        if (isThere) {
+            const newSkills = alumniSkills.filter(skill => skill !== name)
+            setAlumniSkills(newSkills)
         }
-        else {
-            setAlumniSkills([...alumniSkills, name])
-            e.target.checked = true;
-        }
+        else { setAlumniSkills([...alumniSkills, name]) }
     }
 
     return (    
@@ -454,13 +439,13 @@ const CvPage = () => {
                                     <Accordion.Collapse eventKey="3">
                                         <Card.Body>
                                             <Form>
-                                                {skillsData.map(skill => (
+                                                {skillsList.map(skill => (
                                                     <Form.Check
                                                         type="checkbox"
                                                         id={skill.id}
                                                         label={skill.name}
-                                                        checked={skill.status}
-                                                        onClick={e => { e.preventDefault(); handleAlumniSkills(e, skill.name) }} />
+                                                        value={skill.name}
+                                                        onChange={handleAlumniSkills} />
                                                 ))}
                                                 <Row >
                                                 <Col md={12}>
