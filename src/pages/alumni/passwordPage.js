@@ -29,17 +29,17 @@ const PasswordPage = () => {
                 <Form onSubmit={e => onFinish(e)}>
                     <Form.Group controlId="formGridPassword">
                         <Form.Label>Old Password</Form.Label>
-                        <Form.Control type="password" name="oldp" value={passwordCredentials.oldp} onChange={e => onFormChange(e)} placeholder="Enter Old Password" />
+                        <Form.Control type="password" name="oldp" value={passwordCredentials.oldp} onChange={onFormChange} placeholder="Enter Old Password" />
                     </Form.Group>
                     <Form.Row>
                         <Form.Group as={Col} controlId="formGridPassword">
                             <Form.Label>New Password</Form.Label>
-                            <Form.Control type="password" name="newp" value={passwordCredentials.newp} onChange={e => onFormChange(e)} placeholder="Enter New Password" />
+                            <Form.Control type="password" name="newp" value={passwordCredentials.newp} onChange={onFormChange} placeholder="Enter New Password" />
                         </Form.Group>
 
                         <Form.Group as={Col} controlId="formGridPassword">
                             <Form.Label>Repeat Password</Form.Label>
-                            <Form.Control type="password" name="repeat" value={passwordCredentials.repeat} onChange={e => onFormChange(e)} placeholder=" Re-Enter Password" />
+                            <Form.Control type="password" name="repeat" value={passwordCredentials.repeat} onChange={onFormChange} placeholder=" Re-Enter Password" />
                         </Form.Group>
                     </Form.Row>
                     <Button variant="primary" type="submit"> Save </Button>

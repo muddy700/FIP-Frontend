@@ -1,14 +1,164 @@
-import React from 'react'
+import React, {useState} from 'react'
 import dp from '../../Black2.jpg'
 import Message from '../../components/message'
 import { Card, Row, Col, Button, Accordion, Form } from 'react-bootstrap'
 
 const CvPage = () => {
-    return (
+    const personal_info = {
+        'first_name': '',
+        last_name: '',
+        phone: '',
+        email: '',
+        date_of_birth: '',
+        nationality: '',
+        country: '',
+        city: '',
+        profile_image: null,
+    }
+
+    const education = {
+        Institution: '',
+        Level: '',
+        From: '',
+        To: ''
+    }
+
+    const workExperience = {
+        company: '',
+        job: '',
+        city: '',
+        country: '',
+        from: '',
+        to: ''
+    }
+
+    const certificate = {
+        name: '',
+        authority: '',
+        certificate_file: null,
+        date_of_certification: ''
+    }
+
+    const skillsList = [
+        {
+            id: 1,
+            name: 'Database',
+            status: false
+        },
+        {
+            id: 2,
+            name: 'Security',
+            status: false
+        },
+        {
+            id: 3,
+            name: 'Networking',
+            status: false
+        },
+        {
+            id: 4,
+            name: 'Software Developer',
+            status: true
+        }
+    ]
+
+    const [personalInfo, setPersonalInfo] = useState(personal_info)
+    const [educationInfo, setEducationInfo] = useState(education)
+    const [experienceInfo, setExperienceInfo] = useState(workExperience)
+    const [certificateInfo, setCertificateInfo] = useState(certificate)
+    const [alumniSkills, setAlumniSkills] = useState([])
+    const [skillsData, setSkillsData] = useState(skillsList)
+
+    const onPersonalInfoChange = (e) => {
+        e.preventDefault()
+        if (e.target.name === 'profile_image') {
+            setPersonalInfo({
+                ...personalInfo,
+                profile_image: e.target.files[0]
+            })
+        }
+        else {
+            setPersonalInfo({
+                ...personalInfo,
+                [e.target.name]: e.target.value
+            })
+        }
+    }
+    const onCertificateInfoChange = (e) => {
+        e.preventDefault()
+        if (e.target.name === 'certificate_file') {
+            setCertificateInfo({
+                ...certificateInfo,
+                certificate_file: e.target.files[0]
+            })
+        }
+        else {
+            setCertificateInfo({
+                ...certificateInfo,
+                [e.target.name]: e.target.value
+            })
+        }
+    }
+
+    const saveCertificateInfo = (e) => {
+        e.preventDefault();
+        console.log(certificateInfo)
+    }
+
+    const savePersonalInfo = (e) => {
+        e.preventDefault()
+        console.log(personalInfo)
+    }
+
+    const onEducationInfoChange = (e) => {
+        e.preventDefault()
+        setEducationInfo({
+            ...educationInfo,
+            [e.target.name] : e.target.value
+         })
+    }
+
+    const saveEducationInfo = (e) => {
+        e.preventDefault();
+        console.log(educationInfo)
+    }
+
+    const onExperienceInfoChange = (e) => {
+        e.preventDefault();
+        setExperienceInfo({
+            ...experienceInfo,
+            [e.target.name] : e.target.value
+        })
+    }
+
+    const saveExperianceInfo = (e) => {
+        e.preventDefault();
+        console.log(saveExperianceInfo)
+    }
+
+    const handleAlumniSkills = (e, name) => {
+        var newSkills;
+        const newList = skillsData.map(data => {
+            if (data.name === name) {
+                return {...data, status: !data.status}
+            }
+            else {return data}
+        })
+        setSkillsData(newList)
+        const isThere = alumniSkills.find((skill) => skill === name)
+        if (isThere) {
+            newSkills = alumniSkills.filter(skill => skill !== isThere)
+            setAlumniSkills(newSkills)
+
+        }
+        else {
+            setAlumniSkills([...alumniSkills, name])
+            e.target.checked = true;
+        }
+    }
+
+    return (    
         <Card style={{border:'none'}}>
-            {/* <Card.Header >
-                <Message variant='info' >CV </Message>
-            </Card.Header> */}
             <Row>
                 <Col>
                     <Card>
@@ -22,42 +172,65 @@ const CvPage = () => {
                                         </Accordion.Toggle>
                                     </Card.Header>
                                     <Accordion.Collapse eventKey="0">
-                                        <Card.Body>
+                                        <Card.Body><Form onSubmit={e => savePersonalInfo(e)}>
                                             <Row>
                                                 <Col md={4}>
                                                     <Card style={{ placeItems: 'center', paddingBottom: '12px', marginBottom: '12px' }}>
                                                         <Card.Body>
-                                                        <Card.Img src={dp} style={{ width: '100px', height: '100px' }}></Card.Img>
+                                                            <Card.Img
+                                                                src={personalInfo.profile_image ? URL.createObjectURL(personalInfo.profile_image) : dp}
+                                                                style={{ width: '100px', height: '100px' }}></Card.Img>
                                                         </Card.Body>
-                                                        <Card.Footer style={{padding: 0}}>
-                                                            <Button><small>Change Image</small></Button>
+                                                        <Card.Footer style={{ padding: 0 }}>
+                                                            <Form.File id="formcheck-api-regular">
+                                                                <Form.File.Input onChange={onPersonalInfoChange} name="profile_image" accept="image/*" />
+                                                            {/* <input type="file" onChange={onPersonalInfoChange} name="profile_image" accept="image/*" /> */}
+                                                                </Form.File>
                                                         </Card.Footer>
                                                     </Card>
                                                 </Col>
                                                 <Col>
-                                                    <Form>
-                                                        <Form.Row>
-                                                            <Form.Group as={Col} controlId="formGridEmail">
-                                                            <Form.Label>First name</Form.Label>
-                                                            <Form.Control type="text" placeholder="first name" />
-                                                            </Form.Group>
-
-                                                            <Form.Group as={Col} controlId="formGridPassword">
-                                                            <Form.Label>Last Name</Form.Label>
-                                                            <Form.Control type="text" placeholder="last name" />
-                                                            </Form.Group>
-                                                        </Form.Row>
-
-                                                        <Form.Group controlId="formGridAddress1">
-                                                            <Form.Label>Phone</Form.Label>
-                                                            <Form.Control type="text" placeholder="phone number" />
+                                                    <Form.Row>
+                                                        <Form.Group as={Col} controlId="formGridEmail">
+                                                        <Form.Label>First name</Form.Label>
+                                                            <Form.Control
+                                                                type="text"
+                                                                placeholder="first name"
+                                                                value={personalInfo.first_name}
+                                                                onChange={onPersonalInfoChange}
+                                                                name="first_name" />
                                                         </Form.Group>
 
-                                                        <Form.Group controlId="formGridAddress2">
-                                                            <Form.Label>Email</Form.Label>
-                                                            <Form.Control type="email" placeholder="email" />
+                                                        <Form.Group as={Col} controlId="formGridPassword">
+                                                        <Form.Label>Last Name</Form.Label>
+                                                            <Form.Control
+                                                                type="text"
+                                                                placeholder="last name"
+                                                                value={personalInfo.last_name}
+                                                                onChange={onPersonalInfoChange}
+                                                                name="last_name" />
                                                         </Form.Group>
-                                                        </Form>
+                                                    </Form.Row>
+
+                                                    <Form.Group controlId="formGridAddress1">
+                                                        <Form.Label>Phone</Form.Label>
+                                                        <Form.Control
+                                                            type="text"
+                                                            placeholder="phone number"
+                                                            value={personalInfo.phone}
+                                                            onChange={onPersonalInfoChange}
+                                                            name="phone"  />
+                                                    </Form.Group>
+
+                                                    <Form.Group controlId="formGridAddress2">
+                                                        <Form.Label>Email</Form.Label>
+                                                        <Form.Control
+                                                            type="email"
+                                                            placeholder="email"
+                                                            value={personalInfo.email}
+                                                            onChange={onPersonalInfoChange}
+                                                            name="email"  />
+                                                    </Form.Group>
                                                 </Col>
                                             </Row>
                                             <Row >
@@ -65,12 +238,22 @@ const CvPage = () => {
                                                     <Form.Row>
                                                         <Form.Group as={Col} controlId="formGridEmail">
                                                         <Form.Label>Date Of Birth</Form.Label>
-                                                        <Form.Control type="date" placeholder="date of birth" />
+                                                            <Form.Control
+                                                                type="date"
+                                                                placeholder="date of birth"
+                                                                value={personalInfo.date_of_birth}
+                                                                onChange={onPersonalInfoChange}
+                                                                name="date_of_birth"  />
                                                         </Form.Group>
 
                                                         <Form.Group as={Col} controlId="formGridPassword">
                                                         <Form.Label>Nationality</Form.Label>
-                                                        <Form.Control type="text" placeholder="nationality" />
+                                                            <Form.Control
+                                                                type="text"
+                                                                placeholder="nationality"
+                                                                value={personalInfo.nationality}
+                                                                onChange={onPersonalInfoChange}
+                                                                name="nationality"  />
                                                         </Form.Group>
                                                     </Form.Row>
                                                 </Col>
@@ -81,12 +264,22 @@ const CvPage = () => {
                                                     <Form.Row>
                                                         <Form.Group as={Col} controlId="formGridEmail">
                                                         <Form.Label>Country</Form.Label>
-                                                        <Form.Control type="text" placeholder="country" />
+                                                            <Form.Control
+                                                                type="text"
+                                                                placeholder="country"
+                                                                value={personalInfo.country}
+                                                                onChange={onPersonalInfoChange}
+                                                                name="country"  />
                                                         </Form.Group>
 
                                                         <Form.Group as={Col} controlId="formGridPassword">
                                                         <Form.Label>City</Form.Label>
-                                                        <Form.Control type="text" placeholder="city" />
+                                                            <Form.Control
+                                                                type="text"
+                                                                placeholder="city"
+                                                                value={personalInfo.city}
+                                                                onChange={onPersonalInfoChange}
+                                                                name="city"  />
                                                         </Form.Group>
                                                     </Form.Row>
                                                 </Col>
@@ -95,7 +288,7 @@ const CvPage = () => {
                                                 <Col md={12}>
                                                 <Button variant="primary" type="submit" style={{width: '100%'}}> Save </Button>
                                                 </Col>
-                                            </Row>
+                                            </Row></Form>
                                         </Card.Body>
                                     </Accordion.Collapse>
                                 </Card>
@@ -107,23 +300,32 @@ const CvPage = () => {
                                     </Card.Header>
                                     <Accordion.Collapse eventKey="1">
                                         <Card.Body>
-                                            <Form>
+                                            <Form onSubmit={e => saveEducationInfo(e)}>
                                                 <Form.Row>
                                                     <Form.Group as={Col} controlId="formGridEmail">
                                                     <Form.Label>Institution Name</Form.Label>
-                                                    <Form.Control type="text" placeholder="first name" />
+                                                        <Form.Control
+                                                            type="text"
+                                                            placeholder="institution name"
+                                                            value={educationInfo.institution}
+                                                            onChange={onEducationInfoChange}
+                                                            name="Institution" />
                                                     </Form.Group>
 
                                                     <Form.Group as={Col} controlId="formGridPassword">
                                                     <Form.Label>Education Level</Form.Label>
-                                                      <Form.Control as="select" size="lg">
+                                                        <Form.Control as="select"
+                                                            size="lg"
+                                                            value={educationInfo.level}
+                                                            onChange={onEducationInfoChange}
+                                                            name="Level">
                                                         <option>---Select Level---</option>
-                                                        <option>Primary</option>
-                                                        <option>O-Level</option>
-                                                        <option>A-Level</option>
-                                                        <option>Certificate</option>
-                                                        <option>Diploma</option>
-                                                        <option>Degree</option>
+                                                        <option value="primary">Primary</option>
+                                                        <option value="O-Level">O-Level</option>
+                                                        <option value="A-Level">A-Level</option>
+                                                        <option value="Certificate">Certificate</option>
+                                                        <option value="Diploma">Diploma</option>
+                                                        <option value="Degree">Degree</option>
                                                     </Form.Control>
                                                     </Form.Group>
                                                 </Form.Row>
@@ -131,12 +333,22 @@ const CvPage = () => {
                                                 <Form.Row>
                                                     <Form.Group as={Col} controlId="formGridEmail">
                                                     <Form.Label>From</Form.Label>
-                                                    <Form.Control type="month" placeholder="date of birth" />
+                                                        <Form.Control
+                                                            type="month"
+                                                            placeholder="start date"
+                                                            value={educationInfo.from}
+                                                            onChange={onEducationInfoChange}
+                                                            name="From" />
                                                     </Form.Group>
 
                                                     <Form.Group as={Col} controlId="formGridPassword">
                                                     <Form.Label>To</Form.Label>
-                                                    <Form.Control type="month" placeholder="nationality" />
+                                                        <Form.Control
+                                                            type="month"
+                                                            placeholder="nationality"
+                                                            value={educationInfo.to}
+                                                            onChange={onEducationInfoChange}
+                                                            name="To" />
                                                     </Form.Group>
                                                 </Form.Row>
                                                 <Row >
@@ -158,39 +370,69 @@ const CvPage = () => {
                                     </Card.Header>
                                     <Accordion.Collapse eventKey="2">
                                         <Card.Body>
-                                            <Form>
+                                            <Form onSubmit={e => saveExperianceInfo(e)}>
                                                 <Form.Row>
                                                     <Form.Group as={Col} controlId="formGridEmail">
                                                     <Form.Label>Company name</Form.Label>
-                                                    <Form.Control type="text" placeholder="first name" />
+                                                        <Form.Control
+                                                            type="text"
+                                                            placeholder="company name"
+                                                            value={experienceInfo.company}
+                                                            onChange={onExperienceInfoChange}
+                                                            name="company" />
                                                     </Form.Group>
 
                                                     <Form.Group as={Col} controlId="formGridPassword">
                                                     <Form.Label>Job Title</Form.Label>
-                                                    <Form.Control type="text" placeholder="last name" />
+                                                        <Form.Control
+                                                            type="text"
+                                                            placeholder="job title"
+                                                            value={experienceInfo.job}
+                                                            onChange={onExperienceInfoChange}
+                                                            name="job" />
                                                     </Form.Group>
                                                 </Form.Row>
                                                 <Form.Row>
                                                     <Form.Group as={Col} controlId="formGridEmail">
                                                     <Form.Label>City</Form.Label>
-                                                    <Form.Control type="text" placeholder="first name" />
+                                                        <Form.Control
+                                                            type="text"
+                                                            placeholder="city"
+                                                            value={experienceInfo.city}
+                                                            onChange={onExperienceInfoChange}
+                                                            name="city" />
                                                     </Form.Group>
 
                                                     <Form.Group as={Col} controlId="formGridPassword">
                                                     <Form.Label>Country</Form.Label>
-                                                    <Form.Control type="text" placeholder="last name" />
+                                                        <Form.Control
+                                                            type="text"
+                                                            placeholder="country"
+                                                            value={experienceInfo.country}
+                                                            onChange={onExperienceInfoChange}
+                                                            name="country" />
                                                     </Form.Group>
                                                 </Form.Row>
                                                     <Form.Label><b>Time Period</b></Form.Label>
                                                 <Form.Row>
                                                     <Form.Group as={Col} controlId="formGridEmail">
                                                     <Form.Label>From</Form.Label>
-                                                    <Form.Control type="month" placeholder="date of birth" />
+                                                        <Form.Control
+                                                            type="month"
+                                                            placeholder="start date"
+                                                            value={experienceInfo.from}
+                                                            onChange={onExperienceInfoChange}
+                                                            name="from" />
                                                     </Form.Group>
 
                                                     <Form.Group as={Col} controlId="formGridPassword">
                                                     <Form.Label>To</Form.Label>
-                                                    <Form.Control type="month" placeholder="nationality" />
+                                                        <Form.Control
+                                                            type="month"
+                                                            placeholder="end date"
+                                                            value={experienceInfo.to}
+                                                            onChange={onExperienceInfoChange}
+                                                            name="to" />
                                                     </Form.Group>
                                                 </Form.Row>
                                                 <Row >
@@ -212,11 +454,14 @@ const CvPage = () => {
                                     <Accordion.Collapse eventKey="3">
                                         <Card.Body>
                                             <Form>
-                                                 <Form.Check  type="checkbox" id="skill 1" label="Grapgics Design" /> 
-                                                 <Form.Check  type="checkbox" id="skill 2" label="System Analyst" /> 
-                                                 <Form.Check  type="checkbox" id="skill 3" label="System Administrator" /> 
-                                                 <Form.Check  type="checkbox" id="skill 4" label="Security" /> 
-                                                 <Form.Check  type="checkbox" id="skill 5" label="Networking" />
+                                                {skillsData.map(skill => (
+                                                    <Form.Check
+                                                        type="checkbox"
+                                                        id={skill.id}
+                                                        label={skill.name}
+                                                        checked={skill.status}
+                                                        onClick={e => { e.preventDefault(); handleAlumniSkills(e, skill.name) }} />
+                                                ))}
                                                 <Row >
                                                 <Col md={12}>
                                                 <Button variant="primary" type="submit" style={{width: '100%'}}> Save </Button>
@@ -234,16 +479,26 @@ const CvPage = () => {
                                     </Card.Header>
                                     <Accordion.Collapse eventKey="4">
                                         <Card.Body>
-                                            <Form>
+                                            <Form onSubmit={e => saveCertificateInfo(e)}>
                                                  <Form.Row>
                                                     <Form.Group as={Col} controlId="formGridEmail">
                                                     <Form.Label>Certificate Name</Form.Label>
-                                                    <Form.Control type="text" placeholder="first name" />
+                                                        <Form.Control
+                                                            type="text"
+                                                            placeholder="certificate name"
+                                                            value={certificateInfo.name}
+                                                            onChange={onCertificateInfoChange}
+                                                            name="name" />
                                                     </Form.Group>
 
                                                     <Form.Group as={Col} controlId="formGridPassword">
                                                     <Form.Label>Authority</Form.Label>
-                                                    <Form.Control type="text" placeholder="last name" />
+                                                        <Form.Control
+                                                            type="text"
+                                                            placeholder="authority"
+                                                            value={certificateInfo.authority}
+                                                            onChange={onCertificateInfoChange}
+                                                            name="authority" />
                                                     </Form.Group>
                                                 </Form.Row>
                                                  <Form.Row>
@@ -254,7 +509,12 @@ const CvPage = () => {
 
                                                     <Form.Group as={Col} controlId="formGridPassword">
                                                     <Form.Label>Date Of Certification</Form.Label>
-                                                    <Form.Control type="month" placeholder="last name" />
+                                                        <Form.Control
+                                                            type="month"
+                                                            placeholder="certification date"
+                                                            value={certificateInfo.date_of_certification}
+                                                            onChange={onCertificateInfoChange}
+                                                            name="date_of_certification" />
                                                     </Form.Group>
                                                 </Form.Row>
                                                 <Row >
@@ -273,6 +533,77 @@ const CvPage = () => {
                 <Col>
                     <Card>
                         <Card.Header>CV Preview</Card.Header>
+                        <Card.Body>
+                            <Row>
+                                <Col md={3}>
+                                    <Card.Img
+                                        src={personalInfo.profile_image ? URL.createObjectURL(personalInfo.profile_image) : dp}
+                                        style={{ width: '70px', height: '70px' }}></Card.Img>
+                                </Col>
+                                <Col><Card.Title>{personalInfo.first_name}  {personalInfo.last_name}</Card.Title></Col>
+                            </Row>
+                            <Row>
+                                <Col md={4}><b>Personal Informations</b></Col>
+                                <Col>
+                                    {Object.keys(personalInfo).map(key => {
+                                        if (key === 'profile_image') { }
+                                        else {return (
+                                            <Row key={key}>
+                                                <Col md={5}><small><b>{key}</b></small></Col>
+                                                <Col><small>{personalInfo[key]}</small></Col>
+                                            </Row>)
+                                        }
+                                    })}
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col md={4}><b>Education</b></Col>
+                                <Col>
+                                    {Object.keys(educationInfo).map(key => (
+                                            <Row key={key}>
+                                                <Col md={5}><small><b>{key}</b></small></Col>
+                                                <Col><small>{educationInfo[key]}</small></Col>
+                                            </Row>
+                                    ))}
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col md={4}><b>Work Experiance</b></Col>
+                                <Col>
+                                    {Object.keys(experienceInfo).map(key => (
+                                            <Row key={key}>
+                                                <Col md={5}><small><b>{key}</b></small></Col>
+                                                <Col><small>{experienceInfo[key]}</small></Col>
+                                            </Row>
+                                    ))}
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col md={4}><b>Skills</b></Col>
+                                <Col>
+                                    <ul style={{ paddingLeft: 0 }}>
+                                    {alumniSkills.map(skill => (
+                                        <li key={skill}>{skill} </li>
+                                    ))}</ul>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col md={4}><b>Certificates</b></Col>
+                                <Col>
+                                    {Object.keys(certificateInfo).map(key => {
+                                        if (key === "certificate_file") { }
+                                        else {
+                                            return (
+                                                <Row key={key}>
+                                                    <Col md={5}><small><b>{key}</b></small></Col>
+                                                    <Col><small>{certificateInfo[key]}</small></Col>
+                                                </Row>
+                                            )
+                                        }
+                                    })}
+                                </Col>
+                            </Row>
+                        </Card.Body>
                     </Card>
                 </Col>
             </Row>
