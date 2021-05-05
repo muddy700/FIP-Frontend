@@ -79,6 +79,7 @@ const CvPage = () => {
             })
         }
     }
+
     const onCertificateInfoChange = (e) => {
         e.preventDefault()
         if (e.target.name === 'certificate_file') {
@@ -489,7 +490,7 @@ const CvPage = () => {
                                                  <Form.Row>
                                                     <Form.Group as={Col} controlId="formGridEmail">
                                                     <Form.Label>Certificate File</Form.Label>
-                                                    <Form.Control type="file" placeholder="first name" />
+                                                    <Form.Control type="file" name="certificate_file" />
                                                     </Form.Group>
 
                                                     <Form.Group as={Col} controlId="formGridPassword">
@@ -526,22 +527,51 @@ const CvPage = () => {
                                         style={{ width: '70px', height: '70px' }}></Card.Img>
                                 </Col>
                                 <Col><Card.Title>{personalInfo.first_name}  {personalInfo.last_name}</Card.Title></Col>
-                            </Row>
+                            </Row>   <hr/> 
+                            <Card style={{border:'none'}} >
                             <Row>
                                 <Col md={4}><b>Personal Informations</b></Col>
-                                <Col>
-                                    {Object.keys(personalInfo).map(key => {
-                                        if (key === 'profile_image') { }
-                                        else {return (
-                                            <Row key={key}>
-                                                <Col md={5}><small><b>{key}</b></small></Col>
-                                                <Col><small>{personalInfo[key]}</small></Col>
-                                            </Row>)
-                                        }
-                                    })}
+                                <Col md={8}>
+                                  
+                              <Card style={{border:'none'}}>
+                                    <Row >
+                                        <Col md={5}><small><b>First Name</b></small></Col>
+                                        <Col><small>{personalInfo.first_name}</small></Col>
+                                    </Row>
+                                    <Row >
+                                        <Col md={5}><small><b>Last Name</b></small></Col>
+                                        <Col><small>{personalInfo.last_name}</small></Col>
+                                    </Row>
+                                    <Row >
+                                        <Col md={5}><small><b>Phone Number</b></small></Col>
+                                        <Col><small>{personalInfo.phone}</small></Col>
+                                    </Row>
+                                    <Row >
+                                        <Col md={5}><small><b>Email</b></small></Col>
+                                        <Col><small>{personalInfo.email}</small></Col>
+                                    </Row>
+                                    <Row >
+                                        <Col md={5}><small><b>Date of Birth</b></small></Col>
+                                        <Col><small>{personalInfo.date_of_birth}</small></Col>
+                                    </Row>
+                                    <Row >
+                                        <Col md={5}><small><b>Nationality</b></small></Col>
+                                        <Col><small>{personalInfo.nationality}</small></Col>
+                                    </Row>
+                                    <Row >
+                                        <Col md={5}><small><b>Country</b></small></Col>
+                                        <Col><small>{personalInfo.country}</small></Col>
+                                    </Row>
+                                    <Row >
+                                        <Col md={5}><small><b>City</b></small></Col>
+                                        <Col><small>{personalInfo.city}</small></Col>
+                                    </Row>
+                                 </Card>
+                                      
                                 </Col>
-                            </Row>
-                            <Row>
+                                </Row>
+                            </Card> <hr/> 
+                            {/* <Row>
                                 <Col md={4}><b>Education</b></Col>
                                 <Col>
                                     {Object.keys(educationInfo).map(key => (
@@ -551,8 +581,55 @@ const CvPage = () => {
                                             </Row>
                                     ))}
                                 </Col>
-                            </Row>
+                            </Row> */}
+                                
+                             <Card style={{border:'none'}}>
                             <Row>
+                                <Col md={4}><b>Education</b></Col>
+                                <Col md={8}>
+                                   
+                                <Card style={{border:'none'}}>
+                                    <Row >
+                                        <Col md={5}><small><b>Institute Name</b></small></Col>
+                                        <Col><small>{educationInfo.Institution}</small></Col>
+                                    </Row>
+                                    <Row >
+                                        <Col md={5}><small><b>Level</b></small></Col>
+                                        <Col><small>{educationInfo.Level}</small></Col>
+                                    </Row>
+                                    <Row >
+                                        <Col md={5}><small><b>From</b></small></Col>
+                                        <Col><small>{educationInfo.From}</small></Col>
+                                    </Row>
+                                    <Row >
+                                        <Col md={5}><small><b>To</b></small></Col>
+                                        <Col><small>{educationInfo.To}</small></Col>
+                                    </Row>
+                                </Card><hr /> 
+                                <Card style={{border:'none'}}>
+                                    <Row >
+                                        <Col md={5}><small><b>Institute Name</b></small></Col>
+                                        <Col><small>{educationInfo.Institution}</small></Col>
+                                    </Row>
+                                    <Row >
+                                        <Col md={5}><small><b>Level</b></small></Col>
+                                        <Col><small>{educationInfo.Level}</small></Col>
+                                    </Row>
+                                    <Row >
+                                        <Col md={5}><small><b>From</b></small></Col>
+                                        <Col><small>{educationInfo.From}</small></Col>
+                                    </Row>
+                                    <Row >
+                                        <Col md={5}><small><b>To</b></small></Col>
+                                        <Col><small>{educationInfo.To}</small></Col>
+                                    </Row>
+                                </Card>
+                                     
+                                </Col>
+                                </Row>
+                            </Card><hr/>
+                            
+                            {/* <Row>
                                 <Col md={4}><b>Work Experiance</b></Col>
                                 <Col>
                                     {Object.keys(experienceInfo).map(key => (
@@ -562,16 +639,98 @@ const CvPage = () => {
                                             </Row>
                                     ))}
                                 </Col>
-                            </Row>
+                            </Row> */}
+                             <Card style={{border:'none'}}>
+                            <Row>
+                                <Col md={4}><b>Work Experiance </b></Col>
+                                <Col md={8}>
+                                   
+                                 <Card style={{border:'none'}}>
+                                    <Row >
+                                        <Col md={5}><small><b>Company</b></small></Col>
+                                        <Col><small>{experienceInfo.company}</small></Col>
+                                    </Row>
+                                    <Row >
+                                        <Col md={5}><small><b>Job Title</b></small></Col>
+                                        <Col><small>{experienceInfo.job}</small></Col>
+                                    </Row>
+                                    <Row >
+                                        <Col md={5}><small><b>City</b></small></Col>
+                                        <Col><small>{experienceInfo.city}</small></Col>
+                                    </Row>
+                                    <Row >
+                                        <Col md={5}><small><b>Country</b></small></Col>
+                                        <Col><small>{experienceInfo.country}</small></Col>
+                                    </Row>
+                                    <Row >
+                                        <Col md={5}><small><b>From</b></small></Col>
+                                        <Col><small>{experienceInfo.from}</small></Col>
+                                    </Row>
+                                    <Row >
+                                        <Col md={5}><small><b>To</b></small></Col>
+                                        <Col><small>{experienceInfo.to}</small></Col>
+                                    </Row>
+                                        </Card>
+                                        
+                                    </Col>
+                                </Row>
+                            </Card><hr/>
+                            
+                            <Card style={{border:'none'}}>
                             <Row>
                                 <Col md={4}><b>Skills</b></Col>
-                                <Col>
-                                    <ul style={{ paddingLeft: 0 }}>
-                                    {alumniSkills.map(skill => (
-                                        <li key={skill}>{skill} </li>
-                                    ))}</ul>
+                                <Col md={8}>
+                                    <Card style={{border:'none'}} >
+                                        <Row >
+                                            <Col>
+                                                <ul style={{paddingLeft: 0 }}><small>{alumniSkills.map((skill => (
+                                                    <li key={skill} > {skill}</li>
+                                                )))}</small>
+                                                </ul>
+                                            </Col>
+                                        </Row>
+                                    </Card>
                                 </Col>
-                            </Row>
+                                </Row>
+                            </Card><hr/>
+                          
+                            <Card style={{border:'none'}}  >
+                            <Row>
+                                <Col md={4}><b>Certification</b></Col>
+                                <Col md={8}>
+                                    <Card style={{border:'none'}} >
+                                        <Row >
+                                            <Col md={5}><small><b>Name</b></small></Col>
+                                            <Col><small>{certificateInfo.name}</small></Col>
+                                        </Row>
+                                        <Row >
+                                            <Col md={5}><small><b>Authority</b></small></Col>
+                                            <Col><small>{certificateInfo.authority}</small></Col>
+                                        </Row>
+                                        <Row >
+                                            <Col md={5}><small><b>Date of Certification</b></small></Col>
+                                            <Col><small>{certificateInfo.date_of_certification}</small></Col>
+                                        </Row>
+                                    </Card> <hr />
+                                    <Card style={{border:'none'}} >
+                                        <Row >
+                                            <Col md={5}><small><b>Name</b></small></Col>
+                                            <Col><small>{certificateInfo.name}</small></Col>
+                                        </Row>
+                                        <Row >
+                                            <Col md={5}><small><b>Authority</b></small></Col>
+                                            <Col><small>{certificateInfo.authority}</small></Col>
+                                        </Row>
+                                        <Row >
+                                            <Col md={5}><small><b>Date of Certification</b></small></Col>
+                                            <Col><small>{certificateInfo.date_of_certification}</small></Col>
+                                        </Row>
+                                    </Card>
+                                     
+                                </Col>
+                                </Row>
+                            </Card>
+{/* 
                             <Row>
                                 <Col md={4}><b>Certificates</b></Col>
                                 <Col>
@@ -587,7 +746,7 @@ const CvPage = () => {
                                         }
                                     })}
                                 </Col>
-                            </Row>
+                            </Row> */}
                         </Card.Body>
                     </Card>
                 </Col>

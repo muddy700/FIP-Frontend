@@ -6,8 +6,8 @@ export async function createUser(payload) {
     return response.data
 }
 
-export async function authenticateUser(payload, config) {
-    const response = await baseLink.post("login/", payload, config )
+export async function authenticateUser(payload) {
+    const response = await baseLink.post("login/", payload)
     return response.data
 }
 
