@@ -5,21 +5,23 @@ import '../styles/loginPage.css'
 import { useSelector, useDispatch}  from 'react-redux'
 import { saveUser, apiConfigurations } from '../slices/userSlice'
 import { changePage, selectAppData } from '../slices/appSlice'
-import { authenticateUser, getUserInfo } from '../app/api'
+import { authenticateUser, getUserProfile } from '../app/api'
+import Loader from '../components/loader';
+
 
 export const LoginPage = () => {
   const dispatch = useDispatch();
-  const config = useSelector(apiConfigurations)
+    const config = useSelector(apiConfigurations)
+    
     const initialUser = {
         username: '',
         password: ''
     }
 
     const [loginCredentials, setLoginCredentials] = useState(initialUser)
-    const { username, password } = loginCredentials;
     const [errorMode, setErrorMode] = useState(false)
     const [errorMessage, setErrorMessage] = useState('')
-    var designation
+    const [isLoading, setIsLoading] = useState(false)
 
     const formValidator = (e) => {
         e.preventDefault()
@@ -45,6 +47,7 @@ export const LoginPage = () => {
     
     const onFinish = async (e) => {
         e.preventDefault()
+        setIsLoading(true)
         const isFormValid = formValidator(e);
 
         if (isFormValid) {
@@ -53,20 +56,41 @@ export const LoginPage = () => {
                 const config = { headers: { 'Authorization': `Token ${response.token}` } }
 
                 try {
-                    const userProfile = await getUserInfo(config)
+                    const userProfile = await getUserProfile(config)
                     console.log(userProfile)
+                    dispatch(saveUser({
+                        userId: userProfile[0].user,
+                        username: userProfile[0].username,
+                        first_name: userProfile[0].first_name,
+                        last_name: userProfile[0].last_name,
+                        designation: userProfile[0].designation_name,
+                        profile_image: userProfile[0].profile_image,
+                        email: userProfile[0].email,
+                        token: response.token,
+                        isAuthenticated: true,
+                    }))
+
+                    localStorage.setItem('token', response.token)
+                    dispatch(changePage({
+                        activePage: 2
+                    }))
+                    setLoginCredentials(initialUser)
+                    setIsLoading(false)
+                    
                 } catch (error) {
+                    setIsLoading(false)
                     console.log({
                         'Request': 'Getting User Profile Request',
                         'Error => ' : error,
                     })
-
+                    
                     if (error.response.request.status === 401) {
                         console.log('Invalid Token')
                     }
                 }
             }
             catch (error) {
+                setIsLoading(false)
                 console.log({
                     'Request => ' : 'Login Request',
                     'Error => ' : error
@@ -76,22 +100,15 @@ export const LoginPage = () => {
                     setErrorMode(true);
                     setErrorMessage('Invalid Username Or Password')
                 }
-             }
-
+            }
+            
         }
         else {
+            setIsLoading(false)
             console.log('Login Form Is Not Valid')
         }
       
-        //     dispatch(saveUser({
-        //         isAuthenticated: true,
-        //         username: username,
-        //         designation
-        //     }))
         
-        // dispatch(changePage({
-        //     activePage: 2
-        // }))
     }
 
     const onFormChange = (e) => {
@@ -132,7 +149,8 @@ export const LoginPage = () => {
                                     <Button type="submit"
                                         variant={errorMode ? 'danger' : 'primary'}
                                         style={{ width: '100%' }}
-                                    >{errorMode ? errorMessage : 'Sign In'}</Button>
+                                    >{isLoading ?
+                                    <Loader message="Loading..." /> :  errorMode ? errorMessage : 'Sign In'}</Button>
                                 </Form.Group>
                             </Form>
                         </Card.Body>

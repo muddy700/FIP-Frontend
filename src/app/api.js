@@ -15,6 +15,10 @@ export async function getUserInfo(config) {
     const response = await baseLink.get("auth/user", config)
     return response.data
 }
+export async function getUserProfile(config) {
+    const response = await baseLink.get("user_profile/", config)
+    return response.data
+}
 
 export async function logoutUser(config) {
     const response = await baseLink.post("logout/", config)
