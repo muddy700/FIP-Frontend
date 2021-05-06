@@ -1,24 +1,41 @@
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 import '../../App.css'
 import { List, Avatar, Space } from 'antd';
 import Icon from 'supercons'
 import { Button, Row, Col, Card, InputGroup, FormControl } from 'react-bootstrap'
 import Message from '../../components/message'
 import { Link } from 'react-router-dom';
-
-const listData = [];
-for (let i = 0; i < 50; i++) {
-  listData.push({
-      organization_name: `Organization # ${i}`,
-      title: `Post Title ${i}`,
-      capacity: 5,
-    avatar: 'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
-      profession: 'Database',
-    expiry_date: '12/5/2021'
-  });
-}
+import { useSelector, useDispatch}  from 'react-redux'
+import { pullInternshipPosts } from '../../app/api';
+import { apiConfigurations } from '../../slices/userSlice';
+import { fetchInternshipPosts, selectInternshipPostList } from '../../slices/internshipPostSlice';
+// import { changePage, selectAppData } from '../slices/appSlice'
 
 const AvailablePostsPage = () => {
+
+    const config = useSelector(apiConfigurations)
+    const dispatch = useDispatch()
+    const internshipPosts = useSelector(selectInternshipPostList)
+
+    const getInternshipPosts = async () => {
+
+        try {
+            const response = await pullInternshipPosts(config)
+            dispatch(fetchInternshipPosts(response))
+
+        } catch (error) {
+            console.log({
+                'request': 'Fetch Available Internship Posts Request',
+                'Error => ': error
+            })
+         
+        }
+    }
+
+    useEffect(() => {
+       getInternshipPosts()
+    }, [])
+
     return (
         
         <Card style={{marginBottom: '10px'}}>
@@ -47,30 +64,30 @@ const AvailablePostsPage = () => {
                     itemLayout="vertical"
                     size="small"
                     pagination={{ pageSize: 5, }}
-                    dataSource={listData}
+                    dataSource={internshipPosts}
                     renderItem={post => (
                         <List.Item
-                            key={post.title}
+                            key={post.id}
                             className="list-items"
                             style={{padding: 0}}
                         >
                             <List.Item.Meta
-                                avatar={<Avatar size="large" src={post.avatar} />}
+                                // avatar={<Avatar size="large" src={post.avatar} />}
                                 title={<h5 > {post.organization_name}</h5>}
                             />
                             <Row >
                                 <Col md={{span: 3, offset: 1}} style={{ display: 'flex' }}>
-                                    Profession: &nbsp; <p>{post.profession} </p>
+                                    Profession: &nbsp; <p>{post.profession_name} </p>
                                 </Col>
                                 <Col md={2} style={{ display: 'flex' }}>
-                                    Posts:  &nbsp; <p>{post.capacity} </p>
+                                    Posts:  &nbsp; <p>{post.post_capacity} </p>
                                 </Col>
                                 <Col md={2} style={{ display: 'flex' }}>
                                     Expire Date:  &nbsp; <p>{post.expiry_date} </p>
                                 </Col>
                                 <Col md={3} style={{ display: 'flex' }}>
                                     <>
-                                        <Link to="/post_details">
+                                        <Link to={{pathname: "/post_details", postId:post.id }}>
                                             <Button variant="link" >View Details</Button>
                                         </Link>
                                         <Button variant="link">Apply</Button>

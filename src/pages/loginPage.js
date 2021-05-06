@@ -4,7 +4,7 @@ import Form from 'react-bootstrap/Form';
 import '../styles/loginPage.css'
 import { useSelector, useDispatch}  from 'react-redux'
 import { saveUser, apiConfigurations } from '../slices/userSlice'
-import { changePage, selectAppData } from '../slices/appSlice'
+import { changePage } from '../slices/appSlice'
 import { authenticateUser, getUserProfile } from '../app/api'
 import Loader from '../components/loader';
 
@@ -57,7 +57,6 @@ export const LoginPage = () => {
 
                 try {
                     const userProfile = await getUserProfile(config)
-                    console.log(userProfile)
                     dispatch(saveUser({
                         userId: userProfile[0].user,
                         username: userProfile[0].username,
@@ -74,6 +73,7 @@ export const LoginPage = () => {
                     dispatch(changePage({
                         activePage: 2
                     }))
+                    
                     setLoginCredentials(initialUser)
                     setIsLoading(false)
                     

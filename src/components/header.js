@@ -12,21 +12,19 @@ import { logoutUser } from '../app/api'
 
 const Header = ({ changeCollapse, value }) => {
     const user = useSelector(selectUserData)
-    const conf = useSelector(apiConfigurations)
+    const config = useSelector(apiConfigurations)
     const dispatch = useDispatch()
 
     const handleLogOut = async () => {
-        const config = { headers: { 'Authorization': `Token ${localStorage.getItem('token')}` } }
-        console.log(config)
-
+        // const config = { headers: { 'Authorization': `Token ${localStorage.getItem('token')}` } }
         try {
-            const response = await logoutUser(config)
+            // const response = await logoutUser(config)
             console.log('logged out')
-            console.log(response)
             dispatch(changePage({
                         activePage: 1
                     }))
             localStorage.removeItem('token')
+
         } catch (error) {
             console.log({
                 'request': 'Logout Request',

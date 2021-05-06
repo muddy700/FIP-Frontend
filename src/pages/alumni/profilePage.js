@@ -3,6 +3,8 @@ import { Card, Row, Col, Button, Table } from 'react-bootstrap'
 import dp from '../../Black2.jpg'
 import '../../styles/alumni.css'
 import Message from '../../components/message'
+import { selectUserData, saveUser, apiConfigurations } from '../../slices/userSlice'
+import { useSelector, useDispatch}  from 'react-redux'
 
 const userInfo = {
     regNo: 'T/UDOM/2010/12345',
@@ -16,6 +18,9 @@ const userInfo = {
 
 }
 const ProfilePage = () => {
+
+    const user = useSelector(selectUserData)
+
     return (
         <div style={{paddingBottom: '100px'}}>
             <Row >
@@ -30,27 +35,27 @@ const ProfilePage = () => {
                             <tbody>
                                 <tr>
                                     <td className="post-properties">REG NO.</td>
-                                            <td>{userInfo.regNo}</td>
+                                            <td>{user.username}</td>
                                 </tr>
                                 <tr>
                                     <td className="post-properties">FIRST NAME</td>
-                                    <td>@Database</td>
+                                            <td>{user.first_name} </td>
                                 </tr>
                                 <tr>
                                     <td className="post-properties">LAST NAME</td>
-                                    <td>12</td>
+                                    <td>{user.last_name}</td>
                                 </tr>
                                 <tr>
                                     <td className="post-properties">GENDER</td>
-                                    <td>12/5/2021</td>
+                                    <td>Male</td>
                                 </tr>
                                 <tr>
                                     <td className="post-properties">EMAIL</td>
-                                    <td>12/5/2021</td>
+                                    <td>{user.email}</td>
                                 </tr>
                                 <tr>
                                     <td className="post-properties">PHONE</td>
-                                    <td>12/5/2021</td>
+                                    <td>{user.phone}</td>
                                 </tr>
                                 <tr>
                                     <td className="post-properties">PROGRAM</td>
