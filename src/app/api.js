@@ -35,6 +35,20 @@ export async function getAlumniApplications(alumniId, config) {
     const response = await baseLink.get(`filter/alumni/${alumniId}/internship_applications`, config)
     return response.data
 }
+
+export async function fetchalumniProjects(alumniId, config) {
+    const response = await baseLink.get(`filter/member/${alumniId}/projects`, config)
+    return response.data
+}
+
+export async function fetchDesignationAnnouncements(designationId, config) {
+    const response = await baseLink.get(`filter/designation/${designationId}/announcements`, config)
+    return response.data
+}
+export async function getAlumniProfile(alumniId, config) {
+    const response = await baseLink.get(`filter/alumni/${alumniId}/profile`, config)
+    return response.data
+}
 // export async function fetchUserPosts(config) {
 //     const response = await baseLink.get("user/posts/", config)
 //     return response.data

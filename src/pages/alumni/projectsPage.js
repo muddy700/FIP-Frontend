@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import Message from '../../components/message'
 import { Card, Row, Col, Button } from 'react-bootstrap'
 import { Table, Tag, Space } from 'antd';
@@ -6,6 +6,10 @@ import { } from 'antd';
 import {DownloadOutlined, UploadOutlined } from '@ant-design/icons'
 import Icon from 'supercons'
 import ContentModal from '../../components/contentModal';
+import { useSelector, useDispatch}  from 'react-redux'
+import { apiConfigurations, selectUserData } from '../../slices/userSlice';
+import { fetchalumniProjects } from '../../app/api';
+
 
 const ProjectsPage = () => {
     
@@ -19,7 +23,7 @@ const ProjectsPage = () => {
       },
       {
         title: 'Date Added',
-        dataIndex: 'date',
+        dataIndex: 'project_date_created',
         key: 'date',
         // ellipsis: 'true'
       },
@@ -31,21 +35,21 @@ const ProjectsPage = () => {
       },
       {
         title: 'Sponsor',
-        key: 'sponsor',
+        key: 'project_sponsor',
         // ellipsis: 'true',
-        dataIndex: 'sponsor'
+        dataIndex: 'project_sponsor'
       },
       {
         title: 'Year',
         key: 'year',
         // ellipsis: 'true',
-        dataIndex: 'year'
+        dataIndex: 'project_year'
       },
       {
         title: 'Status',
         key: 'status',
         // ellipsis: 'true',
-        dataIndex: 'status',
+        dataIndex: 'project_recommendation_status',
         render: text => <Tag color={text === "pending" ? "lightgray" : 
           text === "recommended" ? "green" : "red"}>
                   {text}
@@ -77,19 +81,28 @@ const ProjectsPage = () => {
     const [modalShow, setModalShow] = useState(false);
     const modalTitle = "Project Report"
     const modalContent = "Report File"
+    const user = useSelector(selectUserData)
+    const config = useSelector(apiConfigurations)
+    const [alumniProjects, setalumniProjects] = useState([])
+  
+  const getAlumniProjects = async () => {
 
-const projectsList = [];
-for (let i = 0; i < 50; i++) {
-  projectsList.push({
-      sn: `${i+1}`,
-      date: "12/5/2021",
-      sponsor: "UDOM",
-      project_title: "Field And Internship Post",
-      year: 2020,
-      status: "recommended",
-  });
-}
+    try {
+      const response = await fetchalumniProjects(user.userId, config)
+      setalumniProjects(response)
+    } catch (error) {
+        console.log({
+            'Request': 'Getting Alumni Projects Request',
+            'Error => ' : error,
+        })
+    }
+  }
+    
 
+useEffect(() => {
+  getAlumniProjects()
+}, [])
+  
     return (
     <Card >
         <Card.Header >
@@ -97,7 +110,7 @@ for (let i = 0; i < 50; i++) {
         </Card.Header>
             <Card.Body style={{ overflowX: 'scroll' }}  >
                 <Button>Add Project</Button>
-          <Table columns={columns} dataSource={projectsList} pagination={{pageSize: 5}} column={{ellipsis: true}} />
+          <Table columns={columns} dataSource={alumniProjects} pagination={{pageSize: 5}} column={{ellipsis: true}} />
        </Card.Body>
         <ContentModal
         show={modalShow}

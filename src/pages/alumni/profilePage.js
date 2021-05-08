@@ -1,25 +1,34 @@
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 import { Card, Row, Col, Button, Table } from 'react-bootstrap'
-import dp from '../../Black2.jpg'
 import '../../styles/alumni.css'
 import Message from '../../components/message'
 import { selectUserData, saveUser, apiConfigurations } from '../../slices/userSlice'
 import { useSelector, useDispatch}  from 'react-redux'
+import { getAlumniProfile } from '../../app/api'
 
-const userInfo = {
-    regNo: 'T/UDOM/2010/12345',
-    email: 'usee@gmail.com',
-    phone: '0789101112',
-    first_Name: 'Yazid',
-    last_name: 'Mbungi',
-    gender: 'Male',
-    completion_year: 2010,
-    Program: 'Computer Science',
-
-}
 const ProfilePage = () => {
 
     const user = useSelector(selectUserData)
+    const [alumniProfile, setAlumniProfile] = useState({})
+    const config = useSelector(apiConfigurations)
+
+    const getProfile = async () => {
+
+                try {
+                    const profile = await getAlumniProfile(user.userId, config)
+                    setAlumniProfile(profile[0])
+                } catch (error) {
+                    console.log({
+                        'Request': 'Getting Alumni Profile Request',
+                        'Error => ' : error,
+                    })
+                }
+    }
+
+
+    useEffect(() => {
+        getProfile()
+    }, [])
 
     return (
         <div style={{paddingBottom: '100px'}}>
@@ -35,7 +44,7 @@ const ProfilePage = () => {
                             <tbody>
                                 <tr>
                                     <td className="post-properties">REG NO.</td>
-                                            <td>{user.username}</td>
+                                            <td>{alumniProfile.registration_number}</td>
                                 </tr>
                                 <tr>
                                     <td className="post-properties">FIRST NAME</td>
@@ -47,7 +56,7 @@ const ProfilePage = () => {
                                 </tr>
                                 <tr>
                                     <td className="post-properties">GENDER</td>
-                                    <td>Male</td>
+                                    <td>{user.gender} </td>
                                 </tr>
                                 <tr>
                                     <td className="post-properties">EMAIL</td>
@@ -59,11 +68,11 @@ const ProfilePage = () => {
                                 </tr>
                                 <tr>
                                     <td className="post-properties">PROGRAM</td>
-                                    <td>12/5/2021</td>
+                                    <td>{alumniProfile.degree_program}</td>
                                 </tr>
                                 <tr>
                                     <td className="post-properties">COMPLETION YEAR</td>
-                                    <td> cdgvffdsgdfwqee4r5rwedwqdeewfwqwd w </td>
+                                    <td>{alumniProfile.completion_year}</td>
                                 </tr>
                             </tbody>
                         </Table>
@@ -82,8 +91,8 @@ const ProfilePage = () => {
                     <Card>
                         <Card.Header style={{textAlign: 'center'}}><b>Photo</b></Card.Header>
                         <Card.Body style={{placeItems: 'center', display: 'grid'}}>
-                            <Card.Img src={dp} style={{ width: '200px', height: '200px' }}></Card.Img>
-                            <Card.Title style={{ marginTop: '15px' }}>T/UDOM/2010/12345</Card.Title>
+                            <Card.Img src={user.profile_image} style={{ width: '200px', height: '200px' }}></Card.Img>
+                            <Card.Title style={{ marginTop: '15px' }}>{user.first_name}  { user.last_name}</Card.Title>
                         </Card.Body>
                         <Card.Footer style={{backgroundColor: 'inherit'}}>
                             <Row>

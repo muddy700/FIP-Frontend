@@ -1,38 +1,38 @@
 import { Divider } from 'antd'
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import Icon from 'supercons'
+import {TimeAgo} from '../../components/timeAgo'
 import { Card, Row, Col } from 'react-bootstrap'
 import Message from '../../components/message'
 import Accordion from 'react-bootstrap/Accordion'
+import { useSelector}  from 'react-redux'
+import { fetchDesignationAnnouncements } from '../../app/api'
+import { apiConfigurations, selectUserData } from '../../slices/userSlice'
 
-const announcementList = [
-    {
-        id: 1,
-        source: 'Admin',
-        title: 'Announcement Title Appears Here So That EveryOne Can See It Clearly',
-        date: '2 days ago',
-        contents: "On friday we will have technical issue we announce you that, the system will be down for 3 hoursFEHFUEHFEHRQEGRYQEGRGYYRQEQYRER On friday we will have technical issue, we announce you that, the system will be down for 3 hoursFEHFUEHFEHRQEGRYQEGRGYYRQEQYRER"
-    },
-    {
-        id: 2,
-        source: 'Admin',
-        title: 'Announcement Title Appears Here So That EveryOne Can See It Clearly',
-        date: '2 days ago',
-        contents: "On friday we will have technical issue we announce you that, the system will be down for 3 hoursFEHFUEHFEHRQEGRYQEGRGYYRQEQYRER On friday we will have technical issue, we announce you that, the system will be down for 3 hoursFEHFUEHFEHRQEGRYQEGRGYYRQEQYRER"
-    },
-    {
-        id: 3,
-        source: 'Admin',
-        title: 'Announcement Title Appears Here So That EveryOne Can See It Clearly',
-        date: '2 days ago',
-        contents: "On friday we will have technical issue we announce you that, the system will be down for 3 hoursFEHFUEHFEHRQEGRYQEGRGYYRQEQYRER On friday we will have technical issue, we announce you that, the system will be down for 3 hoursFEHFUEHFEHRQEGRYQEGRGYYRQEQYRER"
-    }
-]
 const AnnouncementsPage = () => {
 
     const [isOpen, setIsOpen] = useState(false)
     const [activeItem, setactIveItem] = useState(null)
-    const ida = 1;
+    const [alumniAnnouncements, setAlumniAnnouncements] = useState([])
+    const config = useSelector(apiConfigurations)
+    const user = useSelector(selectUserData)
+
+    const getAnnouncements = async () => {
+        try {
+            const response = await fetchDesignationAnnouncements(user.designation_id, config)
+            setAlumniAnnouncements(response)
+        } catch (error) {
+            console.log({
+                'Request': 'Getting Alumni Announcements Request',
+                'Error => ' : error,
+            })
+        }
+
+    }
+
+    useEffect(() => {
+        getAnnouncements()
+    }, [])
 
     const handleOpen = (id) => {
         if (!activeItem) {
@@ -52,7 +52,8 @@ const AnnouncementsPage = () => {
                <Message  variant='info' >Latest Announcements</Message>  
             </Card.Header>
             <div className="announcements-container">
-                {announcementList.map((item) =>
+                {alumniAnnouncements.slice().sort((a, b) => b.date_updated.localeCompare(a.date_updated))
+                    .map((item) =>
                     <Accordion className="announcement-card"  >
                         <Card >
                             <Accordion.Toggle as={Card.Header} variant="link" eventKey={item.id.toString()} onClick={e => { e.preventDefault(); handleOpen(item.id) }}>
@@ -69,11 +70,11 @@ const AnnouncementsPage = () => {
                             </Accordion.Toggle>
                             {activeItem === item.id ?
                                 <Accordion.Collapse eventKey={item.id.toString()} ><>
-                                    <Card.Body> {item.contents} </Card.Body>
+                                    <Card.Body> {item.description} </Card.Body>
                                     <Card.Footer className="text-muted">
                                         <Row>
-                                            <Col md={6} style={{ backgroundColor: '' }}><small><i>From: {item.source} </i></small> </Col>
-                                            <Col md={6} style={{ textAlign: 'right' }}><small><i>{item.date}</i></small> </Col>
+                                            <Col md={6} style={{ backgroundColor: '' }}><small><i>From: {item.sender} </i></small> </Col>
+                                            <Col md={6} style={{ textAlign: 'right' }}><small><i><TimeAgo timestamp={item.date_updated} /></i></small> </Col>
                                         </Row>
                                     </Card.Footer></>
                                 </Accordion.Collapse> : ''}
