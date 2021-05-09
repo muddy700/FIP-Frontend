@@ -21,12 +21,12 @@ const ProjectsPage = () => {
         // ellipsis: 'true',
         render: text => <a>{text}</a>,
       },
-      {
-        title: 'Date Added',
-        dataIndex: 'project_date_created',
-        key: 'date',
-        // ellipsis: 'true'
-      },
+      // {
+      //   title: 'Date Added',
+      //   dataIndex: 'project_date_created',
+      //   key: 'date',
+      //   // ellipsis: 'true'
+      // },
       {
         title: 'Project Title',
         key: 'project_title',
@@ -50,9 +50,8 @@ const ProjectsPage = () => {
         key: 'status',
         // ellipsis: 'true',
         dataIndex: 'project_recommendation_status',
-        render: text => <Tag color={text === "pending" ? "lightgray" : 
-          text === "recommended" ? "green" : "red"}>
-                  {text}
+        render: record => <Tag color={record.project_recommendation_status ? "green" : "red"}>
+                  {record.project_recommendation_status ? "accepted" : "pending"}
                 </Tag>
       },
       {

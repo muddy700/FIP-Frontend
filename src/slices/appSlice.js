@@ -2,7 +2,8 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
     appData: {
-        activePage: 1
+        activePage: 1,
+        alumniDocId: ''
     }
 }
 

@@ -1,117 +1,72 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 import Message from '../../components/message'
 import Icon from 'supercons'
 import { Card, Row, Col, Badge, FormControl,  InputGroup, Button} from 'react-bootstrap'
+import db from '../../firebase'
+import { useSelector}  from 'react-redux'
+import { selectUserData } from '../../slices/userSlice'
+import { TimeAgo} from '../../components/timeAgo'
 
-const messages = [
-    {
-        source: 'T/UDOM/2017/12300',
-        date: '2 minutes ago',
-        content: 'This Is What The message Says from A Single Alumni.x'
-    },
-    {
-        source: 'T/UDOM/2017/12300',
-        date: '2 minutes ago',
-        content: 'Hellow Buddies!!.'
-    },
-    {
-        source: 'T/UDOM/2015/55',
-        date: '2 minutes ago',
-        content: 'Hellow, How U Doin?'
-    },
-    {
-        source: 'T/UDOM/2012/12220',
-        date: '2 minutes ago',
-        content: 'This Is What The message Says from A Single Alumni.'
-    },
-    {
-        source: 'T/UDOM/2012/12220',
-        date: '2 minutes ago',
-        content: 'This Is What The message Says from A Single Alumni To His/Her Friends Within The System, At A Particular Day'
-    },
-    {
-        source: 'T/UDOM/2015/55',
-        date: '2 minutes ago',
-        content: 'This Is What The message Says from A Single Alumni.'
-    },
-    {
-        source: 'T/UDOM/2012/12220',
-        date: '2 minutes ago',
-        content: 'This Is What The message Says from A Single Alumni To His/Her Friends Within The System, At A Particular Day'
-    },
-    {
-        source: 'T/UDOM/2015/55',
-        date: '2 minutes ago',
-        content: 'This Is What The message Says from A Single Alumni.'
-    },
-    {
-        source: 'T/UDOM/2015/505',
-        date: '2 minutes ago',
-        content: 'This Is What The message Says from A Single Alumni.'
-    },
-    {
-        source: 'T/UDOM/2015/55',
-        date: '2 minutes ago',
-        content: 'This Is What The message Says from A Single Alumni.'
-    },
-    {
-        source: 'T/UDOM/2015/585',
-        date: '2 minutes ago',
-        content: 'This Is What The message Says from A Single Alumni.'
-    },
-    {
-        source: 'T/UDOM/2015/55',
-        date: '2 minutes ago',
-        content: 'This Is What The message Says from A Single Alumni.'
-    },
-    {
-        source: 'T/UDOM/2015/575',
-        date: '2 minutes ago',
-        content: 'This Is What The message Says from A Single Alumni.'
-    },
-]
-
-const activeAlumni = [
-    {
-        id: 1,
-        regNo: 'T/UDOM/2012/12220'
-    },
-    {
-        id: 2,
-        regNo: 'T/UDOM/2012/1222'
-    },
-    {
-        id: 3,
-        regNo: 'T/UDOM/2012/12224'
-    },
-    {
-        id: 4,
-        regNo: 'T/UDOM/2012/1222'
-    },
-    {
-        id: 5,
-        regNo: 'T/UDOM/2012/1222'
-    },
-    {
-        id: 6,
-        regNo: 'T/UDOM/2012/1222'
-    },
-    {
-        id: 7,
-        regNo: 'T/UDOM/2012/1222'
-    },
-    {
-        id: 8,
-        regNo: 'T/UDOM/2012/1222'
-    },
-    {
-        id: 9,
-        regNo: 'T/UDOM/2012/1222'
-    },
-]
 const ChatPage = () => {
 
-    const alumni = "T/UDOM/2015/55"
+    const msg = {
+        source: '',
+        content: '',
+        date_created: ''
+    }
+    const user = useSelector(selectUserData)
+    const [messages, setMessages] = useState([])
+    const [message, setMessage] = useState(msg)
+    const [activeAlumni, setActiveAlumni] = useState([])
+    const messagesRef = db.collection('messages');
+    const usersRef = db.collection('users');
+    
+    const onMessageChange = (e) => {
+        e.preventDefault()
+        setMessage({
+            ...message,
+            [e.target.name] : e.target.value
+        })
+    }
+
+    const sendMessage = (e) => {
+        e.preventDefault()
+        const currentTime = new Date();
+        const dateCreated = currentTime.toISOString();
+        const messageData = {
+            source: user.username,
+            date_created: dateCreated,
+            content: message.content
+        }
+        messagesRef.add(messageData)
+        .then((docRef) => {
+                setMessage(msg);
+            })
+            .catch((error) => {
+                console.error("Error Sending Message : ", error);
+            });
+
+    }
+
+    const fetchMessages = () => {
+        var messageResponse = messagesRef.orderBy("date_created");
+        messageResponse.onSnapshot(snapshot => (
+            setMessages(  snapshot.docs.map((doc) => doc.data()  ))
+            ));
+           
+    }
+
+    const fetchUsers = () => {
+        usersRef.onSnapshot(snapshot => (
+            setActiveAlumni(  snapshot.docs.map((doc) => doc.data()  ))
+        ));
+    }
+
+    useEffect(() => {
+        fetchMessages();
+        fetchUsers();
+    }, [])
+    
     return (
         <div style={{ width: '100%', height: '100%' }}>
             <Row >
@@ -122,11 +77,11 @@ const ChatPage = () => {
                     <Card className="chat-container">
                         <Card.Body className="messages-container" style={{padding: 0}}>
                             { messages.map((message) => (
-                                <p className={message.source === alumni ? "outgoing-messages" : "incoming-messages"} key={message.date}>
-                                    <span><b>{message.source === alumni ? 'You' : message.source} </b></span>
-                                    <p>{message.content} </p>
-                                    <span style={{float: 'right'}}><i>{message.date} </i></span>
-                                </p>
+                                <div className={message.source === user.username ? "outgoing-messages" : "incoming-messages"} key={message.date}>
+                                    <span><b>{message.source === user.username ? 'You' : message.source} </b></span>
+                                    <small>{message.content} </small>
+                                    <span style={{float: 'right', marginLeft: '3%'}}><i><TimeAgo timestamp={message.date_created} /> </i></span>
+                                </div>
                             ))}
                         </Card.Body>
                         <InputGroup className="" >
@@ -134,23 +89,30 @@ const ChatPage = () => {
                             placeholder="Type a message here..."
                             aria-label="Message Content"
                             aria-describedby="basic-addon2"
+                            name="content"
+                            value={message.content}
+                            onChange={onMessageChange}
                             />
                             <InputGroup.Append>
-                                <Button variant="outline-primary">
+                                <Button
+                                    disabled={message.content === ''}
+                                    variant="outline-primary"
+                                    onClick={e => sendMessage(e)}
+                                    >
                                     <Icon glyph="send-fill" size={20} />
                                 </Button>
                             </InputGroup.Append>
                         </InputGroup>
                     </Card>
                 </Col>
-                <Col md={{span: 3, offset: 1}} xs={12} style={{marginBottom: '10px'}}>
+                <Col md={{span: 4, offset: 0}} xs={12} style={{marginBottom: '10px'}}>
                     <Card>
                         {/* <Card.Header> */}
-                            <Message variant='info' >ONLINE ALUMNI<Badge variant="info" style={{ float: 'right' }}>15</Badge></Message>
+                        <Message variant='info' >ONLINE ALUMNI<Badge variant="info" style={{ float: 'right' }}> {activeAlumni.length} </Badge></Message>
                         {/* </Card.Header> */}
                         <Card.Body className="active-alumni-list">
                             {activeAlumni.map((item) => (<>
-                                <p key={item.id}>{item.regNo}</p> <hr /></>
+                                <div key={item.id}>{item.username}</div> <hr /></>
                             ))}
                         </Card.Body>
                     </Card>

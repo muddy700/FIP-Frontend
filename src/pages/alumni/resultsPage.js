@@ -114,7 +114,7 @@ const ResultsPage = () => {
   return (
     <Card >
         <Card.Header >
-          <Message variant='info' >Dear {user.username}, You have applied{ alumniApplications.length} the folloving companies</Message>
+          <Message variant='info' >Dear {user.username}, You have applied the folloving companies</Message>
         </Card.Header>
         <Card.Body style={{ overflowX:'scroll'}}  >
           <Table columns={columns} dataSource={alumniApplications} pagination={{pageSize: 5}} column={{ellipsis: true}} />

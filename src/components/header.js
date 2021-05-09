@@ -9,11 +9,24 @@ import { useSelector, useDispatch}  from 'react-redux'
 import { selectUserData, saveUser, apiConfigurations } from '../slices/userSlice'
 import { changePage, selectAppData } from '../slices/appSlice'
 import { logoutUser } from '../app/api'
+import db from '../firebase';
 
 const Header = ({ changeCollapse, value }) => {
     const user = useSelector(selectUserData)
+    const appData = useSelector(selectAppData)
     const config = useSelector(apiConfigurations)
     const dispatch = useDispatch()
+    const usersRef = db.collection('users');
+
+    const removeLoggedAlumni = () => {
+        usersRef.doc(appData.alumniDocId).delete()
+            .then(() => {
+            console.log('User Doc Deleted')
+        })
+            .catch((error) => {
+                console.error("Error Deleting Logged Alumni : ", error);
+            });
+    }
 
     const handleLogOut = async () => {
         // const config = { headers: { 'Authorization': `Token ${localStorage.getItem('token')}` } }
@@ -24,6 +37,12 @@ const Header = ({ changeCollapse, value }) => {
                         activePage: 1
                     }))
             localStorage.removeItem('token')
+
+            if (user.designation === 'alumni') {
+                removeLoggedAlumni()
+            }
+
+
 
         } catch (error) {
             console.log({

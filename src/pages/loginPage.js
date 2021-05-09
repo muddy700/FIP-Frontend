@@ -7,11 +7,14 @@ import { saveUser, apiConfigurations } from '../slices/userSlice'
 import { changePage } from '../slices/appSlice'
 import { authenticateUser, getUserProfile } from '../app/api'
 import Loader from '../components/loader';
+import db from '../firebase';
 
 
 export const LoginPage = () => {
   const dispatch = useDispatch();
     const config = useSelector(apiConfigurations)
+    const usersRef = db.collection('users');
+
     
     const initialUser = {
         username: '',
@@ -22,6 +25,25 @@ export const LoginPage = () => {
     const [errorMode, setErrorMode] = useState(false)
     const [errorMessage, setErrorMessage] = useState('')
     const [isLoading, setIsLoading] = useState(false)
+
+
+    
+    const addLoggedAlumni = (id, name) => {
+        const userData = {
+            id: id,
+            username: name
+        }
+        usersRef.add(userData)
+            .then((docRef) => {
+                dispatch(changePage({
+                    alumniDocId: docRef.id,
+                    activePage: 2
+                }))
+        })
+            .catch((error) => {
+                console.error("Error Adding Logged Alumni : ", error);
+            });
+    }
 
     const formValidator = (e) => {
         e.preventDefault()
@@ -71,6 +93,10 @@ export const LoginPage = () => {
                         token: response.token,
                         isAuthenticated: true,
                     }))
+
+                    if (userProfile[0].designation_name === 'alumni') {
+                        addLoggedAlumni(userProfile[0].user, userProfile[0].username)
+                    }
 
                     localStorage.setItem('token', response.token)
                     dispatch(changePage({
