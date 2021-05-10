@@ -105,14 +105,14 @@ const ChatPage = () => {
                         </InputGroup>
                     </Card>
                 </Col>
-                <Col md={{span: 4, offset: 0}} xs={12} style={{marginBottom: '10px'}}>
+                <Col md={{span: 3, offset: 1}} xs={12} style={{marginBottom: '10px'}}>
                     <Card>
                         {/* <Card.Header> */}
                         <Message variant='info' >ONLINE ALUMNI<Badge variant="info" style={{ float: 'right' }}> {activeAlumni.length} </Badge></Message>
                         {/* </Card.Header> */}
                         <Card.Body className="active-alumni-list">
                             {activeAlumni.map((item) => (<>
-                                <div key={item.id}>{item.username}</div> <hr /></>
+                                <div key={item.id}>{item.username === user.username ? 'You' : item.username}</div> <hr /></>
                             ))}
                         </Card.Body>
                     </Card>

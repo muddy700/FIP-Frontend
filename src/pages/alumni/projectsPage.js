@@ -107,18 +107,18 @@ useEffect(() => {
         <Card.Header >
           <Message variant='info' >Projects List</Message>
         </Card.Header>
-            <Card.Body style={{ overflowX: 'scroll' }}  >
-                <Button>Add Project</Button>
+        <Card.Body style={{ overflowX: 'scroll' }}  >
+          <Button>Add Project</Button>
           <Table columns={columns} dataSource={alumniProjects} pagination={{pageSize: 5}} column={{ellipsis: true}} />
        </Card.Body>
         <ContentModal
-        show={modalShow}
-        isTable={true}
-        title={modalTitle}
-        content={modalContent}
-        onHide={() => setModalShow(false)}
-      />
-        </Card>
+          show={modalShow}
+          isTable={true}
+          title={modalTitle}
+          content={modalContent}
+          onHide={() => setModalShow(false)}
+        />
+    </Card>
     )
 }
 

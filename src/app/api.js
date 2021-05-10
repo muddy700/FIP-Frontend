@@ -45,8 +45,18 @@ export async function fetchDesignationAnnouncements(designationId, config) {
     const response = await baseLink.get(`filter/designation/${designationId}/announcements`, config)
     return response.data
 }
+
 export async function getAlumniProfile(alumniId, config) {
     const response = await baseLink.get(`filter/alumni/${alumniId}/profile`, config)
+    return response.data
+}
+
+export async function getInterviewQuestions(professionId, config) {
+    const response = await baseLink.get(`filter/profession/${professionId}/questions/`, config)
+    return response.data
+}
+export async function getInterviewQuestionChoices(questionId, config) {
+    const response = await baseLink.get(`filter/question/${questionId}/choices/`, config)
     return response.data
 }
 // export async function fetchUserPosts(config) {

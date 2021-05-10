@@ -9,6 +9,8 @@ import { useSelector, useDispatch}  from 'react-redux'
 import { pullInternshipPosts } from '../../app/api';
 import { apiConfigurations } from '../../slices/userSlice';
 import { fetchInternshipPosts, selectInternshipPostList } from '../../slices/internshipPostSlice';
+import QuestionsModal from '../../components/warningModal';
+import WarningModal from '../../components/warningModal';
 // import { changePage, selectAppData } from '../slices/appSlice'
 
 const AvailablePostsPage = () => {
@@ -16,6 +18,11 @@ const AvailablePostsPage = () => {
     const config = useSelector(apiConfigurations)
     const dispatch = useDispatch()
     const internshipPosts = useSelector(selectInternshipPostList)
+    const [selectedPost, setSelectedPost] = useState('')
+    const [profession, setProfession] = useState('')
+    const [modalShow, setModalShow] = useState(false);
+    const modalTitle = "Warning!"
+    const modalContent = "To Apply This Post You Need To Do A Small Quiz In A Given Time Limit. And Once You Start You Cannot Abort The Process. To Continue Press 'Start' To Quit Press 'Cancel'"
 
     const getInternshipPosts = async () => {
 
@@ -90,7 +97,15 @@ const AvailablePostsPage = () => {
                                         <Link to={{pathname: "/post_details", postId:post.id }}>
                                             <Button variant="link" >View Details</Button>
                                         </Link>
-                                        <Button variant="link">Apply</Button>
+                                        <Button
+                                            variant="link"
+                                            onClick={e => {
+                                                e.preventDefault();
+                                                setModalShow(true);
+                                                setSelectedPost(post.id);
+                                                setProfession(post.profession)
+                                            }}
+                                        >Apply</Button>
                                     </>
                                 </Col>
                             </Row>
@@ -98,6 +113,15 @@ const AvailablePostsPage = () => {
                     )}
                  />
             </Card.Body>
+        <WarningModal
+            show={modalShow}
+            title={modalTitle}
+            content={modalContent}
+            onHide={() => setModalShow(false)}
+            closeModal={() => setModalShow(false)}
+            postId={selectedPost}
+            professionId={profession}
+        />
         </Card>
     )
 }

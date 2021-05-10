@@ -15,6 +15,7 @@ import AnnouncementsPage from './announcementsPage';
 import ChatPage from './chatPage';
 import PasswordPage from './passwordPage';
 import { PostDetails } from './postDetails';
+import { InterviewPage } from './interviewPage';
 
 
 
@@ -32,9 +33,12 @@ const AlumniContents = () => {
             <Route exact path={["/post_details"]}>
                 <PostDetails />
               </Route>
-              <Route exact path={["/application_results"]}>
-                <ResultsPage />
-              </Route>
+            <Route exact path={["/application_results"]}>
+              <ResultsPage />
+            </Route>
+            <Route exact path={["/interview_page"]}>
+              <InterviewPage />
+            </Route>
             <Route exact path={["/my_profile"]}>
                 <ProfilePage />
               </Route>
