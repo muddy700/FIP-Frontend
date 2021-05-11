@@ -15,31 +15,36 @@ export const InterviewPage = () => {
     const { postId, professionId } = location
 
     const [showModal, setShowModal] = useState(true)
+    const [marks, setMarks] = useState(0)
     const [questions, setQuestions] = useState([])
     const [activeQuestion, setActiveQuestion] = useState({})
     const [attemptedQuestions, setAttemptedQuestions] = useState([])
     const [questionChoices, setQuestionChoices] = useState([])
     const [selectedChoice, setSelectedChoice] = useState('')
     const [applicantAnswers, setApplicantAnswers] = useState([])
-    const [markingScheme, setMarkingScheme] = useState([])
-
-    var marks = 0;
 
     const goToPreviousPage = () => {
         history.goBack()
+
+        setSelectedChoice('')
+        setQuestions([])
+        setAttemptedQuestions([])
+        setApplicantAnswers([])
+        setQuestionChoices([])
+        setActiveQuestion({})
+        setMarks(0)
     }
     
     const findMarks = () => {
-        // console.log(markingScheme)
-        applicantAnswers.map((answer) => {
-            markingScheme.map(item => {
-                if (answer.choice === item.id) {
-                    console.log('correct')
-                }
-            })
-        })
-
+        const correctAnswers = applicantAnswers.filter((answer) => answer.choice === 'true')
+        if (selectedChoice === 'true') {
+            setMarks((correctAnswers.length +1) * 20)
+        }
+        else { 
+            setMarks(correctAnswers.length * 20)
+        }
     }
+
     const changeQuestions = () => {
 
         const answer = {
@@ -55,6 +60,7 @@ export const InterviewPage = () => {
             findMarks();
         }
         else {
+            setSelectedChoice(false)
             var qn = questions[Math.floor(Math.random() * questions.length)]
             const hasAttempted = attemptedQuestions.find(item => item.id === qn.id)
             
@@ -76,8 +82,10 @@ export const InterviewPage = () => {
         try {
             const response = await getInterviewQuestions(professionId, config)
             setQuestions(response)
-            setActiveQuestion(response[0])
-            setAttemptedQuestions([...attemptedQuestions, response[0]])
+            var qn = response[Math.floor(Math.random() * response.length)]
+            setActiveQuestion(qn)
+            setAttemptedQuestions([...attemptedQuestions, qn])
+
         } catch (error) {
             console.log({
                 'request': 'Fetch Interview Questions Request',
@@ -89,7 +97,6 @@ export const InterviewPage = () => {
         try {
             const response = await getInterviewQuestionChoices(activeQuestion.id, config)
             setQuestionChoices(response)
-            setMarkingScheme([...markingScheme, response.find(item => item.isCorrect) ])
         } catch (error) {
             console.log({
                 'request': 'Fetch Question Choices Request',
@@ -110,8 +117,9 @@ export const InterviewPage = () => {
             <h1>Interview Page <br />
             post: {postId} <br />
             profession:{professionId} <br />
-             user:    {user.userId} <br />
-                you have done {attemptedQuestions.length}
+            user:    {user.userId} <br />
+            you have done {attemptedQuestions.length}  qns<br />
+            marks: {marks}%
             </h1>
 
             <Card.Body>
@@ -136,7 +144,7 @@ export const InterviewPage = () => {
                                     id={choice.id}
                                     name="selectedChoice"
                                     label={choice.choice}
-                                    value={choice.id}
+                                    value={choice.isCorrect}
                                     onChange={handleApplicantAnswers}
                                 />
                             </li> ))}
