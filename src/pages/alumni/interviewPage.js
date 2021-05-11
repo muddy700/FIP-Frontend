@@ -7,46 +7,77 @@ import { useHistory, Link, useLocation } from "react-router-dom";
 import { getInterviewQuestions, getInterviewQuestionChoices } from '../../app/api'
 
 export const InterviewPage = () => {
+
     const location = useLocation();
     const history = useHistory();
     const user = useSelector(selectUserData)
+    const config = useSelector(apiConfigurations)
+    const { postId, professionId } = location
+
     const [showModal, setShowModal] = useState(true)
     const [questions, setQuestions] = useState([])
     const [activeQuestion, setActiveQuestion] = useState({})
-
+    const [attemptedQuestions, setAttemptedQuestions] = useState([])
     const [questionChoices, setQuestionChoices] = useState([])
+    const [selectedChoice, setSelectedChoice] = useState('')
     const [applicantAnswers, setApplicantAnswers] = useState([])
-    const config = useSelector(apiConfigurations)
-    const { postId, professionId } = location
-    var questionCounter = 5;
+    const [markingScheme, setMarkingScheme] = useState([])
+
+    var marks = 0;
 
     const goToPreviousPage = () => {
         history.goBack()
     }
+    
+    const findMarks = () => {
+        // console.log(markingScheme)
+        applicantAnswers.map((answer) => {
+            markingScheme.map(item => {
+                if (answer.choice === item.id) {
+                    console.log('correct')
+                }
+            })
+        })
 
+    }
     const changeQuestions = () => {
-        var  qn = questions[Math.floor(Math.random() * questions.length)]
-        setActiveQuestion(qn)
-        // console.log(activeQuestion.id)
-        
-        // if (qnId > 4) {
-        //     console.log('Submit Answers')
-        // }
-        // else {
-        //     setQuestionId(questions[qnId + 1].id)
-        //     qnId++;
-        // }
+
+        const answer = {
+            alumni: user.userId,
+            question: activeQuestion.id,
+            post: postId,
+            choice: selectedChoice
+        }
+        setApplicantAnswers([...applicantAnswers, answer])
+
+        if (attemptedQuestions.length === 5) {
+            setShowModal(false)
+            findMarks();
+        }
+        else {
+            var qn = questions[Math.floor(Math.random() * questions.length)]
+            const hasAttempted = attemptedQuestions.find(item => item.id === qn.id)
+            
+            if (hasAttempted) {
+                changeQuestions()
+            }
+            else {
+                setActiveQuestion(qn)
+                setAttemptedQuestions([...attemptedQuestions, qn])
+            }
+        }
     }
 
     const handleApplicantAnswers = (e) => {
-        console.log(e.target.value)
+        setSelectedChoice(e.target.value)
     }
-
+    
     const fetchQuestions = async () => {
         try {
             const response = await getInterviewQuestions(professionId, config)
             setQuestions(response)
             setActiveQuestion(response[0])
+            setAttemptedQuestions([...attemptedQuestions, response[0]])
         } catch (error) {
             console.log({
                 'request': 'Fetch Interview Questions Request',
@@ -58,6 +89,7 @@ export const InterviewPage = () => {
         try {
             const response = await getInterviewQuestionChoices(activeQuestion.id, config)
             setQuestionChoices(response)
+            setMarkingScheme([...markingScheme, response.find(item => item.isCorrect) ])
         } catch (error) {
             console.log({
                 'request': 'Fetch Question Choices Request',
@@ -78,7 +110,8 @@ export const InterviewPage = () => {
             <h1>Interview Page <br />
             post: {postId} <br />
             profession:{professionId} <br />
-             user:    {user.userId}
+             user:    {user.userId} <br />
+                you have done {attemptedQuestions.length}
             </h1>
 
             <Card.Body>
@@ -90,6 +123,7 @@ export const InterviewPage = () => {
                 >
                     <Modal.Header >
                         <Modal.Title id="contained-modal-title-vcenter">
+                            <b>{activeQuestion ? attemptedQuestions.length + '. ' : ''}</b>
                             {activeQuestion ? activeQuestion.question_body : 'no body'} 
                         </Modal.Title>
                     </Modal.Header>
@@ -112,8 +146,7 @@ export const InterviewPage = () => {
                         <Button
                             variant="secondary"
                             onClick={changeQuestions}
-                        >Next </Button>
-                        {/* >{qnId === 4 ? 'Submit' : 'Next'} </Button> */}
+                        >{attemptedQuestions.length === 5 ? 'Submit' : 'Next'}</Button>
                     </Modal.Footer>
                 </Modal>
             </Card.Body>
