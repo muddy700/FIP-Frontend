@@ -162,6 +162,7 @@ export const LoginPage = () => {
                                         type="text"
                                         onChange={onFormChange}
                                         name="username"
+                                        autoFocus
                                         value={loginCredentials.username}
                                         placeholder="Enter username" />
                                 </Form.Group>

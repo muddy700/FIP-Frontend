@@ -55,8 +55,14 @@ export async function getInterviewQuestions(professionId, config) {
     const response = await baseLink.get(`filter/profession/${professionId}/questions/`, config)
     return response.data
 }
+
 export async function getInterviewQuestionChoices(questionId, config) {
     const response = await baseLink.get(`filter/question/${questionId}/choices/`, config)
+    return response.data
+}
+
+export async function sendInternshipApplication(payload, config) {
+    const response = await baseLink.post("internship_applications/", payload, config)
     return response.data
 }
 // export async function fetchUserPosts(config) {

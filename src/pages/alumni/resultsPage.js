@@ -42,7 +42,7 @@ const ResultsPage = () => {
     key: 'status',
     // ellipsis: 'true',
     dataIndex: 'status',
-    render: text => <Tag color={text === "pending" ? "lightgray" : 
+    render: text => <Tag color={text === "received" ? "lightgray" : 
       text === "accepted" ? "green" : "red"}>
               {text}
             </Tag>
@@ -74,7 +74,8 @@ const ResultsPage = () => {
   const fetchAlumniApplications = async () => {
     try {
       const response = await getAlumniApplications(user.userId, config)
-      setAlumniApplications(response)
+      const newRes = response.slice().sort((a, b) => b.date_applied.localeCompare(a.date_applied))
+      setAlumniApplications(newRes)
     } catch (error) {
             console.log({
                 'request': 'Fetch Alumni Applications Request',

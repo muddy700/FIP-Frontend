@@ -4,7 +4,7 @@ import { Card, Row, Col, Button, Modal, Form } from 'react-bootstrap'
 import { useSelector}  from 'react-redux'
 import { apiConfigurations, selectUserData } from '../../slices/userSlice'
 import { useHistory, Link, useLocation } from "react-router-dom";
-import { getInterviewQuestions, getInterviewQuestionChoices } from '../../app/api'
+import { getInterviewQuestions, getInterviewQuestionChoices, sendInternshipApplication } from '../../app/api'
 
 export const InterviewPage = () => {
 
@@ -22,6 +22,8 @@ export const InterviewPage = () => {
     const [questionChoices, setQuestionChoices] = useState([])
     const [selectedChoice, setSelectedChoice] = useState('')
     const [applicantAnswers, setApplicantAnswers] = useState([])
+    const [isTestDone, setisTestDone] = useState(false)
+    // const [timer, setTimer] = useState(60)
 
     const goToPreviousPage = () => {
         history.goBack()
@@ -33,16 +35,27 @@ export const InterviewPage = () => {
         setQuestionChoices([])
         setActiveQuestion({})
         setMarks(0)
+        setisTestDone(false)
     }
     
+    // var seconds = 10;
+
+    // setInterval(() => {
+    //     // changeQuestions()
+    // }, 1000 * 60);
+
     const findMarks = () => {
         const correctAnswers = applicantAnswers.filter((answer) => answer.choice === 'true')
+        var score = 0;
         if (selectedChoice === 'true') {
-            setMarks((correctAnswers.length +1) * 20)
+            score = (correctAnswers.length + 1) * 20;
+            setMarks(score)
         }
-        else { 
-            setMarks(correctAnswers.length * 20)
+        else {
+            score = correctAnswers.length * 20;
+            setMarks(score)
         }
+        saveInternshipApplication(score)
     }
 
     const changeQuestions = () => {
@@ -104,6 +117,25 @@ export const InterviewPage = () => {
             }) }
     }
 
+    const saveInternshipApplication = async (score) => {
+
+        const payload = {
+            alumni: user.userId,
+            post: postId,
+            test_score: score
+        }
+
+        try {
+            const response = await sendInternshipApplication(payload, config)
+            setisTestDone(true)
+            // console.log(response)
+        } catch (error) {
+            console.log({
+                'request': 'Send Applicant Scores Request',
+                'Error => ': error
+            }) }
+    }
+
     useEffect(() => {
        fetchQuestions()
     }, [professionId])
@@ -114,14 +146,9 @@ export const InterviewPage = () => {
 
     return (
         <Card className="">
-            <h1>Interview Page <br />
-            post: {postId} <br />
-            profession:{professionId} <br />
-            user:    {user.userId} <br />
-            you have done {attemptedQuestions.length}  qns<br />
-            marks: {marks}%
-            </h1>
-
+            {isTestDone ?
+                <h1>{marks >= 50 ? 'Congratulations, You Got ' : 'Your Marks For The Test Is '}  {marks}% </h1>
+                : ''}
             <Card.Body>
                 <Modal
                     show={showModal}
@@ -131,7 +158,7 @@ export const InterviewPage = () => {
                 >
                     <Modal.Header >
                         <Modal.Title id="contained-modal-title-vcenter">
-                            <b>{activeQuestion ? attemptedQuestions.length + '. ' : ''}</b>
+                            <b>{activeQuestion ? attemptedQuestions.length + '. ' : ''} </b>
                             {activeQuestion ? activeQuestion.question_body : 'no body'} 
                         </Modal.Title>
                     </Modal.Header>
@@ -160,9 +187,9 @@ export const InterviewPage = () => {
             </Card.Body>
             <Button
                 variant="secondary"
-                style={{marginLeft: '10px'}}
+                // style={{marginLeft: '10px'}}
                 onClick={goToPreviousPage} >
-                Back
+                Exit
             </Button>
         </Card>
     )

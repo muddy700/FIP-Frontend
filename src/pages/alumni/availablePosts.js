@@ -22,13 +22,14 @@ const AvailablePostsPage = () => {
     const [profession, setProfession] = useState('')
     const [modalShow, setModalShow] = useState(false);
     const modalTitle = "Warning!"
-    const modalContent = "To Apply This Post You Need To Do A Small Quiz In A Given Time Limit. And Once You Start You Cannot Abort The Process. To Continue Press 'Start' To Quit Press 'Cancel'"
+    const modalContent = "To Apply This Post You Need To Do A Test In A Given Time Limit. And Once You Start You Cannot Abort The Process. To Continue Press 'Start', To Quit Press 'Cancel'"
 
     const getInternshipPosts = async () => {
 
         try {
             const response = await pullInternshipPosts(config)
-            dispatch(fetchInternshipPosts(response))
+            const newRes = response.slice().sort((a, b) => b.date_updated.localeCompare(a.date_updated))
+            dispatch(fetchInternshipPosts(newRes))
 
         } catch (error) {
             console.log({
