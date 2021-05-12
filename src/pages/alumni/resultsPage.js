@@ -71,6 +71,7 @@ const ResultsPage = () => {
     const selectedApplication = alumniApplications.find((application) => application.id === id)
     setActiveApplication(selectedApplication)
   }
+  
   const fetchAlumniApplications = async () => {
     try {
       const response = await getAlumniApplications(user.userId, config)

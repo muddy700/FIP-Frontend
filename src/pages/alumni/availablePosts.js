@@ -6,8 +6,8 @@ import { Button, Row, Col, Card, InputGroup, FormControl } from 'react-bootstrap
 import Message from '../../components/message'
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch}  from 'react-redux'
-import { pullInternshipPosts } from '../../app/api';
-import { apiConfigurations } from '../../slices/userSlice';
+import { getAlumniApplications, pullInternshipPosts } from '../../app/api';
+import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import { fetchInternshipPosts, selectInternshipPostList } from '../../slices/internshipPostSlice';
 import QuestionsModal from '../../components/warningModal';
 import WarningModal from '../../components/warningModal';
@@ -17,18 +17,34 @@ const AvailablePostsPage = () => {
 
     const config = useSelector(apiConfigurations)
     const dispatch = useDispatch()
+    const user = useSelector(selectUserData)
     const internshipPosts = useSelector(selectInternshipPostList)
     const [selectedPost, setSelectedPost] = useState('')
     const [profession, setProfession] = useState('')
     const [modalShow, setModalShow] = useState(false);
+    const [appliedPostIds, setAppliedPostIds] = useState([])
     const modalTitle = "Warning!"
     const modalContent = "To Apply This Post You Need To Do A Test In A Given Time Limit. And Once You Start You Cannot Abort The Process. To Continue Press 'Start', To Quit Press 'Cancel'"
 
-    const getInternshipPosts = async () => {
+    
+  const fetchAlumniApplications = async () => {
+    try {
+        const response = await getAlumniApplications(user.userId, config)
+        const newRes = response.map(res => res.post)
+        setAppliedPostIds(newRes)
+    } catch (error) {
+        console.log({
+            'request': 'Fetch Alumni Applications In Available Post',
+            'Error => ': error
+        })
+    }
+}
 
+const getInternshipPosts = async () => {
         try {
             const response = await pullInternshipPosts(config)
-            const newRes = response.slice().sort((a, b) => b.date_updated.localeCompare(a.date_updated))
+            const newPosts = response.filter(post => !appliedPostIds.includes(post.id))
+            const newRes = newPosts.slice().sort((a, b) => b.date_updated.localeCompare(a.date_updated))
             dispatch(fetchInternshipPosts(newRes))
 
         } catch (error) {
@@ -39,9 +55,12 @@ const AvailablePostsPage = () => {
          
         }
     }
-
+    
+    if(appliedPostIds.length !== 0) getInternshipPosts()
+    
     useEffect(() => {
-       getInternshipPosts()
+        fetchAlumniApplications()
+        // getInternshipPosts();
     }, [])
 
     return (
@@ -81,7 +100,7 @@ const AvailablePostsPage = () => {
                         >
                             <List.Item.Meta
                                 // avatar={<Avatar size="large" src={post.avatar} />}
-                                title={<h5 > {post.organization_name}</h5>}
+                                title={<h5 > {post.organization_name} {post.id} </h5>}
                             />
                             <Row >
                                 <Col md={{span: 3, offset: 1}} style={{ display: 'flex' }}>
