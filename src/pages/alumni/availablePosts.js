@@ -9,9 +9,7 @@ import { useSelector, useDispatch}  from 'react-redux'
 import { getAlumniApplications, pullInternshipPosts } from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import { fetchInternshipPosts, selectInternshipPostList } from '../../slices/internshipPostSlice';
-import QuestionsModal from '../../components/warningModal';
 import WarningModal from '../../components/warningModal';
-// import { changePage, selectAppData } from '../slices/appSlice'
 
 const AvailablePostsPage = () => {
 

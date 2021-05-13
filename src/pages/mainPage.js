@@ -10,6 +10,8 @@ import StudentContents from './student/studentContents';
 import StudentSidebar from './student/studentSidebar';
 import { useSelector}  from 'react-redux'
 import { selectUserData } from '../slices/userSlice'
+import OrganizationSidebar from './organization/organizationSidebar';
+import OrganizationContents from './organization/organizationContents';
 
 const mql = window.matchMedia(`(min-width: 800px)`);
 
@@ -49,6 +51,10 @@ export const HomePage = () => {
   else if (userRole === 'student') {
     activeContents =  <StudentContents />
     activeSidebar = <StudentSidebar />
+  }
+  else if (userRole === 'organization') {
+    activeContents =  <OrganizationContents />
+    activeSidebar = <OrganizationSidebar />
   }
 
       const sidebarProps = {

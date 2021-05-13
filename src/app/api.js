@@ -65,6 +65,12 @@ export async function sendInternshipApplication(payload, config) {
     const response = await baseLink.post("internship_applications/", payload, config)
     return response.data
 }
+
+export async function getOrganizationInternshipPosts(organizationId, config) {
+    const response = await baseLink.get(`filter/organization/${organizationId}/internship_posts/`, config)
+    return response.data
+}
+
 // export async function fetchUserPosts(config) {
 //     const response = await baseLink.get("user/posts/", config)
 //     return response.data

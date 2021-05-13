@@ -17,8 +17,6 @@ import PasswordPage from './passwordPage';
 import { PostDetails } from './postDetails';
 import { InterviewPage } from './interviewPage';
 
-
-
 const AlumniContents = () => {
 
     return (
