@@ -26,8 +26,6 @@ export const LoginPage = () => {
     const [errorMessage, setErrorMessage] = useState('')
     const [isLoading, setIsLoading] = useState(false)
 
-
-    
     const addLoggedAlumni = (id, name) => {
         const userData = {
             id: id,

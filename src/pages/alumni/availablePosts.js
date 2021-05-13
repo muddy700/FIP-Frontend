@@ -22,30 +22,18 @@ const AvailablePostsPage = () => {
     const [selectedPost, setSelectedPost] = useState('')
     const [profession, setProfession] = useState('')
     const [modalShow, setModalShow] = useState(false);
-    const [appliedPostIds, setAppliedPostIds] = useState([])
     const modalTitle = "Warning!"
     const modalContent = "To Apply This Post You Need To Do A Test In A Given Time Limit. And Once You Start You Cannot Abort The Process. To Continue Press 'Start', To Quit Press 'Cancel'"
 
-    
-  const fetchAlumniApplications = async () => {
-    try {
-        const response = await getAlumniApplications(user.userId, config)
-        const newRes = response.map(res => res.post)
-        setAppliedPostIds(newRes)
-    } catch (error) {
-        console.log({
-            'request': 'Fetch Alumni Applications In Available Post',
-            'Error => ': error
-        })
-    }
-}
-
 const getInternshipPosts = async () => {
+    try {
+        const response1 = await getAlumniApplications(user.userId, config)
+        const appliedPostsIds = response1.map(res => res.post)
         try {
-            const response = await pullInternshipPosts(config)
-            const newPosts = response.filter(post => !appliedPostIds.includes(post.id))
-            const newRes = newPosts.slice().sort((a, b) => b.date_updated.localeCompare(a.date_updated))
-            dispatch(fetchInternshipPosts(newRes))
+            const response2 = await pullInternshipPosts(config)
+            const newPosts = response2.filter(post => !appliedPostsIds.includes(post.id))
+            const arrangedPosts = newPosts.slice().sort((a, b) => b.date_updated.localeCompare(a.date_updated))
+            dispatch(fetchInternshipPosts(arrangedPosts))
 
         } catch (error) {
             console.log({
@@ -54,13 +42,16 @@ const getInternshipPosts = async () => {
             })
          
         }
+    } catch (error) {
+        console.log({
+            'request': 'Fetch Alumni Applications In Available Post',
+            'Error => ': error
+        })
     }
-    
-    if(appliedPostIds.length !== 0) getInternshipPosts()
+}
     
     useEffect(() => {
-        fetchAlumniApplications()
-        // getInternshipPosts();
+        getInternshipPosts();
     }, [])
 
     return (
@@ -100,7 +91,7 @@ const getInternshipPosts = async () => {
                         >
                             <List.Item.Meta
                                 // avatar={<Avatar size="large" src={post.avatar} />}
-                                title={<h5 > {post.organization_name} {post.id} </h5>}
+                                title={<h5 > {post.organization_name} </h5>}
                             />
                             <Row >
                                 <Col md={{span: 3, offset: 1}} style={{ display: 'flex' }}>
