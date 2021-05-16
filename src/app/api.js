@@ -31,6 +31,11 @@ export async function pullInternshipPosts(config) {
     return response.data
 }
 
+export async function pushInternshipPost(payload, config) {
+    const response = await baseLink.post("internship_posts/", payload, config)
+    return response.data
+}
+
 export async function getAlumniApplications(alumniId, config) {
     const response = await baseLink.get(`filter/alumni/${alumniId}/internship_applications`, config)
     return response.data

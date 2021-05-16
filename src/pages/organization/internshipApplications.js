@@ -84,8 +84,8 @@ const InternshipApplications = () => {
         try {
             const response = await getInternshipApplications(config)
             const arrangedByDate = response.slice().sort((a, b) => b.date_applied.localeCompare(a.date_applied))
-            const arrangedByScore = arrangedByDate.slice().sort((a, b) => b.test_score - a.test_score)
-            setApplications(arrangedByScore)
+            // const arrangedByScore = arrangedByDate.slice().sort((a, b) => b.test_score - a.test_score)
+            setApplications(arrangedByDate)
         } catch (error) {
             console.log({
                 'request': 'Fetch Internship Applications Request',
@@ -102,15 +102,15 @@ const InternshipApplications = () => {
     return (
     <Card >
         <Card.Header >
-          <Message variant='info' >Dear {user.username}, You have Posted The Following Chances</Message>
+          <Message variant='info' >Dear {user.username}, You have The Following Requests</Message>
         </Card.Header>
             <Card.Body style={{ overflowX: 'scroll' }}  >
                 
                 <Row style={{marginBottom: '16px'}}>
-                    <Col md={{ span: 3 }}>
+                    {/* <Col md={{ span: 3 }}>
                       <Button>New Post</Button>
-                    </Col>
-                    <Col md={{ span: 4, offset: 5 }}>
+                    </Col> */}
+                    <Col md={{ span: 4, offset: 8 }}>
                         <InputGroup>
                             <FormControl
                             placeholder="Enter Cut-Off Point"
