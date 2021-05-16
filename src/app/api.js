@@ -66,11 +66,20 @@ export async function sendInternshipApplication(payload, config) {
     return response.data
 }
 
+export async function getInternshipApplications(config) {
+    const response = await baseLink.get("internship_applications/", config)
+    return response.data
+}
+
 export async function getOrganizationInternshipPosts(organizationId, config) {
     const response = await baseLink.get(`filter/organization/${organizationId}/internship_posts/`, config)
     return response.data
 }
 
+export async function getProfessions(config) {
+    const response = await baseLink.get("professions/", config)
+    return response.data
+}
 // export async function fetchUserPosts(config) {
 //     const response = await baseLink.get("user/posts/", config)
 //     return response.data
