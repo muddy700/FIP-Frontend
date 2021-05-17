@@ -92,8 +92,9 @@ const InternshipApplications = () => {
         try {
             const response = await getInternshipApplications(postId, config)
             const arrangedByDate = response.slice().sort((a, b) => b.date_applied.localeCompare(a.date_applied))
-            const arrangedByScore = arrangedByDate.slice().sort((a, b) => b.test_score - a.test_score)
-            setApplications(arrangedByScore)
+          const arrangedByScore = arrangedByDate.slice().sort((a, b) => b.test_score - a.test_score)
+          const unProcessedApplications = arrangedByScore.filter(item => item.status === 'received')
+            setApplications(unProcessedApplications)
         } catch (error) {
             console.log({
                 'request': 'Fetch Internship Applications Request',
@@ -114,7 +115,8 @@ const InternshipApplications = () => {
     const payload = updatedApplications.find(item => item.id === id);
         try {
           const response = await processInternshipApplication(id, payload, config)
-          console.log(response)
+          const newApplications = applications.filter(item => item.id !== response.id)
+          setApplications(newApplications)
         } catch (error) {
             console.log({
                 'request': 'Edit Internship Applications Request',

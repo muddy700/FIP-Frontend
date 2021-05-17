@@ -18,6 +18,7 @@ const AvailablePostsPage = () => {
     const user = useSelector(selectUserData)
     const internshipPosts = useSelector(selectInternshipPostList)
     const [selectedPost, setSelectedPost] = useState('')
+    const [selectedOrganization, setSelectedOrganization] = useState('')
     const [profession, setProfession] = useState('')
     const [modalShow, setModalShow] = useState(false);
     const modalTitle = "Warning!"
@@ -103,7 +104,7 @@ const getInternshipPosts = async () => {
                                 </Col>
                                 <Col md={3} style={{ display: 'flex' }}>
                                     <>
-                                        <Link to={{pathname: "/post_details", postId:post.id }}>
+                                        <Link to={{pathname: "/post_details", postId:post.id, }}>
                                             <Button variant="link" >View Details</Button>
                                         </Link>
                                         <Button
@@ -112,6 +113,7 @@ const getInternshipPosts = async () => {
                                                 e.preventDefault();
                                                 setModalShow(true);
                                                 setSelectedPost(post.id);
+                                                setSelectedOrganization(post.organization)
                                                 setProfession(post.profession)
                                             }}
                                         >Apply</Button>
@@ -130,6 +132,7 @@ const getInternshipPosts = async () => {
             closeModal={() => setModalShow(false)}
             postId={selectedPost}
             professionId={profession}
+            organizationId={selectedOrganization}
         />
         </Card>
     )

@@ -12,7 +12,6 @@ import ContentModal from '../../components/contentModal';
 
 const InternshipChances = () => {
 
-    
   const columns = [
   {
     title: 'S/N',

@@ -12,7 +12,7 @@ export const InterviewPage = () => {
     const history = useHistory();
     const user = useSelector(selectUserData)
     const config = useSelector(apiConfigurations)
-    const { postId, professionId } = location
+    const { postId, professionId, organizationId } = location
 
     const [showModal, setShowModal] = useState(true)
     const [marks, setMarks] = useState(0)
@@ -122,7 +122,8 @@ export const InterviewPage = () => {
         const payload = {
             alumni: user.userId,
             post: postId,
-            test_score: score
+            test_score: score,
+            organization: organizationId
         }
 
         try {

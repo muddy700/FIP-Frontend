@@ -2,7 +2,7 @@ import React from 'react'
 import { Modal, Button } from 'react-bootstrap'
 import { Link } from 'react-router-dom';
 
-const WarningModal = ({title, content, closeModal, postId, professionId, ...props }) => {
+const WarningModal = ({title, content, closeModal, postId, professionId, organizationId, ...props }) => {
     return (
         <Modal
             {...props}
@@ -19,7 +19,7 @@ const WarningModal = ({title, content, closeModal, postId, professionId, ...prop
                 {content}
             </Modal.Body>
             <Modal.Footer>
-                <Link to={{ pathname: "/interview_page", postId, professionId }}>
+                <Link to={{ pathname: "/interview_page", postId, professionId, organizationId }}>
                     <Button variant="link" >Start</Button>
                 </Link>
                 <Button

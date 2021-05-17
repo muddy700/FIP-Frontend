@@ -85,6 +85,11 @@ export async function getOrganizationInternshipPosts(organizationId, config) {
     return response.data
 }
 
+export async function getProcessedApplications(organizationId, config) {
+    const response = await baseLink.get(`filter/organization/${organizationId}/applications/`, config)
+    return response.data
+}
+
 export async function getProfessions(config) {
     const response = await baseLink.get("professions/", config)
     return response.data
