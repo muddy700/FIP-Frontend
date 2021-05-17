@@ -36,6 +36,16 @@ export async function pushInternshipPost(payload, config) {
     return response.data
 }
 
+export async function editInternshipPost(postId, payload, config) {
+    const response = await baseLink.put(`internship_posts/${postId}/`, payload, config)
+    return response.data
+}
+
+export async function removeInternshipPost(postId, config) {
+    const response = await baseLink.delete(`internship_posts/${postId}/`, config)
+    return response.data
+}
+
 export async function getAlumniApplications(alumniId, config) {
     const response = await baseLink.get(`filter/alumni/${alumniId}/internship_applications`, config)
     return response.data

@@ -96,17 +96,17 @@ const getInternshipPosts = async () => {
                                 <Col md={{span: 3, offset: 1}} style={{ display: 'flex' }}>
                                     Profession: &nbsp; <p>{post.profession_name} </p>
                                 </Col>
-                                <Col md={2} style={{ display: 'flex' }}>
+                                <Col md={1} style={{ display: 'flex' }}>
                                     Posts:  &nbsp; <p>{post.post_capacity} </p>
                                 </Col>
-                                <Col md={2} style={{ display: 'flex' }}>
+                                <Col md={3} style={{ display: 'flex' }}>
                                     Expire Date:  &nbsp; <p>{post.expiry_date} </p>
                                 </Col>
                                 <Col md={3} style={{ display: 'flex' }}>
                                     <>
                                         <Link to={{pathname: "/post_details", postId:post.id, }}>
                                             <Button variant="link" >View Details</Button>
-                                        </Link>
+                                        </Link><Link>
                                         <Button
                                             variant="link"
                                             onClick={e => {
@@ -116,7 +116,7 @@ const getInternshipPosts = async () => {
                                                 setSelectedOrganization(post.organization)
                                                 setProfession(post.profession)
                                             }}
-                                        >Apply</Button>
+                                        >Apply</Button></Link>
                                     </>
                                 </Col>
                             </Row>

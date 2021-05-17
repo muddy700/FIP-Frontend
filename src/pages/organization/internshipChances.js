@@ -1,12 +1,18 @@
 import React, {useState, useEffect} from 'react'
 import '../../App.css'
-import { List, Avatar, Space, Tag, Table } from 'antd';
+import { List, Avatar, Space, Tag, Table, Popconfirm } from 'antd';
+import { QuestionCircleOutlined } from '@ant-design/icons';
+
 import Icon from 'supercons'
 import { Button, Row, Col, Card, InputGroup, FormControl, Form } from 'react-bootstrap'
 import Message from '../../components/message'
 import { Link } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
-import { getAlumniApplications, getOrganizationInternshipPosts, getProfessions, pullInternshipPosts, pushInternshipPost } from '../../app/api';
+import {
+  getOrganizationInternshipPosts,
+  getProfessions, pushInternshipPost,
+  editInternshipPost, removeInternshipPost
+} from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 
@@ -42,11 +48,16 @@ const InternshipChances = () => {
           <Icon glyph="view" size={32} onClick={e => { e.preventDefault(); setModalShow(true); viewPost(record.id) }} />
         </Button>
         <Button variant="link" size="sm" >
-          <Icon glyph="post" size={32} />
+          <Icon glyph="post" size={32} onClick={e => { e.preventDefault(); showPostForm(record) }} />
         </Button>
-        <Button variant="link" size="sm" >
+        <Popconfirm
+          title="Are you sure？"
+          icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+          onConfirm={e => { e.preventDefault(); deleteInternshipPost(record.id) }}>
+         <Button variant="link" size="sm" >
           <Icon glyph="delete" size={32} />
-        </Button>
+          </Button>
+        </Popconfirm>
         <Link to={{pathname: "/post_applications", postId:record.id }}>
             <Button variant="link" >View Requests</Button>
         </Link>
@@ -72,6 +83,7 @@ const InternshipChances = () => {
   const [modalMode, setModalMode] = useState('')
   const [newPost, setNewPost] = useState(initialPost)
   const [skills, setSkills] = useState([])
+  const [editingMode, setEditingMode] = useState(false)
 
   const viewPost = (id) => {
     const postInfo = internshipPosts.find(post => post.id === id)
@@ -79,13 +91,24 @@ const InternshipChances = () => {
     setSelectedPost(postInfo)
   }
   
-  const showPostForm = () => {
+  const showPostForm = (text) => {
     setModalMode('form')
     setModalShow(true)
     fetchProfessions()
+    if (text === 'create') { }
+    else {
+      setEditingMode(true)
+      setNewPost(text)
+    }
   }
 
-  const handlePostForm = (e) => {
+  const closeModal = () => {
+    setModalShow(false)
+    setEditingMode(false)
+    setNewPost(initialPost)
+  }
+
+  const onPostFormChange = (e) => {
     setNewPost({
       ...newPost,
       [e.target.name]: e.target.value,
@@ -94,20 +117,44 @@ const InternshipChances = () => {
 
   }
 
-  const createNewPost = async (e) => {
+  const deleteInternshipPost = async (id) => {
+        try {
+          const response = await removeInternshipPost(id, config)
+          const newPosts = internshipPosts.filter(item => item.id !== id)
+          setInternshipPosts(newPosts)
+        } catch (error) {
+            console.log({
+                'request': 'Delete Internship Post Request',
+                'Error => ': error
+            })
+        }
+  }
+  const onPostFormSubmit = async (e) => {
     e.preventDefault();
     const { profession_name, ...payload } = newPost
     
-        try {
-            const response = await pushInternshipPost(payload, config)
-              setInternshipPosts([
-                  ...internshipPosts, response ])
+    try {
+      var response
+      if (editingMode) {
+        response = await editInternshipPost(newPost.id, payload, config)
+        const newPosts = internshipPosts.map(post => {
+          if (post.id === response.id) return response
+          else return post
+        })
+        setInternshipPosts(newPosts)
+        setEditingMode(false)
+      }
+      else {
+        response = await pushInternshipPost(payload, config)
+        setInternshipPosts([
+            ...internshipPosts, response ])
+      }
               setNewPost(initialPost)
               setModalShow(false)
               setModalMode('')
         } catch (error) {
             console.log({
-                'request': 'Send Internship Post Request',
+                'request': 'Send Or Edit Internship Post Request',
                 'Error => ': error
             })
         }
@@ -117,6 +164,7 @@ const InternshipChances = () => {
         try {
           const response = await getOrganizationInternshipPosts(user.userId, config)
           const arrangedByDate = response.slice().sort((a, b) => b.date_updated.localeCompare(a.date_updated))
+          // const newResponse = arrangedByDate.map(item => { return { ...item, date_created: item.date_created.subString(0, 10) } })
             setInternshipPosts(arrangedByDate)
         } catch (error) {
             console.log({
@@ -169,14 +217,15 @@ const InternshipChances = () => {
         </>
   
   const postForm =
-    <Form onSubmit={createNewPost}>
+    <Form onSubmit={onPostFormSubmit}>
       <Form.Row>
         <Form.Group as={Col} controlId="InternshipPostInput1">
           <Form.Label>Job Title</Form.Label>
           <Form.Control as="select"
               size="md"
+              disabled={editingMode}
               value={newPost.profession}
-              onChange={handlePostForm}
+              onChange={onPostFormChange}
               name="profession">
               <option>---Select Job Title---</option>
               {skills.map(skill => (
@@ -193,7 +242,7 @@ const InternshipChances = () => {
             name="post_capacity"
             value={newPost.post_capacity}
             aria-describedby="basic-addon2"
-            onChange={handlePostForm}
+            onChange={onPostFormChange}
             />
           </Form.Group>
       </Form.Row>
@@ -207,7 +256,7 @@ const InternshipChances = () => {
             name="post_description"
             value={newPost.post_description}
             aria-describedby="basic-addon2"
-            onChange={handlePostForm}
+            onChange={onPostFormChange}
             />
           </Form.Group>
         <Form.Group as={Col} controlId="InternshipPostInput4">
@@ -219,15 +268,16 @@ const InternshipChances = () => {
             name="expiry_date"
             value={newPost.expiry_date}
             aria-describedby="basic-addon2"
-            onChange={handlePostForm}
+            onChange={onPostFormChange}
             />
         </Form.Group>
       </Form.Row>
       <Button
         type="submit"
-        style={{float: 'right'}}>Send</Button>
+        variant={editingMode ? 'success' : 'primary'}
+        style={{ float: 'right' }}>{editingMode ? 'Save' : 'Send'} </Button>
     </Form> 
-  const modalTitle = modalMode === 'form' ? 'Fill Post Details' : "Post Details";
+  const modalTitle = modalMode !== 'form' ? "Post Details" : editingMode ? 'Editing Mode' : 'Fill Post Details' ;
   const modalContent = modalMode === 'form' ? postForm : postDetails;
 
     return (
@@ -239,7 +289,7 @@ const InternshipChances = () => {
                 
                 <Row style={{marginBottom: '16px'}}>
                     <Col md={{ span: 3 }}>
-                      <Button onClick={showPostForm}>New Post</Button>
+              <Button onClick={e => { e.preventDefault(); showPostForm('create') }}>New Post</Button>
                     </Col>
                     <Col md={{ span: 3, offset: 6 }}>
                                        <InputGroup>
@@ -268,7 +318,7 @@ const InternshipChances = () => {
         isTable={modalMode !== 'form' ? true : false}
         title={modalTitle}
         content={modalContent}
-        onHide={() => setModalShow(false)}
+        onHide={closeModal}
       />
         </Card>
     )
