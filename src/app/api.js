@@ -71,8 +71,12 @@ export async function sendInternshipApplication(payload, config) {
     return response.data
 }
 
-export async function getInternshipApplications(config) {
-    const response = await baseLink.get("internship_applications/", config)
+export async function getInternshipApplications(postId, config) {
+    const response = await baseLink.get(`filter/internship_post/${postId}/applications`, config)
+    return response.data
+}
+export async function processInternshipApplication(applicationId, payload, config) {
+    const response = await baseLink.put(`internship_applications/${applicationId}/`, payload, config)
     return response.data
 }
 

@@ -4,9 +4,9 @@ import { List, Avatar, Space, Tag, Table } from 'antd';
 import Icon from 'supercons'
 import { Button, Row, Col, Card, InputGroup, FormControl } from 'react-bootstrap'
 import Message from '../../components/message'
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useHistory } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
-import { getInternshipApplications } from '../../app/api';
+import { getInternshipApplications, processInternshipApplication } from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 
@@ -46,10 +46,10 @@ const InternshipApplications = () => {
     render: (text, record) => (
       <Space size="middle">
         <Button variant="link" size="sm"
-          onClick="">Accept
+          onClick={e => { e.preventDefault(); updateInternshipApplication(record.id, 1) }}>Accept
         </Button>
         <Button variant="link" size="sm"
-          onClick="">Reject
+          onClick={e => { e.preventDefault(); updateInternshipApplication(record.id, 0) }}>Reject
           {/* <Icon glyph="delete" size={32} onClick={e => { e.preventDefault(); viewPost(record.id) }} /> */}
         </Button>
       </Space>
@@ -57,6 +57,10 @@ const InternshipApplications = () => {
   },
     ];
 
+  
+    const location = useLocation();
+    const history = useHistory();
+    const { postId } = location
     const [modalShow, setModalShow] = useState(false);
     const config = useSelector(apiConfigurations)
     const user = useSelector(selectUserData)
@@ -70,6 +74,10 @@ const InternshipApplications = () => {
 
     }
 
+    const goToPreviousPage = () => {
+        history.goBack()
+  }
+  
     const filterByScore = (e) => {
         const passMark = e.target.value
         // console.log(passMark)
@@ -78,17 +86,38 @@ const InternshipApplications = () => {
     }
 
   const modalTitle = "Post Details";
-    const modalContent = "Post Contents";
+  const modalContent = "Post Contents";
     
-    const fetchInternshipApplications = async () => {
+  const fetchInternshipApplications = async () => {
         try {
-            const response = await getInternshipApplications(config)
+            const response = await getInternshipApplications(postId, config)
             const arrangedByDate = response.slice().sort((a, b) => b.date_applied.localeCompare(a.date_applied))
-            // const arrangedByScore = arrangedByDate.slice().sort((a, b) => b.test_score - a.test_score)
-            setApplications(arrangedByDate)
+            const arrangedByScore = arrangedByDate.slice().sort((a, b) => b.test_score - a.test_score)
+            setApplications(arrangedByScore)
         } catch (error) {
             console.log({
                 'request': 'Fetch Internship Applications Request',
+                'Error => ': error
+            })
+        }
+  }
+  
+  const updateInternshipApplication = async (id, status) => {
+    const updatedApplications = applications.map(item => {
+      if (item.id === id) {
+        if (status === 0) return { ...item, status: 'rejected' }
+        else return { ...item, status: 'accepted' }
+      }
+      else return item
+    })
+
+    const payload = updatedApplications.find(item => item.id === id);
+        try {
+          const response = await processInternshipApplication(id, payload, config)
+          console.log(response)
+        } catch (error) {
+            console.log({
+                'request': 'Edit Internship Applications Request',
                 'Error => ': error
             })
         }
@@ -102,14 +131,14 @@ const InternshipApplications = () => {
     return (
     <Card >
         <Card.Header >
-          <Message variant='info' >Dear {user.username}, You have The Following Requests</Message>
+          <Message variant='info' >Dear {user.username}, You have The Following Requests For The Seleceted Post</Message>
         </Card.Header>
             <Card.Body style={{ overflowX: 'scroll' }}  >
                 
                 <Row style={{marginBottom: '16px'}}>
-                    {/* <Col md={{ span: 3 }}>
-                      <Button>New Post</Button>
-                    </Col> */}
+                    <Col md={{ span: 3 }}> Applicants &nbsp;
+                      <Button>{applications.length}</Button>
+                    </Col>
                     <Col md={{ span: 4, offset: 8 }}>
                         <InputGroup>
                             <FormControl
@@ -130,9 +159,14 @@ const InternshipApplications = () => {
                 <hr/>
           <Table 
             columns={columns}
-            dataSource={filteredApplications.length !== 0 ? filteredApplications : applications}
+            dataSource={applications}
             pagination={{ pageSize: 5 }}
             column={{ ellipsis: true }} />
+          <Button
+                variant="secondary"
+                onClick={goToPreviousPage} >
+                Back
+            </Button>
        </Card.Body>
         <ContentModal
         show={modalShow}

@@ -48,6 +48,9 @@ const InternshipChances = () => {
         <Button variant="link" size="sm" >
           <Icon glyph="delete" size={32} />
         </Button>
+        <Link to={{pathname: "/post_applications", postId:record.id }}>
+            <Button variant="link" >View Requests</Button>
+        </Link>
       </Space>
     ),
   },

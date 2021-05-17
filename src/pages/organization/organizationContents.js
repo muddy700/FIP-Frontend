@@ -31,7 +31,7 @@ const OrganizationContents = () => {
             <Route exact path="/field_reports">
                 <FieldReports />
               </Route>
-            <Route exact path="/internship_applications">
+            <Route exact path="/post_applications">
                 <InternshipApplications />
               </Route>
             <Route exact path="/internship_chances">
