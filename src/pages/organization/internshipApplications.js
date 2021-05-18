@@ -66,7 +66,8 @@ const InternshipApplications = () => {
     const user = useSelector(selectUserData)
     const [selectedPost, setSelectedPost] = useState({})
     const [applications, setApplications] = useState([])
-    var filteredApplications = [];
+  var filteredApplications = [];
+  const [passMarks, setPassMarks] = useState(0)
 
   const viewPost = (id) => {
     // const postInfo = internshipPosts.find(post => post.id === id)
@@ -79,10 +80,11 @@ const InternshipApplications = () => {
   }
   
     const filterByScore = (e) => {
-        const passMark = e.target.value
+      // const passMark = 
+      setPassMarks(e.target.value)
         // console.log(passMark)
-        filteredApplications = applications.filter((item) => item.test_score >= passMark)
-        setApplications(filteredApplications)
+        // filteredApplications = applications.filter((item) => item.test_score >= passMark)
+        // setApplications(filteredApplications)
     }
 
   const modalTitle = "Post Details";
@@ -139,9 +141,9 @@ const InternshipApplications = () => {
                 
                 <Row style={{marginBottom: '16px'}}>
                     <Col md={{ span: 3 }}> Applicants &nbsp;
-                      <Button>{applications.length}</Button>
+                      <Button>{applications.filter(item => item.test_score >= passMarks).length}</Button>
                     </Col>
-                    <Col md={{ span: 4, offset: 8 }}>
+                    <Col md={{ span: 4, offset: 5 }}>
                         <InputGroup>
                             <FormControl
                             placeholder="Enter Cut-Off Point"
@@ -161,7 +163,7 @@ const InternshipApplications = () => {
                 <hr/>
           <Table 
             columns={columns}
-            dataSource={applications}
+            dataSource={applications.filter(item => item.test_score >= passMarks)}
             pagination={{ pageSize: 5 }}
             column={{ ellipsis: true }} />
           <Button
