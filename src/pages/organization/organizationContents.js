@@ -13,6 +13,7 @@ import FieldReports from './fieldReports';
 import InternshipApplications from './internshipApplications';
 import InternshipChances from './internshipChances';
 import InternshipReports from './internshipReports';
+import PostApplicants from './post_applicants';
 
 const OrganizationContents = () => {
 
@@ -33,6 +34,9 @@ const OrganizationContents = () => {
               </Route>
             <Route exact path="/post_applications">
                 <InternshipApplications />
+              </Route>
+            <Route exact path="/post_applicants">
+                <PostApplicants />
               </Route>
             <Route exact path="/internship_chances">
                 <InternshipChances />

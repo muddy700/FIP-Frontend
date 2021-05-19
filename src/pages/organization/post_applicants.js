@@ -6,11 +6,11 @@ import { Button, Row, Col, Card, InputGroup, FormControl, Form } from 'react-boo
 import Message from '../../components/message'
 import { useLocation, useHistory } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
-import { editInternshipPost, editMultipleApplications, getInternshipApplications, processInternshipApplication } from '../../app/api';
+import { editInternshipPost, editMultipleApplications, getInternshipApplications, } from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 
-const InternshipApplications = () => {
+const PostApplicants = () => {
 
     
   const columns = [
@@ -194,13 +194,13 @@ const InternshipApplications = () => {
     <Button onClick={inviteApplicants} disabled={finalStage === '' ? true : false}>Send</Button>
   </>;
     
-  const fetchInternshipApplications = async () => {
+  const fetchPostApplicants = async () => {
         try {
           const response = await getInternshipApplications(post.id, config)
-          const arrangedByDate = response.slice().sort((a, b) => b.date_applied.localeCompare(a.date_applied))
-          const arrangedByScore = arrangedByDate.slice().sort((a, b) => b.test_marks- a.test_marks)
-          const unProcessedApplications = arrangedByScore.filter(item => item.status === 'received')
-            setApplications(unProcessedApplications)
+        //   const arrangedByDate = response.slice().sort((a, b) => b.date_applied.localeCompare(a.date_applied))
+        //   const arrangedByScore = arrangedByDate.slice().sort((a, b) => b.test_marks- a.test_marks)
+          const newApplications = response.filter(item => item.status === post.status)
+            setApplications(newApplications)
         } catch (error) {
             console.log({ 
                 'request': 'Fetch Internship Applications Request',
@@ -210,22 +210,15 @@ const InternshipApplications = () => {
   }
    
     useEffect(() => {
-      fetchInternshipApplications()
+      fetchPostApplicants()
     }, [])
 
     return (
     <Card >
         <Card.Header >
-          {post.status === 'test' && applications.length !== 0  ?
-            <Message variant='info' >Dear {user.username}, You have The Following Requests For The Seleceted Post</Message> :
-            post.status === 'test' && applications.length === 0 ?
-            <Message variant='info' >Dear {user.username}, There is no any request yet</Message> :
-            <Message variant='success' >All applications have been processed successful</Message>
-          }
+            <Message variant='info' >Dear {user.username}, You have The Following applicants For The Seleceted Post</Message> 
         </Card.Header>
             <Card.Body style={{ overflowX: 'scroll' }}  >
-            {post.status === 'test' && applications.length !== 0 ?  <>
-                
                 <Row style={{marginBottom: '16px'}}>
                     <Col md={{ span: 6 }} >Seleceted Applicants &nbsp;
                       <Button>{selectedAlumni.length} </Button>
@@ -254,10 +247,9 @@ const InternshipApplications = () => {
                 <hr/>
           <Table 
             columns={columns}
-            dataSource={applications.filter(item => item.test_marks >= passMarks)}
+            dataSource={applications}
             pagination={{ pageSize: 5 }}
             column={{ ellipsis: true }} />
-                     </> : '' }
           <Button
                 variant="secondary"
                 onClick={goToPreviousPage} >
@@ -275,4 +267,4 @@ const InternshipApplications = () => {
     )
 }
 
-export default InternshipApplications
+export default PostApplicants

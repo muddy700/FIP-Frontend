@@ -20,14 +20,14 @@ const InternshipChances = () => {
 
   const columns = [
   {
-    title: 'S/N',
-    dataIndex: 'sn',
-    key: 'sn',
+    title: 'Reference Number',
+    dataIndex: 'reference_number',
+    key: 'id',
     // ellipsis: 'true',
-    render: text => <a>{text}</a>,
+    render: text => <>{text}</>,
   },
   {
-    title: 'Profession',
+    title: 'Job Title',
     key: 'professions',
     // ellipsis: 'true',
     dataIndex: 'profession_name'
@@ -58,7 +58,7 @@ const InternshipChances = () => {
           <Icon glyph="delete" size={32} />
           </Button>
         </Popconfirm>
-        <Link to={{pathname: "/post_applications", postId:record.id }}>
+        <Link to={{pathname: "/post_applications", post: record }}>
             <Button variant="link" >View Requests</Button>
         </Link>
       </Space>
@@ -129,6 +129,7 @@ const InternshipChances = () => {
             })
         }
   }
+
   const onPostFormSubmit = async (e) => {
     e.preventDefault();
     const { profession_name, ...payload } = newPost
@@ -164,8 +165,8 @@ const InternshipChances = () => {
         try {
           const response = await getOrganizationInternshipPosts(user.userId, config)
           const arrangedByDate = response.slice().sort((a, b) => b.date_updated.localeCompare(a.date_updated))
-          // const newResponse = arrangedByDate.map(item => { return { ...item, date_created: item.date_created.subString(0, 10) } })
-            setInternshipPosts(arrangedByDate)
+          const newPosts = arrangedByDate.filter(post => post.status === 'test')
+          setInternshipPosts(newPosts)
         } catch (error) {
             console.log({
                 'request': 'Fetch Organization Internship Posts Request',

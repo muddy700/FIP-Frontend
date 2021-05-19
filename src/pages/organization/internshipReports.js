@@ -14,23 +14,23 @@ const InternshipReports = () => {
 
   const columns = [
   {
-    title: 'S/N',
-    dataIndex: 'sn',
-    key: 'sn',
-    // ellipsis: 'true',
-    render: text => <a>{text}</a>,
-  },
-  {
-    title: 'Name',
+    title: 'Reference Number',
+    dataIndex: 'reference_number',
     key: 'id',
     // ellipsis: 'true',
-    dataIndex: 'alumni_name'
+    render: text => <>{text}</>,
   },
   {
-    title: 'Profession',
+    title: 'Job Title',
     key: 'id',
     // ellipsis: 'true',
-    dataIndex: 'post_profession'
+    dataIndex: 'profession_name'
+  },
+  {
+    title: 'Date Created',
+    key: 'id',
+    // ellipsis: 'true',
+    dataIndex: 'date_created'
   },
   {
     title: 'Action',
@@ -38,19 +38,32 @@ const InternshipReports = () => {
     key: 'action',
     render: (text, record) => (
       <Space size="middle">
-        <Button variant="link" size="sm" >
-            Confirm
-        </Button>
+        <Link to={{pathname: "/post_applicants", post: record }}>
+            <Button variant="link" >View Applicants</Button>
+        </Link>
       </Space>
     ),
   },
     ];
 
+    const config = useSelector(apiConfigurations)
+    const user = useSelector(selectUserData)
   const [applications, setApplications] = useState([])
-  const config = useSelector(apiConfigurations)
-  const user = useSelector(selectUserData)
+  const [internshipPosts, setInternshipPosts] = useState([])
 
-    
+  const fetchInternshipPosts = async () => {
+        try {
+          const response = await getOrganizationInternshipPosts(user.userId, config)
+          const newPosts = response.filter(post => post.status !== 'test')
+          setInternshipPosts(newPosts)
+        } catch (error) {
+            console.log({
+                'request': 'Fetch Processed Internship Posts Request',
+                'Error => ': error
+            })
+        }
+  }
+
       const fetchApplications = async () => {
         try {
           const response = await getProcessedApplications(user.userId, config)
@@ -64,7 +77,8 @@ const InternshipReports = () => {
     }
     
     useEffect(() => {
-      fetchApplications()
+      // fetchApplications();
+      fetchInternshipPosts()
     }, [])
 
 
@@ -97,7 +111,7 @@ const InternshipReports = () => {
                 <hr/>
           <Table
             columns={columns}
-            dataSource={applications}
+            dataSource={internshipPosts}
             pagination={{ pageSize: 5 }}
             column={{ ellipsis: true }} />
        </Card.Body>
