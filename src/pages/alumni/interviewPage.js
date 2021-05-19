@@ -122,7 +122,7 @@ export const InterviewPage = () => {
         const payload = {
             alumni: user.userId,
             post: postId,
-            test_score: score,
+            test_marks: score,
             organization: organizationId
         }
 

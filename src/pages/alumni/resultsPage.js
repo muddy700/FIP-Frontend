@@ -6,14 +6,14 @@ import Message from '../../components/message';
 import '../../styles/alumni.css'
 import Icon from 'supercons'
 import ContentModal from '../../components/contentModal';
-import { getAlumniApplications } from '../../app/api';
+import { getAlumniApplications, getPostSchedule } from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import { useSelector, useDispatch}  from 'react-redux'
 
 const ResultsPage = () => {
   const [modalShow, setModalShow] = useState(false);
   const [alumniApplications, setAlumniApplications] = useState([])
-  const [activeApplication, setActiveApplication] = useState({})
+  const [postSchedule, setPostSchedule] = useState({})
   const config = useSelector(apiConfigurations)
   const user = useSelector(selectUserData)
   
@@ -42,9 +42,11 @@ const ResultsPage = () => {
     key: 'status',
     // ellipsis: 'true',
     dataIndex: 'status',
-    render: text => <Tag color={text === "received" ? "lightgray" : 
-      text === "accepted" ? "green" : "red"}>
-              {text}
+    render: text => <Tag color={text === "received" ? "processing" : 
+      text === "practical" || text === 'oral' ? 'success' : "error"}>
+      {text === 'practical' ? 'Qualified for practical interview' :
+        text === 'oral' ? 'Qualified for oral interview' :
+          text === 'rejected' ? 'Not qualified' : text}
             </Tag>
   },
   {
@@ -53,28 +55,35 @@ const ResultsPage = () => {
     key: 'action',
     render: (text, record) => (
       <Space size="middle">
-        <Button variant="link"
-          size="sm"
-          onClick={e => { e.preventDefault(); setModalShow(true) }}>
-          <Icon glyph="view" size={32} onClick={e => { e.preventDefault(); viewApplication(record.id) }} />
-        </Button>
-        {record.status === 'accepted' ? <>
-        <Button size="sm" variant="link">Confirm</Button>
-        <Button variant="danger" size="sm">Drop</Button></> : ''}
+        {record.status === 'practical' || record.status === 'oral' ? 
+          <Button variant="link"
+            size="sm"
+            onClick={e => { e.preventDefault(); setModalShow(true); handlePostSchedule(record.post) }}>
+            View Schedule
+            {/* <Icon glyph="view" size={32} onClick={e => { e.preventDefault(); handlePostSchedule(record.id) }} /> */}
+          </Button> : ''}
       </Space>
     ),
   },
   ];
 
-  const viewApplication = (id) => {
-    console.log(id)
-    const selectedApplication = alumniApplications.find((application) => application.id === id)
-    setActiveApplication(selectedApplication)
+  const handlePostSchedule = async (id) => {
+    try {
+      const response = await getPostSchedule(id, config)
+      // console.log(response)
+      setPostSchedule(response[0])
+    } catch (error) {
+            console.log({
+                'request': 'Fetch Post Schedule Request',
+                'Error => ': error
+            })
+    }
   }
   
   const fetchAlumniApplications = async () => {
     try {
       const response = await getAlumniApplications(user.userId, config)
+      // console.log(response)
       const newRes = response.slice().sort((a, b) => b.date_applied.localeCompare(a.date_applied))
       setAlumniApplications(newRes)
     } catch (error) {
@@ -89,29 +98,27 @@ const ResultsPage = () => {
     fetchAlumniApplications()
   }, [])
 
-  const modalContent =  <>
+  const modalContent = postSchedule ?   <>
             <tbody>
                 <tr>
                     <td className="post-properties">ORGANIZATION</td>
-        <td>{activeApplication.organization_name} </td>
+                    <td>{postSchedule.organization_name} </td>
                 </tr>
                 <tr>
-                    <td className="post-properties">PROFESSION</td>
-        <td>{activeApplication.post_profession}</td>
+                    <td className="post-properties">Location</td>
+                    <td>{postSchedule.location}</td>
                 </tr>
                 <tr>
-                    <td className="post-properties">CAPACITY</td>
-                    <td>{activeApplication.post_capacity}</td>
+                    <td className="post-properties">Date</td>
+                    <td>{postSchedule.event_date}</td>
                 </tr>
                 <tr>
-                    <td className="post-properties">ORGANIZATION ADDRESS</td>
-                    <td>
-                        cdgvffdsgdfwqee4r5rwedwqdeewfwqwd w
-                    </td>
+                    <td className="post-properties">Requirements</td>
+                    <td>{postSchedule.requirements} </td>
                 </tr>
             </tbody>
-        </>
-  const modalTitle = "Application Details";
+        </> : <Message variant="info" >No Schedule Yet</Message>
+  const modalTitle = "Interview Schedule";
 
   return (
     <Card >

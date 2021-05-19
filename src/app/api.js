@@ -1,4 +1,5 @@
 import baseLink from './base'
+import  axios from 'axios'
 
 // User APIs
 // export async function createUser(payload) {
@@ -93,6 +94,12 @@ export async function getInternshipApplications(postId, config) {
 export async function processInternshipApplication(applicationId, payload, config) {
     const response = await baseLink.put(`internship_applications/${applicationId}/`, payload, config)
     return response.data
+}
+
+export async function editMultipleApplications(payloads, config){
+    const requests = payloads.map((item) => baseLink.put(`internship_applications/${item.id}/`, item, config))
+   const  responseArray = await axios.all([...requests])
+   return responseArray
 }
 
 export async function getOrganizationInternshipPosts(organizationId, config) {

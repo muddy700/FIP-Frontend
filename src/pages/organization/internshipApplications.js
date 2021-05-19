@@ -1,12 +1,12 @@
 import React, {useState, useEffect} from 'react'
 import '../../App.css'
-import { List, Avatar, Space, Tag, Table } from 'antd';
+import { Table } from 'antd';
 import Icon from 'supercons'
-import { Button, Row, Col, Card, InputGroup, FormControl } from 'react-bootstrap'
+import { Button, Row, Col, Card, InputGroup, FormControl, Form } from 'react-bootstrap'
 import Message from '../../components/message'
-import { Link, useLocation, useHistory } from 'react-router-dom';
+import { useLocation, useHistory } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
-import { getInternshipApplications, processInternshipApplication } from '../../app/api';
+import { editMultipleApplications, getInternshipApplications, processInternshipApplication } from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 
@@ -19,7 +19,7 @@ const InternshipApplications = () => {
     dataIndex: 'sn',
     key: 'sn',
     // ellipsis: 'true',
-    render: text => <a>{text}</a>,
+    render: text => <>{text}</>,
   },
   {
     title: 'Applicant',
@@ -34,27 +34,27 @@ const InternshipApplications = () => {
     dataIndex: 'date_applied'
   },
   {
-    title: 'Test Score',
-    key: 'test_score',
+    title: 'Test marks',
+    key: 'test_marks',
     // ellipsis: 'true',
-    dataIndex: 'test_score'
+    dataIndex: 'test_marks'
   },
-  {
-    title: 'Action',
-    // ellipsis: 'true',
-    key: 'action',
-    render: (text, record) => (
-      <Space size="middle">
-        <Button variant="link" size="sm"
-          onClick={e => { e.preventDefault(); updateInternshipApplication(record.id, 1) }}>Accept
-        </Button>
-        <Button variant="link" size="sm"
-          onClick={e => { e.preventDefault(); updateInternshipApplication(record.id, 0) }}>Reject
-          {/* <Icon glyph="delete" size={32} onClick={e => { e.preventDefault(); viewPost(record.id) }} /> */}
-        </Button>
-      </Space>
-    ),
-  },
+  // {
+  //   title: 'Action',
+  //   // ellipsis: 'true',
+  //   key: 'action',
+  //   render: (text, record) => (
+  //     <Space size="middle">
+  //       <Button variant="link" size="sm"
+  //         onClick={e => { e.preventDefault(); updateInternshipApplication(record.id, 1) }}>Accept
+  //       </Button>
+  //       <Button variant="link" size="sm"
+  //         onClick={e => { e.preventDefault(); updateInternshipApplication(record.id, 0) }}>Reject
+  //         {/* <Icon glyph="delete" size={32} onClick={e => { e.preventDefault(); viewPost(record.id) }} /> */}
+  //       </Button>
+  //     </Space>
+  //   ),
+  // },
     ];
 
   
@@ -64,41 +64,102 @@ const InternshipApplications = () => {
     const [modalShow, setModalShow] = useState(false);
     const config = useSelector(apiConfigurations)
     const user = useSelector(selectUserData)
-    const [selectedPost, setSelectedPost] = useState({})
+    // const [selectedPost, setSelectedPost] = useState({})
     const [applications, setApplications] = useState([])
-  var filteredApplications = [];
+    const [selectedAlumni, setSelectedAlumni] = useState([])
   const [passMarks, setPassMarks] = useState(0)
-
-  const viewPost = (id) => {
-    // const postInfo = internshipPosts.find(post => post.id === id)
-    // setSelectedPost(postInfo)
-
+  const [finalStage, setFinalStage] = useState('')
+  
+  const stages = [
+    {
+      id: 1,
+      text: 'Practical only'
+    },
+    {
+      id: 2,
+      text: 'Oral only'
+    },
+    {
+      id: 3,
+      text: 'Practical and oral'
     }
+  ]
 
     const goToPreviousPage = () => {
-        history.goBack()
+      history.goBack()
+      setFinalStage('')
   }
   
-    const filterByScore = (e) => {
-      // const passMark = 
-      setPassMarks(e.target.value)
-        // console.log(passMark)
-        // filteredApplications = applications.filter((item) => item.test_score >= passMark)
-        // setApplications(filteredApplications)
+  const filterByScore = (e) => {
+    const cut_points = e.target.value 
+    setPassMarks(cut_points)
+    if (!cut_points) {
+        setSelectedAlumni([])
+    }
+    else {
+      setSelectedAlumni(
+        applications.filter(item => item.test_marks >= cut_points)
+      ) }
+  }
+  
+  const inviteApplicants = async () => {
+    setModalShow(false)
+    setFinalStage('')
+
+    var newApplications = [];
+    if (finalStage.id === 1) {
+       newApplications = selectedAlumni.map(item => {
+        return { ...item, status: 'practical', final_stage: 'practical'}
+      })
+    }
+    else if (finalStage.id === 2) {
+       newApplications = selectedAlumni.map(item => {
+        return { ...item, status: 'oral', final_stage: 'oral'}
+      })
+    }
+    else if (finalStage.id === 3) {
+       newApplications = selectedAlumni.map(item => {
+        return { ...item, status: 'practical', final_stage: 'oral'}
+      })
     }
 
-  const modalTitle = "Post Details";
-  const modalContent = "Post Contents";
+    try {
+          const response = await editMultipleApplications(newApplications, config)
+          // console.log(response)
+    } catch (error) {
+            console.log({
+                'request': 'Edit Multiple Internship Applications Request',
+                'Error => ': error
+            })
+        }
+  }
+
+  const modalTitle = "Processing Stages";
+  const modalContent = <><ul>
+                            {stages.map((choice) => (
+                            <li key={choice.id} style={{marginTop: '3px'}}>
+                                 <Form.Check
+                                    type="radio"
+                                    id={choice.id}
+                                    name="selectedChoice"
+                                    label={choice.text}
+                                    value={choice.id}
+                                  onChange={e => { setFinalStage(choice)}}
+                                />
+                            </li> ))}
+  </ul>
+    <Button onClick={inviteApplicants} disabled={finalStage === '' ? true : false}>Send</Button>
+  </>;
     
   const fetchInternshipApplications = async () => {
         try {
-            const response = await getInternshipApplications(postId, config)
-            const arrangedByDate = response.slice().sort((a, b) => b.date_applied.localeCompare(a.date_applied))
-          const arrangedByScore = arrangedByDate.slice().sort((a, b) => b.test_score - a.test_score)
+          const response = await getInternshipApplications(postId, config)
+          const arrangedByDate = response.slice().sort((a, b) => b.date_applied.localeCompare(a.date_applied))
+          const arrangedByScore = arrangedByDate.slice().sort((a, b) => b.test_marks- a.test_marks)
           const unProcessedApplications = arrangedByScore.filter(item => item.status === 'received')
             setApplications(unProcessedApplications)
         } catch (error) {
-            console.log({
+            console.log({ 
                 'request': 'Fetch Internship Applications Request',
                 'Error => ': error
             })
@@ -106,28 +167,20 @@ const InternshipApplications = () => {
   }
   
   const updateInternshipApplication = async (id, status) => {
-    const updatedApplications = applications.map(item => {
-      if (item.id === id) {
-        if (status === 0) return { ...item, status: 'rejected' }
-        else return { ...item, status: 'accepted' }
-      }
-      else return item
-    })
-
-    const payload = updatedApplications.find(item => item.id === id);
-        try {
-          const response = await processInternshipApplication(id, payload, config)
-          const newApplications = applications.filter(item => item.id !== response.id)
-          setApplications(newApplications)
-        } catch (error) {
-            console.log({
-                'request': 'Edit Internship Applications Request',
-                'Error => ': error
-            })
-        }
+        // try {
+        //   const response = await processInternshipApplication(id, payload, config)
+        //     console.log(response)
+        //   const newApplications = applications.filter(item => item.id !== response.id)
+         
+        //   setApplications(newApplications)
+        // } catch (error) {
+        //     console.log({
+        //         'request': 'Edit Internship Applications Request',
+        //         'Error => ': error
+        //     })
+        // }
     }
-
-    // if(filteredApplications.length !== 0  filteredApplications : applications)
+   
     useEffect(() => {
       fetchInternshipApplications()
     }, [])
@@ -140,10 +193,14 @@ const InternshipApplications = () => {
             <Card.Body style={{ overflowX: 'scroll' }}  >
                 
                 <Row style={{marginBottom: '16px'}}>
-                    <Col md={{ span: 3 }}> Applicants &nbsp;
-                      <Button>{applications.filter(item => item.test_score >= passMarks).length}</Button>
+                    <Col md={{ span: 6 }} >Seleceted Applicants &nbsp;
+                      <Button>{selectedAlumni.length} </Button>
+              <Button
+                style={{ marginLeft: '5%' }}
+                onClick={e => { e.preventDefault(); setModalShow(true) }}
+                disabled={selectedAlumni.length === 0 ? true : false}>Invite Selected</Button>
                     </Col>
-                    <Col md={{ span: 4, offset: 5 }}>
+                    <Col md={{ span: 4, offset: 2 }}>
                         <InputGroup>
                             <FormControl
                             placeholder="Enter Cut-Off Point"
@@ -163,7 +220,7 @@ const InternshipApplications = () => {
                 <hr/>
           <Table 
             columns={columns}
-            dataSource={applications.filter(item => item.test_score >= passMarks)}
+            dataSource={applications.filter(item => item.test_marks >= passMarks)}
             pagination={{ pageSize: 5 }}
             column={{ ellipsis: true }} />
           <Button
@@ -173,12 +230,12 @@ const InternshipApplications = () => {
             </Button>
        </Card.Body>
         <ContentModal
-        show={modalShow}
-        isTable={true}
-        title={modalTitle}
-        content={modalContent}
-        onHide={() => setModalShow(false)}
-      />
+          show={modalShow}
+          isTable={false}
+          title={modalTitle}
+          content={modalContent}
+          onHide={() => { setModalShow(false); setFinalStage('') }}
+        />
         </Card>
     )
 }

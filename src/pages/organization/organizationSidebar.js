@@ -23,19 +23,19 @@ const OrganizationSidebar = () => {
                 <Accordion  style={{backgroundColor: 'inherit', border: 'none'}}>
                 <div>
                     <Accordion.Toggle as="div" variant="link" eventKey="0">
-                        <Icon glyph="person" size={32} /> <span>Post Chance</span>
+                        <Icon glyph="docs" size={32} /> <span>Post Chance</span>
                     </Accordion.Toggle>
                     <Accordion.Collapse eventKey="0">
                             <span>
                                 <ul >
                                     <li className="inner-list-item">
                                         <Link to = "/field_chances" className="aside-link">
-                                            <Icon glyph="person" size={24} /> <span>Field</span>
+                                            <Icon glyph="" size={24} /> <span>Field</span>
                                         </Link>
                                     </li>
                                     <li className="inner-list-item">
                                         <Link to = "/internship_chances" className="aside-link">
-                                            <Icon glyph="docs" size={24} /> <span>Internship</span>
+                                            <Icon glyph="" size={24} /> <span>Internship</span>
                                         </Link>
                                     </li>
                                 </ul>
@@ -47,19 +47,19 @@ const OrganizationSidebar = () => {
                 <Accordion  style={{backgroundColor: 'inherit', border: 'none'}}>
                 <div>
                     <Accordion.Toggle as="div" variant="link" eventKey="0">
-                        <Icon glyph="person" size={32} /> <span>Report</span>
+                        <Icon glyph="docs" size={32} /> <span>Report</span>
                     </Accordion.Toggle>
                     <Accordion.Collapse eventKey="0">
                             <span>
                                 <ul >
                                     <li className="inner-list-item">
                                         <Link to = "/field_reports" className="aside-link">
-                                            <Icon glyph="person" size={24} /> <span>Field</span>
+                                            <Icon glyph="" size={24} /> <span>Field</span>
                                         </Link>
                                     </li>
                                     <li className="inner-list-item">
                                         <Link to = "/internship_reports" className="aside-link">
-                                            <Icon glyph="docs" size={24} /> <span>Internship</span>
+                                            <Icon glyph="" size={24} /> <span>Internship</span>
                                         </Link>
                                     </li>
                                 </ul>
@@ -69,7 +69,7 @@ const OrganizationSidebar = () => {
             </li>
             <li className="list-item">
                 <Link to = "/my_profile" className="aside-link">
-                     <Icon glyph="settings" size={32} /> <span>Profile</span>
+                     <Icon glyph="person" size={32} /> <span>Profile</span>
                 </Link>
             </li>
             <li className="list-item">
