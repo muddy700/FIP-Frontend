@@ -102,6 +102,11 @@ export async function editMultipleApplications(payloads, config){
    return responseArray
 }
 
+export async function editSingleApplication(payload, config){
+    const response =  await baseLink.put(`internship_applications/${payload.id}/`, payload, config)
+    return response.data
+}
+
 export async function getOrganizationInternshipPosts(organizationId, config) {
     const response = await baseLink.get(`filter/organization/${organizationId}/internship_posts/`, config)
     return response.data
