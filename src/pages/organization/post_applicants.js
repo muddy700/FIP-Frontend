@@ -6,13 +6,16 @@ import { Button, Row, Col, Card, InputGroup, FormControl, Form } from 'react-boo
 import Message from '../../components/message'
 import { useLocation, useHistory } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
-import { editInternshipPost, editMultipleApplications, getInternshipApplications, } from '../../app/api';
+import { editInternshipPost, editMultipleApplications, editSingleApplication, getInternshipApplications, } from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
+import Loader from '../../components/loader';
 
 const PostApplicants = () => {
+  
+  const location = useLocation();
+  const [post, setPost] = useState(location.post)
 
-    
   const columns = [
   {
     title: 'S/N',
@@ -34,10 +37,12 @@ const PostApplicants = () => {
     dataIndex: 'date_applied'
   },
   {
-    title: 'Test marks',
-    key: 'test_marks',
+    title: post.status === 'practical' ? 'Practical Marks' : post.status === 'oral' ? 'Oral Marks' : '',
+    key: 'id',
     // ellipsis: 'true',
-    dataIndex: 'test_marks'
+    dataIndex: post.status === 'practical' ? 'practical_marks' : 'oral_marks',
+    // ellipsis: 'true',
+    render: text => <>{text ? text : '-'}</>,
   },
   // {
   //   title: 'Action',
@@ -58,37 +63,28 @@ const PostApplicants = () => {
     ];
 
   
-    const location = useLocation();
     const history = useHistory();
     const [modalShow, setModalShow] = useState(false);
     const config = useSelector(apiConfigurations)
-    const user = useSelector(selectUserData)
+  const user = useSelector(selectUserData)
+  
+  const initialApplication = {
+    id: '',
+    practical_marks: '',
+    oral_marks: ''
+  }
     // const [selectedPost, setSelectedPost] = useState({})
     const [applications, setApplications] = useState([])
   const [selectedAlumni, setSelectedAlumni] = useState([])
   const [discardedAlumni, setDiscardedAlumni] = useState([])
   const [passMarks, setPassMarks] = useState(0)
   const [finalStage, setFinalStage] = useState('')
-  const [post, setPost] = useState(location.post)
-  
-  const stages = [
-    {
-      id: 1,
-      text: 'Practical only'
-    },
-    {
-      id: 2,
-      text: 'Oral only'
-    },
-    {
-      id: 3,
-      text: 'Practical and oral'
-    }
-  ]
+  const [activeApplication, setActiveApplication] = useState(initialApplication)
+  const [isSending, setIsSending] = useState(false)
 
-    const goToPreviousPage = () => {
-      history.goBack()
-      setFinalStage('')
+  const goToPreviousPage = () => {
+    history.goBack()
+    setFinalStage('')
   }
   
   const filterByScore = (e) => {
@@ -176,31 +172,97 @@ const PostApplicants = () => {
             })
         }
 
+      }
+      
+  const handleActiveApplication = (e) => {
+    setActiveApplication({
+      ...activeApplication,
+      [e.target.name] : e.target.value
+    })
   }
-  const modalTitle = "Processing Stages";
-  const modalContent = <><ul>
-                            {stages.map((choice) => (
-                            <li key={choice.id} style={{marginTop: '3px'}}>
-                                 <Form.Check
-                                    type="radio"
-                                    id={choice.id}
-                                    name="selectedChoice"
-                                    label={choice.text}
-                                    value={choice.id}
-                                  onChange={e => { setFinalStage(choice)}}
-                                />
-                            </li> ))}
-  </ul>
-    <Button onClick={inviteApplicants} disabled={finalStage === '' ? true : false}>Send</Button>
+
+  const sendMarks = async () => {
+
+    setIsSending(true)
+    var payload  = applications.find(item => item.id === parseInt(activeApplication.id))
+    
+    if (post.status === 'practical') {
+      payload = {...payload, practical_marks: parseInt(activeApplication.practical_marks)}
+    }
+    else if (post.status === 'oral') {
+      payload = {...payload, oral_marks: parseInt(activeApplication.oral_marks)}
+    }
+
+    try {
+      const response = await editSingleApplication(payload, config)
+      setApplications(applications.filter(item => item.id !== response.id))
+      setActiveApplication(initialApplication)
+      setIsSending(false)
+        } catch (error) {
+            console.log({
+                'request': 'Sending Applicant Marks Request',
+                'Error => ': error
+            })
+    }
+    if (applications.length === 1) {
+      setModalShow(false)
+      fetchPostApplicants()
+    }
+  }
+
+  const modalTitle = "Fill Marks";
+  const modalContent = <> {isSending ?
+    <Loader message="Sending Data...." /> :<>
+        <Form.Row>
+        <Form.Group as={Col} controlId="InternshipPostInput1">
+          <Form.Label>Applicant</Form.Label>
+          <Form.Control as="select"
+              size="md"
+              // disabled={editingMode}
+              // value={newPost.profession}
+              onChange={handleActiveApplication}
+              name="id">
+              <option>---Select Applicant---</option>
+              {applications.map(item => (
+                <option value={item.id}>{item.alumni_name} </option>
+              ))}
+          </Form.Control>
+        </Form.Group>
+        <Form.Group as={Col} controlId="InternshipPostInput2">
+          <Form.Label>Marks</Form.Label>
+          <FormControl
+            placeholder="Enter Marks"
+            type="number"
+            aria-label="Message Content"
+            name={post.status === 'practical' ? 'practical_marks': 'oral_marks'}
+            value={post.status === 'practical' ? activeApplication.practical_marks : activeApplication.oral_marks}
+            aria-describedby="basic-addon2"
+            onChange={handleActiveApplication}
+            />
+          </Form.Group>
+      </Form.Row>
+    <Button
+      onClick={sendMarks}
+      disabled={activeApplication.id !== '' &&
+      (activeApplication.oral_marks !== '' || activeApplication.practical_marks !== '') ? false : true}>Send</Button></>}
   </>;
+
+  
     
   const fetchPostApplicants = async () => {
         try {
           const response = await getInternshipApplications(post.id, config)
-        //   const arrangedByDate = response.slice().sort((a, b) => b.date_applied.localeCompare(a.date_applied))
         //   const arrangedByScore = arrangedByDate.slice().sort((a, b) => b.test_marks- a.test_marks)
-          const newApplications = response.filter(item => item.status === post.status)
-            setApplications(newApplications)
+          var newApplications = response.filter(item => item.confirmation_status === post.status)
+          if (newApplications[0].practical_marks >= 0) {
+            newApplications = newApplications.slice().sort((a, b) => b.practical_marks- a.practical_marks)
+          }
+          else if (newApplications[0].oral_marks >= 0) {
+            newApplications = newApplications.slice().sort((a, b) => b.oral_marks- a.oral_marks)
+          }
+          setApplications(newApplications)
+
+          // console.log(response)
         } catch (error) {
             console.log({ 
                 'request': 'Fetch Internship Applications Request',
@@ -220,14 +282,21 @@ const PostApplicants = () => {
         </Card.Header>
             <Card.Body style={{ overflowX: 'scroll' }}  >
                 <Row style={{marginBottom: '16px'}}>
-                    <Col md={{ span: 6 }} >Seleceted Applicants &nbsp;
+                    <Col md={{ span: 8 }} >Seleceted Applicants &nbsp;
                       <Button>{selectedAlumni.length} </Button>
               <Button
                 style={{ marginLeft: '5%' }}
                 onClick={e => { e.preventDefault(); setModalShow(true) }}
                 disabled={selectedAlumni.length === 0 ? true : false}>Invite Selected</Button>
+              &nbsp;
+              <Button
+                style={{ marginLeft: '5%' }}
+                onClick={e => { e.preventDefault(); setModalShow(true) }}
+                disabled={applications.length === 0 || (post.status === 'practical' && applications[0].practical_marks >= 0)
+                  || (post.status === 'oral' && applications[0].oral_marks >= 0) ? true : false}
+              >Fill {post.status} marks </Button>
                     </Col>
-                    <Col md={{ span: 4, offset: 2 }}>
+                    <Col md={{ span: 4}}>
                         <InputGroup>
                             <FormControl
                             placeholder="Enter Cut-Off Point"

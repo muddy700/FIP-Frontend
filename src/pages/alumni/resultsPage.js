@@ -6,7 +6,7 @@ import Message from '../../components/message';
 import '../../styles/alumni.css'
 import Icon from 'supercons'
 import ContentModal from '../../components/contentModal';
-import { getAlumniApplications, getPostSchedule } from '../../app/api';
+import { editInternshipPost, editSingleApplication, getAlumniApplications, getPostSchedule } from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import { useSelector, useDispatch}  from 'react-redux'
 
@@ -16,6 +16,7 @@ const ResultsPage = () => {
   const [postSchedule, setPostSchedule] = useState({})
   const config = useSelector(apiConfigurations)
   const user = useSelector(selectUserData)
+  const [selectedApplication, setSelectedApplication] = useState({})
   
   const columns = [
   {
@@ -58,7 +59,7 @@ const ResultsPage = () => {
         {record.status === 'practical' || record.status === 'oral' ? 
           <Button variant="link"
             size="sm"
-            onClick={e => { e.preventDefault(); setModalShow(true); handlePostSchedule(record.post) }}>
+            onClick={e => { e.preventDefault(); setModalShow(true); handlePostSchedule(record.post); setSelectedApplication(record) }}>
             View Schedule
             {/* <Icon glyph="view" size={32} onClick={e => { e.preventDefault(); handlePostSchedule(record.id) }} /> */}
           </Button> : ''}
@@ -98,6 +99,21 @@ const ResultsPage = () => {
     fetchAlumniApplications()
   }, [])
 
+  const confirmAttendance = async () => {
+    // console.log(selectedApplication)
+    const status = selectedApplication.post_status
+    const payload = { ...selectedApplication, confirmation_status: status }
+        try {
+        const response = await editSingleApplication(payload, config)
+            // console.log(response)
+          setSelectedApplication(response)
+        } catch (error) {
+            console.log({
+                'request': 'Confirm Applicant Attendance Request',
+                'Error => ': error
+            }) }
+  }
+
   const modalContent = postSchedule ?   <>
             <tbody>
                 <tr>
@@ -116,8 +132,14 @@ const ResultsPage = () => {
                     <td className="post-properties">Requirements</td>
                     <td>{postSchedule.requirements} </td>
                 </tr>
-            </tbody>
-        </> : <Message variant="info" >No Schedule Yet</Message>
+            </tbody>  <br />
+          <Button
+      onClick={confirmAttendance}
+      disabled={selectedApplication.confirmation_status === selectedApplication.post_status ? true : false}
+      variant={selectedApplication.confirmation_status === selectedApplication.post_status ? 'success' : 'primary'}
+    >{selectedApplication.confirmation_status === selectedApplication.post_status ? 'Confirmed' : 'Confirm'}</Button>
+          </> : <Message variant="info" >No Schedule Yet</Message>
+          
   const modalTitle = "Interview Schedule";
 
   return (

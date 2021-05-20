@@ -33,6 +33,12 @@ const InternshipReports = () => {
     dataIndex: 'date_created'
   },
   {
+    title: 'Current stage',
+    key: 'id',
+    // ellipsis: 'true',
+    dataIndex: 'status'
+  },
+  {
     title: 'Action',
     // ellipsis: 'true',
     key: 'action',
