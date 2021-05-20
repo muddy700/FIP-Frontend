@@ -30,12 +30,12 @@ const PostApplicants = () => {
     // ellipsis: 'true',
     dataIndex: 'alumni_name'
   },
-  {
-    title: 'Date Applied',
-    key: 'date_created',
-    // ellipsis: 'true',
-    dataIndex: 'date_applied'
-  },
+  // {
+  //   title: 'Date Applied',
+  //   key: 'date_created',
+  //   // ellipsis: 'true',
+  //   dataIndex: 'date_applied'
+  // },
   {
     title: post.status === 'practical' ? 'Practical Marks' : post.status === 'oral' ? 'Oral Marks' : '',
     key: 'id',
@@ -74,17 +74,20 @@ const PostApplicants = () => {
     oral_marks: ''
   }
     // const [selectedPost, setSelectedPost] = useState({})
-    const [applications, setApplications] = useState([])
+  const [applications, setApplications] = useState([])
+  const [filteredArray, setFilteredArray] = useState()
   const [selectedAlumni, setSelectedAlumni] = useState([])
   const [discardedAlumni, setDiscardedAlumni] = useState([])
   const [passMarks, setPassMarks] = useState(0)
   const [finalStage, setFinalStage] = useState('')
   const [activeApplication, setActiveApplication] = useState(initialApplication)
   const [isSending, setIsSending] = useState(false)
+  const [isStageFinished, setIsStageFinished] = useState(false)
 
   const goToPreviousPage = () => {
     history.goBack()
     setFinalStage('')
+    setIsStageFinished(false)
   }
   
   const filterByScore = (e) => {
@@ -93,61 +96,73 @@ const PostApplicants = () => {
     if (!cut_points) {
       setSelectedAlumni([])
       setDiscardedAlumni([])
+      setFilteredArray(applications)
     }
     else {
-      setSelectedAlumni(
-        applications.filter(item => item.test_marks >= cut_points))
+      if (post.status === 'practical') {
+        setSelectedAlumni(
+          applications.filter(item => item.practical_marks >= cut_points))
+        setFilteredArray(
+          applications.filter(item => item.practical_marks >= cut_points))
       
-      setDiscardedAlumni(
-        applications.filter(item => item.test_marks < cut_points))
+        setDiscardedAlumni(
+          applications.filter(item => item.practical_marks < cut_points))
+      }
+      else if (post.status === 'oral') {
+        setSelectedAlumni(
+          applications.filter(item => item.oral_marks >= cut_points))
+        
+        setFilteredArray(
+          applications.filter(item => item.oral_marks >= cut_points))
+      
+        setDiscardedAlumni(
+          applications.filter(item => item.oral_marks < cut_points))
+      }
     }
   }
   
   const inviteApplicants = async () => {
-    setModalShow(false)
-    setFinalStage('')
+    // setModalShow(false)
+    // setFinalStage('')
+    console.log(selectedAlumni)
+    console.log(discardedAlumni)
+    let payloads = [];
 
-    var newApplications = [];
-    if (finalStage.id === 1) {
-       newApplications = selectedAlumni.map(item => {
-        return { ...item, status: 'practical', final_stage: 'practical'}
-       })
+    if (post.status === applications[0].final_stage) {
+      payloads = selectedAlumni.map(item => {
+          return {...item, status: 'accepted'}
+        })
     }
-    else if (finalStage.id === 2) {
-       newApplications = selectedAlumni.map(item => {
-        return { ...item, status: 'oral', final_stage: 'oral'}
-       })
-    }
-    else if (finalStage.id === 3) {
-       newApplications = selectedAlumni.map(item => {
-        return { ...item, status: 'practical', final_stage: 'oral'}
-       })
+    else if (post.status === 'practical' && (post.status !== applications[0].final_stage)) {
+      payloads = selectedAlumni.map(item => {
+          return {...item, status: 'oral'}
+        })
+      
     }
 
-    const discardedApplications = discardedAlumni.map(item => {
-        return { ...item, status: 'rejected'}
+    const rejectedPayloads = discardedAlumni.map(item => {
+        return {...item, status: 'rejected'}
       })
 
     try {
-          const response1 = await editMultipleApplications(newApplications, config)
+          const response1 = await editMultipleApplications(payloads, config)
           // console.log(response1.length)
           try {
-                const response2 = await editMultipleApplications(discardedApplications, config)
+                const response2 = await editMultipleApplications(rejectedPayloads, config)
             // console.log(response2)
-            setApplications([])
             setDiscardedAlumni([])
             setSelectedAlumni([])
             setPassMarks(0)
             editProcessedPost()
           } catch (error) {
                   console.log({
-                      'request': 'Edit Discarded Internship Applications Request',
+                      'request': 'Edit Discarded Internship Applications For Practical Request',
                       'Error => ': error
                   })
               }
     } catch (error) {
             console.log({
-                'request': 'Edit Qualified Internship Applications Request',
+                'request': 'Edit Qualified Internship Applications For Practical Request',
                 'Error => ': error
             })
         }
@@ -156,15 +171,16 @@ const PostApplicants = () => {
   
   const editProcessedPost = async () => {
     // console.log(nextStage)
-    var status = '';
-    if (finalStage.id === 1) status = 'practical';
-    else if (finalStage.id === 2) status = 'oral';
-    else if (finalStage.id === 3) status = 'practical';
+    let status = '';
+    if (post.status === applications[0].final_stage) status = 'completed';
+    else if (post.status === 'practical' && (post.status !== applications[0].final_stage)) status = 'oral';
 
     const payload = {...post, status: status }
         try {
           const response = await editInternshipPost(post.id, payload, config)
           setPost(response)
+          setApplications([])
+          if(status === 'oral') setIsStageFinished(true)
         } catch (error) {
             console.log({ 
                 'request': 'Edit Processed Post Request',
@@ -261,8 +277,9 @@ const PostApplicants = () => {
             newApplications = newApplications.slice().sort((a, b) => b.oral_marks- a.oral_marks)
           }
           setApplications(newApplications)
+          setFilteredArray(newApplications)
 
-          // console.log(response)
+          // console.log(newApplications)
         } catch (error) {
             console.log({ 
                 'request': 'Fetch Internship Applications Request',
@@ -278,22 +295,25 @@ const PostApplicants = () => {
     return (
     <Card >
         <Card.Header >
-            <Message variant='info' >Dear {user.username}, You have The Following applicants For The Seleceted Post</Message> 
+            <Message variant='info' >{isStageFinished ? 'All applications have been processed successfully.  Add Oral Interview Schedule': post.status === 'completed' ? 'Processing stages are completed and applicants have been informed. Go to Approved page to see them' :' You have The Following applicants For The Seleceted Post' }</Message> 
         </Card.Header>
-            <Card.Body style={{ overflowX: 'scroll' }}  >
+        <Card.Body style={{ overflowX: 'scroll' }}  >
+          {applications.length !== 0 ? <>
                 <Row style={{marginBottom: '16px'}}>
                     <Col md={{ span: 8 }} >Seleceted Applicants &nbsp;
                       <Button>{selectedAlumni.length} </Button>
               <Button
                 style={{ marginLeft: '5%' }}
-                onClick={e => { e.preventDefault(); setModalShow(true) }}
-                disabled={selectedAlumni.length === 0 ? true : false}>Invite Selected</Button>
+                onClick={e => { e.preventDefault(); inviteApplicants() }}
+                disabled={selectedAlumni.length === 0 ? true : false}>{post.status === 'oral' ? 'Approve Selected' : 'Invite Selected'}</Button>
               &nbsp;
               <Button
                 style={{ marginLeft: '5%' }}
                 onClick={e => { e.preventDefault(); setModalShow(true) }}
-                disabled={applications.length === 0 || (post.status === 'practical' && applications[0].practical_marks >= 0)
-                  || (post.status === 'oral' && applications[0].oral_marks >= 0) ? true : false}
+                  disabled={applications.length === 0
+                    // || (post.status === 'practical' && applications[0].practical_marks >= 0)
+                    // || (post.status === 'oral' && applications[0].oral_marks >= 0)
+                    ? true : false}
               >Fill {post.status} marks </Button>
                     </Col>
                     <Col md={{ span: 4}}>
@@ -316,15 +336,15 @@ const PostApplicants = () => {
                 <hr/>
           <Table 
             columns={columns}
-            dataSource={applications}
+            dataSource={filteredArray}
             pagination={{ pageSize: 5 }}
-            column={{ ellipsis: true }} />
+            column={{ ellipsis: true }} /> </> : '' }
           <Button
                 variant="secondary"
                 onClick={goToPreviousPage} >
                 Back
-            </Button>
-       </Card.Body>
+            </Button> 
+       </Card.Body> 
         <ContentModal
           show={modalShow}
           isTable={false}
