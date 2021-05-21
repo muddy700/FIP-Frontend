@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import '../../App.css'
-import { Table } from 'antd';
+import { Table, Space } from 'antd';
 import Icon from 'supercons'
 import { Button, Row, Col, Card, InputGroup, FormControl, Form } from 'react-bootstrap'
 import Message from '../../components/message'
@@ -38,22 +38,22 @@ const ApprovedAlumni = () => {
     // ellipsis: 'true',
     render: text => <>{text}</>,
   },
-  // {
-  //   title: 'Action',
-  //   // ellipsis: 'true',
-  //   key: 'action',
-  //   render: (text, record) => (
-  //     <Space size="middle">
-  //       <Button variant="link" size="sm"
-  //         onClick={e => { e.preventDefault(); updateInternshipApplication(record.id, 1) }}>Accept
-  //       </Button>
-  //       <Button variant="link" size="sm"
-  //         onClick={e => { e.preventDefault(); updateInternshipApplication(record.id, 0) }}>Reject
-  //         {/* <Icon glyph="delete" size={32} onClick={e => { e.preventDefault(); viewPost(record.id) }} /> */}
-  //       </Button>
-  //     </Space>
-  //   ),
-  // },
+  {
+    title: 'Action',
+    // ellipsis: 'true',
+    key: 'action',
+    render: (text, record) => (
+      <Space size="middle">
+        <Button variant="link" size="sm"
+          onClick={e => { e.preventDefault(); }}>Confirm
+        </Button>
+         {/* <Button variant="link" size="sm"
+          onClick={e => { e.preventDefault(); }}>Reject */}
+          {/* <Icon glyph="delete" size={32} onClick={e => { e.preventDefault(); viewPost(record.id) }} /> */}
+        {/* </Button>  */}
+      </Space>
+    ),
+  },
     ];
 
   

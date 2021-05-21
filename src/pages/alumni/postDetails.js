@@ -9,7 +9,6 @@ export const PostDetails = () => {
     const location = useLocation();
     const history = useHistory();
 
-
     const goToPreviousPage = () => {
         history.goBack()
     }
@@ -47,7 +46,7 @@ export const PostDetails = () => {
                         </Table>
                 </Card.Body>
                 <Card.Footer>
-                    <Button>Apply</Button>
+                    {/* <Button>Apply</Button> */}
                     <Button
                         variant="secondary"
                         style={{marginLeft: '10px'}}
