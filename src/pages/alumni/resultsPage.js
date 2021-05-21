@@ -44,7 +44,7 @@ const ResultsPage = () => {
     // ellipsis: 'true',
     dataIndex: 'status',
     render: text => <Tag color={text === "received" ? "processing" : 
-      text === "practical" || text === 'oral' ? 'success' : "error"}>
+      text === "practical" || text === 'oral' || text === 'accepted' ? 'success' : "error"}>
       {text === 'practical' ? 'Qualified for practical interview' :
         text === 'oral' ? 'Qualified for oral interview' :
           text === 'rejected' ? 'Not qualified' : text}

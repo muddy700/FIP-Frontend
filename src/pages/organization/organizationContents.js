@@ -14,6 +14,7 @@ import InternshipApplications from './internshipApplications';
 import InternshipChances from './internshipChances';
 import InternshipReports from './internshipReports';
 import PostApplicants from './post_applicants';
+import ApprovedAlumni from './approvedPage';
 
 const OrganizationContents = () => {
 
@@ -44,6 +45,9 @@ const OrganizationContents = () => {
             <Route exact path="/internship_reports">
                 <InternshipReports />
               </Route>
+            <Route exact path={["/approved_page"]}>
+                <ApprovedAlumni />
+            </Route>
             <Route exact path={["/my_profile"]}>
                 <ProfilePage />
             </Route>

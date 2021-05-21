@@ -132,7 +132,9 @@ const InternshipChances = () => {
 
   const onPostFormSubmit = async (e) => {
     e.preventDefault();
-    const { profession_name, ...payload } = newPost
+    let { profession_name, ...payload } = newPost
+    const randomNumber = Math.floor((Math.random() * 1000) + 1);
+    const year = new Date().getFullYear()
     
     try {
       var response
@@ -146,6 +148,8 @@ const InternshipChances = () => {
         setEditingMode(false)
       }
       else {
+        const refNo = `FIP/${year}/P${randomNumber}`
+        payload = {...payload, reference_number: refNo}
         response = await pushInternshipPost(payload, config)
         setInternshipPosts([
             ...internshipPosts, response ])

@@ -219,8 +219,9 @@ const InternshipApplications = () => {
           {post.status === 'test' && applications.length !== 0  ?
             <Message variant='info' >Dear {user.username}, You have The Following Requests For The Seleceted Post</Message> :
             post.status === 'test' && applications.length === 0 ?
-            <Message variant='info' >Dear {user.username}, There is no any request yet</Message> :
-            <Message variant='success' >All applications have been processed successful</Message>
+            <Message variant='info' >Dear {user.username}, There is no any request yet</Message> : <>
+            <Message variant='success' >All applications have been processed successful.</Message>
+                <Button>{post.status === 'oral' ? 'Add Schedule For Oral Interview' : 'Add Schedule For Practical '}</Button> </>
           }
         </Card.Header>
             <Card.Body style={{ overflowX: 'scroll' }}  >

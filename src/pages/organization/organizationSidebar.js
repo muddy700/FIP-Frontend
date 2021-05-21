@@ -68,6 +68,11 @@ const OrganizationSidebar = () => {
                 </div> </Accordion> 
             </li>
             <li className="list-item">
+                <Link to = "/approved_page" className="aside-link">
+                     <Icon glyph="person" size={32} /> <span>Approved Alumni</span>
+                </Link>
+            </li>
+            <li className="list-item">
                 <Link to = "/my_profile" className="aside-link">
                      <Icon glyph="person" size={32} /> <span>Profile</span>
                 </Link>

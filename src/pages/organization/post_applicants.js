@@ -271,10 +271,10 @@ const PostApplicants = () => {
         //   const arrangedByScore = arrangedByDate.slice().sort((a, b) => b.test_marks- a.test_marks)
           var newApplications = response.filter(item => item.confirmation_status === post.status)
           if (newApplications[0].practical_marks >= 0) {
-            newApplications = newApplications.slice().sort((a, b) => b.practical_marks- a.practical_marks)
+            newApplications = newApplications.slice().sort((a, b) => b.practical_marks - a.practical_marks)
           }
           else if (newApplications[0].oral_marks >= 0) {
-            newApplications = newApplications.slice().sort((a, b) => b.oral_marks- a.oral_marks)
+            newApplications = newApplications.slice().sort((a, b) => b.oral_marks - a.oral_marks)
           }
           setApplications(newApplications)
           setFilteredArray(newApplications)
@@ -295,7 +295,10 @@ const PostApplicants = () => {
     return (
     <Card >
         <Card.Header >
-            <Message variant='info' >{isStageFinished ? 'All applications have been processed successfully.  Add Oral Interview Schedule': post.status === 'completed' ? 'Processing stages are completed and applicants have been informed. Go to Approved page to see them' :' You have The Following applicants For The Seleceted Post' }</Message> 
+          <Message variant='info' >{isStageFinished ? 'All applications have been processed successfully.' :
+            post.status === 'completed' ? 'Processing stages are completed and applicants have been informed. Go to Approved page to see them' :
+              applications.length === 0 && (post.status === 'practical' || post.status === 'oral') ? 'No any request yet' : ' You have The Following applicants For The Seleceted Post'}</Message>
+          <Button hidden={!isStageFinished }>Add Schedule For Oral Interview</Button>
         </Card.Header>
         <Card.Body style={{ overflowX: 'scroll' }}  >
           {applications.length !== 0 ? <>
@@ -305,7 +308,7 @@ const PostApplicants = () => {
               <Button
                 style={{ marginLeft: '5%' }}
                 onClick={e => { e.preventDefault(); inviteApplicants() }}
-                disabled={selectedAlumni.length === 0 ? true : false}>{post.status === 'oral' ? 'Approve Selected' : 'Invite Selected'}</Button>
+                disabled={selectedAlumni.length === 0 ? true : false}>{post.status === applications[0].final_stage ? 'Approve Selected' : 'Invite Selected'}</Button>
               &nbsp;
               <Button
                 style={{ marginLeft: '5%' }}
