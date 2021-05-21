@@ -5,6 +5,7 @@ import Nav from 'react-bootstrap/Nav'
 import Button from 'react-bootstrap/Button'
 import '../styles/header.css'
 import Icon from 'supercons'
+import { useLocation, useHistory } from 'react-router-dom';
 import { useSelector, useDispatch}  from 'react-redux'
 import { selectUserData, saveUser, apiConfigurations } from '../slices/userSlice'
 import { changePage, selectAppData } from '../slices/appSlice'
@@ -17,6 +18,7 @@ const Header = ({ changeCollapse, value }) => {
     const config = useSelector(apiConfigurations)
     const dispatch = useDispatch()
     const usersRef = db.collection('users');
+    const history = useHistory();
 
     const removeLoggedAlumni = () => {
         usersRef.doc(appData.alumniDocId).delete()
@@ -35,15 +37,15 @@ const Header = ({ changeCollapse, value }) => {
             console.log('logged out')
             dispatch(changePage({
                         activePage: 1
-                    }))
-            localStorage.removeItem('token')
+            }))
+            
+            localStorage.removeItem('token');
 
             if (user.designation === 'alumni') {
                 removeLoggedAlumni()
             }
 
-
-
+            history.push("/");
         } catch (error) {
             console.log({
                 'request': 'Logout Request',
