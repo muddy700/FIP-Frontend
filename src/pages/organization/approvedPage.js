@@ -14,9 +14,13 @@ import Loader from '../../components/loader';
 const ApprovedAlumni = () => {
   
   const location = useLocation();
-  const [post, setPost] = useState(location.post)
-
+const [page, setPage] = useState(1)
   const columns = [
+  {
+    title: 'S/No',
+    key: 'index',
+    render: ( value, object, index) =>  (page - 1) * 5 + (index+1),
+  },
   {
     title: 'Post Ref No:',
     dataIndex: 'post_reference',
@@ -133,7 +137,7 @@ const ApprovedAlumni = () => {
           <Table 
             columns={columns}
             dataSource={filteredArray}
-            pagination={{ pageSize: 5 }}
+            pagination={{ onChange(current) {setPage(current)}, pageSize: 5 }}
             column={{ ellipsis: true }} /> </> : '' }
        </Card.Body> 
         </Card>

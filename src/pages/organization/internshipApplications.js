@@ -19,7 +19,7 @@ const InternshipApplications = () => {
     dataIndex: 'sn',
     key: 'sn',
     // ellipsis: 'true',
-    render: text => <>{text}</>,
+  render: (text, object, index) => index + 1
   },
   {
     title: 'Applicant',
@@ -31,7 +31,8 @@ const InternshipApplications = () => {
     title: 'Date Applied',
     key: 'date_created',
     // ellipsis: 'true',
-    dataIndex: 'date_applied'
+    dataIndex: 'date_applied',
+    render: text => <>{text.substr(0,10)}</>
   },
   {
     title: 'Test marks',
@@ -65,11 +66,11 @@ const InternshipApplications = () => {
     const user = useSelector(selectUserData)
     // const [selectedPost, setSelectedPost] = useState({})
     const [applications, setApplications] = useState([])
-  const [selectedAlumni, setSelectedAlumni] = useState([])
-  const [discardedAlumni, setDiscardedAlumni] = useState([])
-  const [passMarks, setPassMarks] = useState(0)
-  const [finalStage, setFinalStage] = useState('')
-  const [post, setPost] = useState(location.post)
+    const [selectedAlumni, setSelectedAlumni] = useState([])
+    const [discardedAlumni, setDiscardedAlumni] = useState([])
+    const [passMarks, setPassMarks] = useState(0)
+    const [finalStage, setFinalStage] = useState('')
+    const [post, setPost] = useState(location.post)
   
   const stages = [
     {

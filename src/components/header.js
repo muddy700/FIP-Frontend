@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 import Navbar from 'react-bootstrap/Navbar'
 import Nav from 'react-bootstrap/Nav'
 import Button from 'react-bootstrap/Button'
+import { PoweroffOutlined } from '@ant-design/icons';
 import '../styles/header.css'
 import Icon from 'supercons'
 import { useLocation, useHistory } from 'react-router-dom';
@@ -65,8 +66,10 @@ const Header = ({ changeCollapse, value }) => {
                 <Nav className="mr-auto">
                 <Icon glyph="list" size={32} onClick={changeCollapse} />
                 </Nav>
-                <span href="#pricing" style={{ color: 'white', marginRight: '15px' }}> {user.username} </span>
-                <Icon glyph="door-leave" size={32} onClick={handleLogOut} />
+                <span href="#pricing" style={{ color: 'white', marginRight: '20px' }}> {user.username} </span>
+                <span className="logout-span">
+                    <PoweroffOutlined /> &nbsp; Log out
+                </span>
             </Navbar>
         </div>
     )

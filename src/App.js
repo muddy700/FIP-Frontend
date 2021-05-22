@@ -73,7 +73,7 @@ export const App = () => {
       <div className="app">
         <div className="app-container">
           {isFetching ?
-            <Loader message="Loading... Home" /> :
+            <Loader message="Loading... " /> :
             components[pageNumber]}
         </div>
       </div>

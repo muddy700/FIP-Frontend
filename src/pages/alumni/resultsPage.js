@@ -17,14 +17,13 @@ const ResultsPage = () => {
   const config = useSelector(apiConfigurations)
   const user = useSelector(selectUserData)
   const [selectedApplication, setSelectedApplication] = useState({})
+  const [page, setPage] = useState(1)
   
   const columns = [
   {
-    title: 'S/N',
-    dataIndex: 'sn',
-    key: 'sn',
-    // ellipsis: 'true',
-    render: text => <a>{text}</a>,
+    title: 'S/No',
+    key: 'index',
+    render: ( value, object, index) =>  (page - 1) * 5 + (index+1),
   },
   {
     title: 'Organization',
@@ -148,7 +147,11 @@ const ResultsPage = () => {
           <Message variant='info' >Dear {user.username}, You have applied the folloving companies</Message>
         </Card.Header>
         <Card.Body style={{ overflowX:'scroll'}}  >
-          <Table columns={columns} dataSource={alumniApplications} pagination={{pageSize: 5}} column={{ellipsis: true}} />
+        <Table
+          columns={columns}
+          dataSource={alumniApplications}
+          pagination={{ onChange(current) {setPage(current)}, pageSize: 5 }}
+          column={{ ellipsis: true }} />
        </Card.Body>
         <ContentModal
         show={modalShow}

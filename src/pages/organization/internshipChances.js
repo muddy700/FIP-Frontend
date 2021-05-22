@@ -17,8 +17,14 @@ import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 
 const InternshipChances = () => {
+  const [page, setPage] = useState(1)
 
   const columns = [
+  {
+    title: 'S/No',
+    key: 'index',
+    render: ( value, object, index) =>  (page - 1) * 5 + (index+1),
+  },
   {
     title: 'Reference Number',
     dataIndex: 'reference_number',
@@ -315,7 +321,7 @@ const InternshipChances = () => {
           <Table
             columns={columns}
             dataSource={internshipPosts.slice().sort((a, b) => b.date_updated.localeCompare(a.date_updated))}
-            pagination={{ pageSize: 5 }}
+            pagination={{ onChange(current) {setPage(current)}, pageSize: 5 }}
             column={{ ellipsis: true }} />
        </Card.Body>
         <ContentModal
