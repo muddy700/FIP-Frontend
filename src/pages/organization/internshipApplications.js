@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react'
 import '../../App.css'
 import { Table } from 'antd';
 import Icon from 'supercons'
-import { Button, Row, Col, Card, InputGroup, FormControl, Form } from 'react-bootstrap'
+import { Button, Row, Col, Card, InputGroup, FormControl, Form , Modal} from 'react-bootstrap'
 import Message from '../../components/message'
 import { useLocation, useHistory } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
@@ -179,6 +179,10 @@ const InternshipApplications = () => {
 
   }
   const modalTitle = "Processing Stages";
+
+
+  
+         
   const modalContent = <><ul>
                             {stages.map((choice) => (
                             <li key={choice.id} style={{marginTop: '3px'}}>
@@ -222,7 +226,7 @@ const InternshipApplications = () => {
             post.status === 'test' && applications.length === 0 ?
             <Message variant='info' >Dear {user.username}, There is no any request yet</Message> : <>
             <Message variant='success' >All applications have been processed successful.</Message>
-                <Button>{post.status === 'oral' ? 'Add Schedule For Oral Interview' : 'Add Schedule For Practical '}</Button> </>
+           </>
           }
         </Card.Header>
             <Card.Body style={{ overflowX: 'scroll' }}  >
@@ -273,6 +277,7 @@ const InternshipApplications = () => {
           content={modalContent}
           onHide={() => { setModalShow(false); setFinalStage('') }}
         />
+        
         </Card>
     )
 }

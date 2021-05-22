@@ -46,6 +46,10 @@ export async function getPostSchedule(postId, config) {
     const response = await baseLink.get(`filter/post/${postId}/schedule/`, config)
     return response.data
 }
+export async function getSchedules(config) {
+    const response = await baseLink.get('interview_schedules/', config)
+    return response.data
+}
 
 export async function removeInternshipPost(postId, config) {
     const response = await baseLink.delete(`internship_posts/${postId}/`, config)
