@@ -73,7 +73,9 @@ export const App = () => {
       <div className="app">
         <div className="app-container">
           {isFetching ?
-            <Loader message="Loading... " /> :
+            <div style={{width: '100%', height: '100%', display: 'grid', placeItems: 'center'}}>
+              <Loader message="Loading... " />
+            </div> :
             components[pageNumber]}
         </div>
       </div>

@@ -58,20 +58,29 @@ const ResultsPage = () => {
         {record.status === 'practical' || record.status === 'oral' ? 
           <Button variant="link"
             size="sm"
-            onClick={e => { e.preventDefault(); setModalShow(true); handlePostSchedule(record.post); setSelectedApplication(record) }}>
+            onClick={e => { e.preventDefault(); setModalShow(true); handlePostSchedule(record); setSelectedApplication(record) }}>
             View Schedule
             {/* <Icon glyph="view" size={32} onClick={e => { e.preventDefault(); handlePostSchedule(record.id) }} /> */}
           </Button> : ''}
+        {record.status === 'accepted'? 
+          <Button variant="link"
+            size="sm"
+            onClick={e => { e.preventDefault();}}>
+            View reporting instructions
+            {/* <Icon glyph="view" size={32} onClick={e => { e.preventDefault(); handlePostSchedule(record.id) }} /> */}
+          </Button> : ''}
+          
       </Space>
     ),
   },
   ];
 
-  const handlePostSchedule = async (id) => {
+  const handlePostSchedule = async (record) => {
     try {
-      const response = await getPostSchedule(id, config)
-      // console.log(response)
-      setPostSchedule(response[0])
+      const response = await getPostSchedule(record.post, config)
+      response[0].post_stage === record.status ?
+      setPostSchedule(response[0]) :
+      setPostSchedule({})
     } catch (error) {
             console.log({
                 'request': 'Fetch Post Schedule Request',
@@ -113,7 +122,7 @@ const ResultsPage = () => {
             }) }
   }
 
-  const modalContent = postSchedule ?   <>
+  const modalContent = postSchedule.id ?   <>
             <tbody>
                 <tr>
                     <td className="post-properties">ORGANIZATION</td>

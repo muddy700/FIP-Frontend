@@ -50,12 +50,12 @@ export const LoginPage = () => {
 
         if (username === '') {
             setErrorMode(true);
-            setErrorMessage('Username Cannot Be Blank')
+            setErrorMessage('Username cannot be blank')
             return false;
         }
         else if (password === '') {
             setErrorMode(true);
-            setErrorMessage('Password Cannot Be Blank')
+            setErrorMessage('Password cannot be blank')
             return false;
         }
         else {
@@ -125,7 +125,7 @@ export const LoginPage = () => {
                 
                 if (error.response.request.status === 400) {
                     setErrorMode(true);
-                    setErrorMessage('Invalid Username Or Password')
+                    setErrorMessage('Invalid username or password')
                 }
             }
             

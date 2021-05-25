@@ -46,8 +46,19 @@ export async function getPostSchedule(postId, config) {
     const response = await baseLink.get(`filter/post/${postId}/schedule/`, config)
     return response.data
 }
-export async function getSchedules(config) {
-    const response = await baseLink.get('interview_schedules/', config)
+
+// export async function getSchedules(config) {
+//     const response = await baseLink.get('interview_schedules/', config)
+//     return response.data
+// }
+
+export async function editPostSchedule(scheduleId, payload, config) {
+    const response = await baseLink.put(`interview_schedules/${scheduleId}/`, payload, config)
+    return response.data
+}
+
+export async function createPostSchedule(payload, config) {
+    const response = await baseLink.post('interview_schedules/', payload, config)
     return response.data
 }
 

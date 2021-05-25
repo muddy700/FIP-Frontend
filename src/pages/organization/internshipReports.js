@@ -12,17 +12,9 @@ import ContentModal from '../../components/contentModal';
 import { findAllByDisplayValue } from '@testing-library/dom';
 
 const InternshipReports = () => {
-  const initialSchedule = {
-    post: '',
-    organization: '',
-    location: '',
-    event_date: '',
-    requirements: ''
-    
-  }
+
   const [page, setPage] = useState(1)
   const [modalShow, setModalShow] = useState(false)
-  const [postSchedule, setPostSchedule] = useState(initialSchedule)
 
   const columns = [
   {
@@ -63,7 +55,6 @@ const InternshipReports = () => {
       <Space size="middle">
         <Link to={{pathname: "/post_applicants", post: record }}>
             <Button variant="link" >View Applicants</Button>
-           
         </Link>
         {/* <Button variant="link" onClick={(e) => { e.preventDefault(); setModalShow(true); setPost(record) }} >Add Schedule</Button> */}
       </Space>
@@ -76,34 +67,7 @@ const InternshipReports = () => {
     const [applications, setApplications] = useState([])
     const [internshipPosts, setInternshipPosts] = useState([])
     const [post, setPost] = useState({})
-
-  const handleScheduleForm = (e) => {
-    setPostSchedule({
-      ...postSchedule,
-      [e.target.name] : e.target.value
-     })
-  }
   
-  const getInterviewSchedules = async (e) => {
-    try {
-      const response = await getSchedules(config)
-      console.log(response)
-    } catch(error) {
-         console.log({
-                'request': 'Fetch internship post schedules Request',
-                'Error => ': error
-            })
-    }
-   
-  }
-  
-  const submitPostSchedule = async (e) => {
-    e.preventDefault()
-    // console.log(postSchedule)
-    const payload = { ...postSchedule, post: post.id, organization: post.organization }
-    console.log(payload)
-  }
-
   const fetchInternshipPosts = async () => {
         try {
           const response = await getOrganizationInternshipPosts(user.userId, config)
@@ -132,32 +96,9 @@ const InternshipReports = () => {
     useEffect(() => {
       // fetchApplications();
       fetchInternshipPosts()
-      getInterviewSchedules()
+      // getInterviewSchedules()
     }, [])
     
-  var modalTitle = `Fill schedule for  ${post.status} `
-  const modalContent =
-    <Form onSubmit={submitPostSchedule}>
-      <Form.Row>
-              
-              <Form.Group as ={Col} controlId="exampleForm.ControlInput1" >
-                <Form.Label>Event Date</Form.Label>
-                <Form.Control onChange={handleScheduleForm} name='event_date' type="datetime-local" placeholder="event date" />
-              </Form.Group>
-               <Form.Group as ={Col} controlId="exampleForm.ControlInput1">
-                <Form.Label>Location</Form.Label>
-                <Form.Control onChange={handleScheduleForm} name='location' type="text" placeholder="enter interview location" />
-              </Form.Group>
-        </Form.Row>
-          
-              <Form.Group controlId="exampleForm.ControlInput1">
-                <Form.Label>Requirement</Form.Label>
-                <Form.Control onChange={handleScheduleForm} name='requirements' type="text" placeholder=" " />
-           </Form.Group>
-           <Button type='submit' >Send</Button>
-         </Form>
-      
-
     return (
     <Card >
         <Card.Header >
@@ -191,13 +132,13 @@ const InternshipReports = () => {
             pagination={{ onChange(current) {setPage(current)}, pageSize: 5 }}
             column={{ ellipsis: true }} />
         </Card.Body>
-        <ContentModal
+        {/* <ContentModal
           show={modalShow}
           isTable={false}
           title={modalTitle}
           content={modalContent}
           onHide={() => { setModalShow(false) }}
-        />
+        /> */}
         </Card>
     )
 }

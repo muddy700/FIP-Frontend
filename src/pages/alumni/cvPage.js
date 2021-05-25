@@ -543,7 +543,7 @@ const CvPage = () => {
                                         <Col><small>{personalInfo.last_name}</small></Col>
                                     </Row>
                                     <Row >
-                                        <Col md={5}><small><b>Phone Number</b></small></Col>
+                                        <Col md={5}><small><b>Phone</b></small></Col>
                                         <Col><small>{personalInfo.phone}</small></Col>
                                     </Row>
                                     <Row >

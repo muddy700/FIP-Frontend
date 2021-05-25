@@ -84,6 +84,10 @@ const InternshipApplications = () => {
     {
       id: 3,
       text: 'Practical and oral'
+    },
+    {
+      id: 4,
+      text: 'Test only'
     }
   ]
 
@@ -128,6 +132,11 @@ const InternshipApplications = () => {
         return { ...item, status: 'practical', final_stage: 'oral'}
        })
     }
+    else if (finalStage.id === 4) {
+       newApplications = selectedAlumni.map(item => {
+        return { ...item, status: 'accepted', final_stage: 'test'}
+       })
+    }
 
     const discardedApplications = discardedAlumni.map(item => {
         return { ...item, status: 'rejected'}
@@ -165,6 +174,7 @@ const InternshipApplications = () => {
     if (finalStage.id === 1) status = 'practical';
     else if (finalStage.id === 2) status = 'oral';
     else if (finalStage.id === 3) status = 'practical';
+    else if (finalStage.id === 4) status = 'completed';
 
     const payload = {...post, status: status }
         try {
@@ -222,9 +232,9 @@ const InternshipApplications = () => {
     <Card >
         <Card.Header >
           {post.status === 'test' && applications.length !== 0  ?
-            <Message variant='info' >Dear {user.username}, You have The Following Requests For The Seleceted Post</Message> :
+            <Message variant='info' >Dear {user.username}, You have the following requests for the seleceted post</Message> :
             post.status === 'test' && applications.length === 0 ?
-            <Message variant='info' >Dear {user.username}, There is no any request yet</Message> : <>
+            <Message variant='info' >Dear {user.username}, there is no any request yet</Message> : <>
             <Message variant='success' >All applications have been processed successful.</Message>
            </>
           }

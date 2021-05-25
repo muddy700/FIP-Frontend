@@ -6,7 +6,7 @@ import { Button, Row, Col, Card, InputGroup, FormControl, Form } from 'react-boo
 import Message from '../../components/message'
 import { useLocation, useHistory } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
-import { editInternshipPost, editMultipleApplications, editSingleApplication, getInternshipApplications, } from '../../app/api';
+import { createPostSchedule, editInternshipPost, editMultipleApplications, editPostSchedule, editSingleApplication, getInternshipApplications, getPostSchedule, getSchedules, } from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 import Loader from '../../components/loader';
@@ -62,19 +62,29 @@ const PostApplicants = () => {
   // },
     ];
 
-  
-    const history = useHistory();
-    const [modalShow, setModalShow] = useState(false);
-    const config = useSelector(apiConfigurations)
-  const user = useSelector(selectUserData)
-  
+    const initialSchedule = {
+    post: '',
+    organization: '',
+    location: '',
+    event_date: '',
+    requirements: '',
+    post_stage: ''
+  }
+
   const initialApplication = {
     id: '',
     practical_marks: '',
     oral_marks: ''
   }
-    // const [selectedPost, setSelectedPost] = useState({})
+  // const [selectedPost, setSelectedPost] = useState({})
   const [applications, setApplications] = useState([])
+  const [postSchedule, setPostSchedule] = useState(initialSchedule)
+  const [hasCurrentSchedule, setHasCurrentSchedule] = useState(false)
+  const [oldSchedule, setOldSchedule] = useState({})
+  const history = useHistory();
+  const [modalShow, setModalShow] = useState(false);
+  const config = useSelector(apiConfigurations)
+  const user = useSelector(selectUserData)
   const [filteredArray, setFilteredArray] = useState()
   const [selectedAlumni, setSelectedAlumni] = useState([])
   const [discardedAlumni, setDiscardedAlumni] = useState([])
@@ -83,6 +93,7 @@ const PostApplicants = () => {
   const [activeApplication, setActiveApplication] = useState(initialApplication)
   const [isSending, setIsSending] = useState(false)
   const [isStageFinished, setIsStageFinished] = useState(false)
+  const [modalMode, setModalMode] = useState('')
 
   const goToPreviousPage = () => {
     history.goBack()
@@ -226,8 +237,8 @@ const PostApplicants = () => {
     }
   }
 
-  const modalTitle = "Fill Marks";
-  const modalContent = <> {isSending ?
+  const modalTitle = modalMode === 'marks' ? "Fill Marks" : `Fill schedule for  ${post.status} interview`;
+  const marksForm = <> {isSending ?
     <Loader message="Sending Data...." /> :<>
         <Form.Row>
         <Form.Group as={Col} controlId="InternshipPostInput1">
@@ -263,6 +274,60 @@ const PostApplicants = () => {
       (activeApplication.oral_marks !== '' || activeApplication.practical_marks !== '') ? false : true}>Send</Button></>}
   </>;
 
+    // var modalTitle = `Fill schedule for  ${post.status} `
+    const handleScheduleForm = (e) => {
+      setPostSchedule({
+        ...postSchedule,
+        [e.target.name] : e.target.value
+       })
+    }
+    
+  const submitPostSchedule = async (e) => {
+    e.preventDefault()
+    const payload = {
+      ...postSchedule,
+      post: post.id,
+      organization: post.organization,
+      post_stage: post.status
+    }
+    try {
+      var response = '';
+      if (oldSchedule.post === post.id) {
+        response = await editPostSchedule(oldSchedule.id, payload, config) }
+        else {
+          response = await createPostSchedule(payload, config) }
+          console.log(response)
+          setModalMode('')
+          setModalShow(false)
+          getInterviewSchedules()
+        } catch (error) {
+            console.log({ 
+                'request': 'Set Interview Schedule Request',
+                'Error => ': error
+            })
+        }
+  }
+  
+  const scheduleForm =
+    <Form onSubmit={submitPostSchedule}>
+      <Form.Row>
+              <Form.Group as ={Col} controlId="exampleForm.ControlInput1" >
+                <Form.Label>Event Date</Form.Label>
+                <Form.Control onChange={handleScheduleForm} name='event_date' type="datetime-local" placeholder="event date" />
+              </Form.Group>
+               <Form.Group as ={Col} controlId="exampleForm.ControlInput1">
+                <Form.Label>Location</Form.Label>
+                <Form.Control onChange={handleScheduleForm} name='location' type="text" placeholder="enter interview location" />
+              </Form.Group>
+        </Form.Row>
+          
+              <Form.Group controlId="exampleForm.ControlInput1">
+                <Form.Label>Requirement</Form.Label>
+                <Form.Control onChange={handleScheduleForm} name='requirements' type="text" placeholder=" " />
+           </Form.Group>
+           <Button type='submit' >Send</Button>
+         </Form>
+   
   
     
   const fetchPostApplicants = async () => {
@@ -287,9 +352,32 @@ const PostApplicants = () => {
             })
         }
   }
-   
+ 
+    const getInterviewSchedules = async (e) => {
+    try {
+      const response = await getPostSchedule(post.id, config)
+      console.log(response)
+      // const post_schedule = response.find(item => item.post === post.id)
+      if (response.length !== 0) {
+        response[0].post_stage === post.status ?
+        setHasCurrentSchedule(true) :
+        setHasCurrentSchedule(false)
+        setOldSchedule(response[0])
+      }
+      else {
+        setOldSchedule({})
+        setHasCurrentSchedule(false)
+      }
+    } catch(error) {
+         console.log({
+                'request': 'Fetch internship post schedules Request',
+                'Error => ': error
+            })
+    }
+  }
     useEffect(() => {
-      fetchPostApplicants()
+      fetchPostApplicants();
+      getInterviewSchedules()
     }, [])
 
     return (
@@ -297,8 +385,12 @@ const PostApplicants = () => {
         <Card.Header >
           <Message variant='info' >{isStageFinished ? 'All applications have been processed successfully.' :
             post.status === 'completed' ? 'Processing stages are completed and applicants have been informed. Go to Approved page to see them' :
-              applications.length === 0 && (post.status === 'practical' || post.status === 'oral') ? 'No any request yet' : ' You have The Following applicants For The Seleceted Post'}</Message>
-          <Button hidden={!isStageFinished }>Add Schedule For Oral Interview</Button>
+              applications.length === 0 && (post.status === 'practical' || post.status === 'oral') ? 'No any request yet' : ' You have the following applicants for the seleceted post'}</Message>
+          <Button
+            hidden={hasCurrentSchedule}
+            disabled={post.status === 'completed' ? true : false}
+            onClick={e => { e.preventDefault(); setModalShow(true); setModalMode('schedule') }}
+          >{post.status === 'completed' ? 'Add reporting instructions' : `Add schedule for ${post.status} interview`} </Button>
         </Card.Header>
         <Card.Body style={{ overflowX: 'scroll' }}  >
           {applications.length !== 0 ? <>
@@ -312,7 +404,7 @@ const PostApplicants = () => {
               &nbsp;
               <Button
                 style={{ marginLeft: '5%' }}
-                onClick={e => { e.preventDefault(); setModalShow(true) }}
+                  onClick={e => { e.preventDefault(); setModalShow(true); setModalMode('marks') }}
                   disabled={applications.length === 0
                     // || (post.status === 'practical' && applications[0].practical_marks >= 0)
                     // || (post.status === 'oral' && applications[0].oral_marks >= 0)
@@ -352,7 +444,7 @@ const PostApplicants = () => {
           show={modalShow}
           isTable={false}
           title={modalTitle}
-          content={modalContent}
+          content={modalMode === 'marks' ? marksForm : scheduleForm}
           onHide={() => { setModalShow(false); setFinalStage('') }}
         />
         </Card>

@@ -67,7 +67,7 @@ const Header = ({ changeCollapse, value }) => {
                 <Icon glyph="list" size={32} onClick={changeCollapse} />
                 </Nav>
                 <span href="#pricing" style={{ color: 'white', marginRight: '20px' }}> {user.username} </span>
-                <span className="logout-span">
+                <span className="logout-span" onClick={handleLogOut}>
                     <PoweroffOutlined /> &nbsp; Log out
                 </span>
             </Navbar>

@@ -288,13 +288,13 @@ const InternshipChances = () => {
         variant={editingMode ? 'success' : 'primary'}
         style={{ float: 'right' }}>{editingMode ? 'Save' : 'Send'} </Button>
     </Form> 
-  const modalTitle = modalMode !== 'form' ? "Post Details" : editingMode ? 'Editing Mode' : 'Fill Post Details' ;
+  const modalTitle = modalMode !== 'form' ? "Post Details" : editingMode ? 'Edit post info' : 'Fill Post Details' ;
   const modalContent = modalMode === 'form' ? postForm : postDetails;
 
     return (
     <Card >
         <Card.Header >
-          <Message variant='info' >Dear {user.username}, You have Posted The Following Chances</Message>
+          <Message variant='info' >Dear {user.username}, You have posted the following chances</Message>
         </Card.Header>
             <Card.Body style={{ overflowX: 'scroll' }}  >
                 
