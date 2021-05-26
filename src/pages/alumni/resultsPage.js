@@ -32,7 +32,7 @@ const ResultsPage = () => {
     // ellipsis: 'true'
   },
   {
-    title: 'Profession',
+    title: 'Job title',
     key: 'professions',
     // ellipsis: 'true',
     dataIndex: 'post_profession'
@@ -114,6 +114,7 @@ const ResultsPage = () => {
         try {
         const response = await editSingleApplication(payload, config)
             // console.log(response)
+            setModalShow(false)
           setSelectedApplication(response)
         } catch (error) {
             console.log({

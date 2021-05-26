@@ -12,17 +12,17 @@ import ContentModal from '../../components/contentModal';
 import Loader from '../../components/loader';
 
 const PostApplicants = () => {
+
+  const [page, setPage] = useState(1)
   
   const location = useLocation();
   const [post, setPost] = useState(location.post)
 
   const columns = [
   {
-    title: 'S/N',
-    dataIndex: 'sn',
-    key: 'sn',
-    // ellipsis: 'true',
-    render: text => <>{text}</>,
+    title: 'S/No',
+    key: 'index',
+    render: ( value, object, index) =>  (page - 1) * 5 + (index+1),
   },
   {
     title: 'Applicant',
@@ -67,7 +67,7 @@ const PostApplicants = () => {
     organization: '',
     location: '',
     event_date: '',
-    requirements: '',
+    requirements: ' ',
     post_stage: ''
   }
 
@@ -94,6 +94,7 @@ const PostApplicants = () => {
   const [isSending, setIsSending] = useState(false)
   const [isStageFinished, setIsStageFinished] = useState(false)
   const [modalMode, setModalMode] = useState('')
+  const [latestSchedule, setlatestSchedule] = useState({})
 
   const goToPreviousPage = () => {
     history.goBack()
@@ -181,6 +182,7 @@ const PostApplicants = () => {
 
   
   const editProcessedPost = async () => {
+    setHasCurrentSchedule(false)
     // console.log(nextStage)
     let status = '';
     if (post.status === applications[0].final_stage) status = 'completed';
@@ -191,6 +193,7 @@ const PostApplicants = () => {
           const response = await editInternshipPost(post.id, payload, config)
           setPost(response)
           setApplications([])
+          getInterviewSchedules()
           if(status === 'oral') setIsStageFinished(true)
         } catch (error) {
             console.log({ 
@@ -225,6 +228,7 @@ const PostApplicants = () => {
       setApplications(applications.filter(item => item.id !== response.id))
       setActiveApplication(initialApplication)
       setIsSending(false)
+      // getInterviewSchedules()
         } catch (error) {
             console.log({
                 'request': 'Sending Applicant Marks Request',
@@ -356,15 +360,17 @@ const PostApplicants = () => {
     const getInterviewSchedules = async (e) => {
     try {
       const response = await getPostSchedule(post.id, config)
-      console.log(response)
+      // console.log(response)
       // const post_schedule = response.find(item => item.post === post.id)
       if (response.length !== 0) {
+        setlatestSchedule(response[0])
         response[0].post_stage === post.status ?
-        setHasCurrentSchedule(true) :
-        setHasCurrentSchedule(false)
+          setHasCurrentSchedule(true) :
+          setHasCurrentSchedule(false)
         setOldSchedule(response[0])
       }
       else {
+        setlatestSchedule({post_stage: ''})
         setOldSchedule({})
         setHasCurrentSchedule(false)
       }
@@ -387,7 +393,8 @@ const PostApplicants = () => {
             post.status === 'completed' ? 'Processing stages are completed and applicants have been informed. Go to Approved page to see them' :
               applications.length === 0 && (post.status === 'practical' || post.status === 'oral') ? 'No any request yet' : ' You have the following applicants for the seleceted post'}</Message>
           <Button
-            hidden={hasCurrentSchedule}
+            hidden={post.status === latestSchedule.post_stage ? true : false}
+            // hidden={hasCurrentSchedule}
             disabled={post.status === 'completed' ? true : false}
             onClick={e => { e.preventDefault(); setModalShow(true); setModalMode('schedule') }}
           >{post.status === 'completed' ? 'Add reporting instructions' : `Add schedule for ${post.status} interview`} </Button>
@@ -432,7 +439,7 @@ const PostApplicants = () => {
           <Table 
             columns={columns}
             dataSource={filteredArray}
-            pagination={{ pageSize: 5 }}
+            pagination={{ onChange(current) {setPage(current)}, pageSize: 5 }}
             column={{ ellipsis: true }} /> </> : '' }
           <Button
                 variant="secondary"

@@ -31,7 +31,8 @@ const getInternshipPosts = async () => {
         try {
             const response2 = await pullInternshipPosts(config)
             const newPosts = response2.filter(post => !appliedPostsIds.includes(post.id))
-            const arrangedPosts = newPosts.slice().sort((a, b) => b.date_updated.localeCompare(a.date_updated))
+            const unProcessedPosts = newPosts.filter(post => post.status === 'test')
+            const arrangedPosts = unProcessedPosts.slice().sort((a, b) => b.date_updated.localeCompare(a.date_updated))
             dispatch(fetchInternshipPosts(arrangedPosts))
 
         } catch (error) {
@@ -94,7 +95,7 @@ const getInternshipPosts = async () => {
                             />
                             <Row >
                                 <Col md={{span: 3, offset: 1}} style={{ display: 'flex' }}>
-                                    Profession: &nbsp; <p>{post.profession_name} </p>
+                                    Job title: &nbsp; <p>{post.profession_name} </p>
                                 </Col>
                                 <Col md={1} style={{ display: 'flex' }}>
                                     Posts:  &nbsp; <p>{post.post_capacity} </p>

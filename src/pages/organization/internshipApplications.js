@@ -15,7 +15,7 @@ const InternshipApplications = () => {
     
   const columns = [
   {
-    title: 'S/N',
+    title: 'S/No',
     dataIndex: 'sn',
     key: 'sn',
     // ellipsis: 'true',
