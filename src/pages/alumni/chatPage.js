@@ -20,6 +20,7 @@ const ChatPage = () => {
     const [activeAlumni, setActiveAlumni] = useState([])
     const messagesRef = db.collection('messages');
     const usersRef = db.collection('users');
+    const [hasDuplicate, sethasDuplicate] = useState(false)
     
     const onMessageChange = (e) => {
         e.preventDefault()
@@ -58,9 +59,20 @@ const ChatPage = () => {
 
     const fetchUsers = () => {
         usersRef.onSnapshot(snapshot => (
-            setActiveAlumni(  snapshot.docs.map((doc) => doc.data()  ))
+            setActiveAlumni(  snapshot.docs.map((doc) => doc.data() ))
         ));
     }
+
+    const removeRepeatedAlumni = () => {
+        const newUsers1 = activeAlumni.map(item => item.username)
+        const newUsers2 = [...new Set(newUsers1)]
+        // console.log(newUsers2)
+        // setActiveAlumni(newUsers2)
+        // newUsers1.length !== newUsers2.length ? setActiveAlumni(newUsers2) : <> </>
+        // return newUsers
+    }
+
+    // removeRepeatedAlumni()
 
     useEffect(() => {
         fetchMessages();

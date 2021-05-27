@@ -49,7 +49,7 @@ const [page, setPage] = useState(1)
     render: (text, record) => (
       <Space size="middle">
         <Button variant="link" size="sm"
-          onClick={e => { e.preventDefault(); }}>Contract
+          onClick={e => { e.preventDefault(); }}>Confirm
         </Button>
         <Button variant="link" size="sm"
           onClick={e => { e.preventDefault(); }}>Release

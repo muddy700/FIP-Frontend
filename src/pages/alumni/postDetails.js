@@ -27,7 +27,7 @@ export const PostDetails = () => {
                                 <td>{internship_post.organization_name} </td>
                                 </tr>
                                 <tr>
-                                    <td className="post-properties">PROFESSION</td>
+                                    <td className="post-properties">JOB TITLE</td>
                                 <td>{internship_post.profession_name}</td>
                                 </tr>
                                 <tr>

@@ -136,6 +136,12 @@ export async function getProfessions(config) {
     const response = await baseLink.get("professions/", config)
     return response.data
 }
+
+export async function getOrganizationProfiles(config) {
+    const response = await baseLink.get("organization_profile/", config)
+    return response.data
+}
+
 // export async function fetchUserPosts(config) {
 //     const response = await baseLink.get("user/posts/", config)
 //     return response.data

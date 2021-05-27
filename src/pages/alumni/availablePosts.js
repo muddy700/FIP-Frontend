@@ -6,10 +6,12 @@ import { Button, Row, Col, Card, InputGroup, FormControl } from 'react-bootstrap
 import Message from '../../components/message'
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch}  from 'react-redux'
-import { getAlumniApplications, pullInternshipPosts } from '../../app/api';
+import { getAlumniApplications, getOrganizationProfiles, pullInternshipPosts } from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import { fetchInternshipPosts, selectInternshipPostList } from '../../slices/internshipPostSlice';
 import WarningModal from '../../components/warningModal';
+import ContentModal from '../../components/contentModal';
+import { Tooltip } from 'antd';
 
 const AvailablePostsPage = () => {
 
@@ -21,6 +23,9 @@ const AvailablePostsPage = () => {
     const [selectedOrganization, setSelectedOrganization] = useState('')
     const [profession, setProfession] = useState('')
     const [modalShow, setModalShow] = useState(false);
+    const [organizationProfiles, setOrganizationProfiles] = useState([])
+    const [showOrganizationInfo, setShowOrganizationInfo] = useState(false)
+    const [selectedProfile, setselectedProfile] = useState({})
     const modalTitle = "Warning!"
     const modalContent = "To Apply This Post You Need To Do A Test In A Given Time Limit. And Once You Start You Cannot Abort The Process. To Continue Press 'Start', To Quit Press 'Cancel'"
 
@@ -48,10 +53,45 @@ const getInternshipPosts = async () => {
             'Error => ': error
         })
     }
-}
+    }
     
+const pullOrganizationProfiles = async () => {
+        try {
+            const response = await getOrganizationProfiles(config)
+            // console.log(response)
+            setOrganizationProfiles(response)
+        } catch (error) {
+            console.log({
+                'request': 'Fetch Organization Profiles Request',
+                'Error => ': error
+            })
+        }
+    }
+    
+    const infoTitle = 'Organization Profile'
+    var infoTable =  <tbody>
+                                <tr>
+                                    <td className="post-properties">ORGANIZATION</td>
+                                <td>{selectedProfile.organization_name} </td>
+                                </tr>
+                                <tr>
+                                    <td className="post-properties">ADDRESS</td>
+                                <td>{selectedProfile.box_address}</td>
+                                </tr>
+                                <tr>
+                                    <td className="post-properties">ORGANIZATION DESCRIPTION</td>
+                                <td>{selectedProfile.organization_description} </td>
+                                </tr>
+                            </tbody>
+    
+    const selectOrganizationProfile = (id) => {
+        const profile = organizationProfiles.find(item => item.organization_id === id)
+        setShowOrganizationInfo(true)
+        setselectedProfile(profile)
+    }
     useEffect(() => {
         getInternshipPosts();
+        pullOrganizationProfiles();
     }, [])
 
     return (
@@ -91,7 +131,14 @@ const getInternshipPosts = async () => {
                         >
                             <List.Item.Meta
                                 // avatar={<Avatar size="large" src={post.avatar} />}
-                                title={<h5 > {post.organization_name} </h5>}
+                                title={<Tooltip placement="topLeft" title="View organization profile">
+                                    <h5 >
+                                        <Button
+                                            variant="link"
+                                            onClick={e => { e.preventDefault(); selectOrganizationProfile(post.organization) }}
+                                            >{post.organization_name}
+                                            </Button></h5>
+                                             </Tooltip>}
                             />
                             <Row >
                                 <Col md={{span: 3, offset: 1}} style={{ display: 'flex' }}>
@@ -135,8 +182,20 @@ const getInternshipPosts = async () => {
             professionId={profession}
             organizationId={selectedOrganization}
         />
+        <ContentModal
+          show={showOrganizationInfo}
+          isTable={true}
+          title={infoTitle}
+          content={infoTable}
+          onHide={() => { setShowOrganizationInfo(false) }}
+        />
         </Card>
     )
 }
 
 export default AvailablePostsPage
+
+
+//  <Tooltip placement="top" title={text}>
+//         <Button>Top</Button>
+//       </Tooltip>
