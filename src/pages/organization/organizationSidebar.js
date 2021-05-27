@@ -7,6 +7,8 @@ import { useState } from 'react';
 import Card from 'react-bootstrap/Card'
 import Accordion from 'react-bootstrap/Accordion'
 import '../../styles/sidebar.css'
+import { UsergroupAddOutlined } from '@ant-design/icons';
+
 
 
 const OrganizationSidebar = () => {
@@ -69,7 +71,8 @@ const OrganizationSidebar = () => {
             </li>
             <li className="list-item">
                 <Link to = "/approved_page" className="aside-link">
-                     <Icon glyph="person" size={32} /> <span>Approved Alumni</span>
+                    <UsergroupAddOutlined style={{ fontSize: '20px', paddingRight: '2px' }}/><span>Approved Alumni</span>
+                     {/* <Icon glyph="person" size={32} /> <span>Approved Alumni</span> */}
                 </Link>
             </li>
             <li className="list-item">

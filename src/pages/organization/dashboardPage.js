@@ -12,8 +12,8 @@ export const DashboardPage = () => {
         <Card className="dashboard-container">
             <Card.Header>
                 <Row>
-                    <Col md={4}>Logged In As: {user.username} </Col>
-                    <Col md={{ span: 2, offset: 6 }} xs={{ span: 6 }}>{ currentDate }</Col>
+                    <Col md={5}>Logged In As: {user.username} </Col>
+                    <Col md={{ span: 2, offset: 5 }} xs={{ span: 6 }}>{ currentDate }</Col>
                 </Row>
             </Card.Header>
         </Card>
