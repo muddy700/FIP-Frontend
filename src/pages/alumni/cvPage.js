@@ -171,7 +171,7 @@ const CvPage = () => {
                                                             <Form.File id="formcheck-api-regular">
                                                                 <Form.File.Input onChange={onPersonalInfoChange} name="profile_image" accept="image/*" />
                                                             {/* <input type="file" onChange={onPersonalInfoChange} name="profile_image" accept="image/*" /> */}
-                                                                </Form.File>
+                                                            </Form.File>
                                                         </Card.Footer>
                                                     </Card>
                                                 </Col>

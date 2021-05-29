@@ -87,6 +87,7 @@ export const LoginPage = () => {
                         profile_image: userProfile[0].profile_image,
                         email: userProfile[0].email,
                         phone: userProfile[0].phone,
+                        profileId: userProfile[0].id,
                         gender: userProfile[0].gender,
                         token: response.token,
                         isAuthenticated: true,

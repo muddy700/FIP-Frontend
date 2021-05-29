@@ -12,6 +12,7 @@ const initialState = {
         designation_id: '',
         profile_image: '',
         email: '',
+        profileId: '',
         token: localStorage.getItem('token'),
         isAuthenticated: false,
     }
