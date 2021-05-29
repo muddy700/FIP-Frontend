@@ -21,10 +21,11 @@ export async function changePassword(payload, config) {
     const response = await baseLink.put("change_password/", payload, config)
     return response.data
 }
-// export async function changePassword(payload, config) {
-//     const response = await baseLink.post(`users/${payload.id}/`, payload, config)
-//     return response.data
-// }
+
+export async function editUserInfo(payload, config) {
+    const response = await baseLink.put(`users/${payload.id}/`, payload, config)
+    return response.data
+}
 
 export async function getUserProfile(config) {
     const response = await baseLink.get("user_profile/", config)
