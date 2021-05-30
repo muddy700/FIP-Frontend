@@ -241,7 +241,7 @@ const PostApplicants = () => {
     }
   }
 
-  const modalTitle = modalMode === 'marks' ? "Fill Marks" : `Fill schedule for  ${post.status} interview`;
+  const modalTitle = modalMode === 'marks' ? "Fill Marks" : post.status === 'completed' ? 'Fill Reporting Instructions' : `Fill schedule for  ${post.status} interview`;
   const marksForm = <> {isSending ?
     <Loader message="Sending Data...." /> :<>
         <Form.Row>
@@ -395,7 +395,7 @@ const PostApplicants = () => {
           <Button
             hidden={post.status === latestSchedule.post_stage ? true : false}
             // hidden={hasCurrentSchedule}
-            disabled={post.status === 'completed' ? true : false}
+            // disabled={post.status === 'completed' ? true : false}
             onClick={e => { e.preventDefault(); setModalShow(true); setModalMode('schedule') }}
           >{post.status === 'completed' ? 'Add reporting instructions' : `Add schedule for ${post.status} interview`} </Button>
         </Card.Header>

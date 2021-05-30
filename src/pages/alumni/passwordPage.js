@@ -87,7 +87,7 @@ const PasswordPage = () => {
             catch (error) {
                 console.log({
                     'request': 'Change User-Password Request',
-                    'Error => ': error
+                    'Error => ': error.response.data
                 })
                 setIsLoading(false)
                 setErrorMode(true)

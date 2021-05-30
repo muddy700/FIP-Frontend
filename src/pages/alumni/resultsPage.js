@@ -18,6 +18,7 @@ const ResultsPage = () => {
   const user = useSelector(selectUserData)
   const [selectedApplication, setSelectedApplication] = useState({})
   const [page, setPage] = useState(1)
+  const [activeContent, setActiveContent] = useState('schedule')
   
   const columns = [
   {
@@ -58,15 +59,15 @@ const ResultsPage = () => {
         {record.status === 'practical' || record.status === 'oral' ? 
           <Button variant="link"
             size="sm"
-            onClick={e => { e.preventDefault(); setModalShow(true); handlePostSchedule(record); setSelectedApplication(record) }}>
+            onClick={e => { e.preventDefault(); setModalShow(true); handlePostSchedule(record); setSelectedApplication(record); setActiveContent('schedule') }}>
             View Schedule
             {/* <Icon glyph="view" size={32} onClick={e => { e.preventDefault(); handlePostSchedule(record.id) }} /> */}
           </Button> : ''}
         {record.status === 'accepted'? 
           <Button variant="link"
             size="sm"
-            onClick={e => { e.preventDefault();}}>
-            View reporting instructions
+            onClick={e => { e.preventDefault(); setModalShow(true); handlePostSchedule(record); setActiveContent('instructions') }}>
+            {record.has_reported ? '' : 'View reporting instructions'}
             {/* <Icon glyph="view" size={32} onClick={e => { e.preventDefault(); handlePostSchedule(record.id) }} /> */}
           </Button> : ''}
           
@@ -79,7 +80,9 @@ const ResultsPage = () => {
     try {
       const response = await getPostSchedule(record.post, config)
       response[0].post_stage === record.status ?
-      setPostSchedule(response[0]) :
+        setPostSchedule(response[0]) :
+        response[0].post_stage === 'completed' ?
+        setPostSchedule(response[0]) :
       setPostSchedule({})
     } catch (error) {
             console.log({
@@ -144,12 +147,13 @@ const ResultsPage = () => {
             </tbody>  <br />
           <Button
       onClick={confirmAttendance}
+      hidden={postSchedule.post_stage === 'completed' ? true : false}
       disabled={selectedApplication.confirmation_status === selectedApplication.post_status ? true : false}
       variant={selectedApplication.confirmation_status === selectedApplication.post_status ? 'success' : 'primary'}
     >{selectedApplication.confirmation_status === selectedApplication.post_status ? 'Confirmed' : 'Confirm'}</Button>
-          </> : <Message variant="info" >No Schedule Yet</Message>
+  </> : <Message variant="info" >{activeContent === 'schedule' ? 'No Schedule Yet' : 'No Instructions Yet'}</Message>
           
-  const modalTitle = "Interview Schedule";
+  const modalTitle = activeContent === 'instructions' ? 'Reporting Instructions' : "Interview Schedule";
 
   return (
     <Card >

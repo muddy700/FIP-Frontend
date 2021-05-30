@@ -103,6 +103,11 @@ export async function getAlumniProfile(alumniId, config) {
     return response.data
 }
 
+export async function editAlumniProfile(payload, config) {
+    const response = await baseLink.put(`alumni_profiles/${payload.id}/`, payload, config)
+    return response.data
+}
+
 export async function getInterviewQuestions(professionId, config) {
     const response = await baseLink.get(`filter/profession/${professionId}/questions/`, config)
     return response.data
@@ -140,6 +145,11 @@ export async function editSingleApplication(payload, config){
 
 export async function getOrganizationInternshipPosts(organizationId, config) {
     const response = await baseLink.get(`filter/organization/${organizationId}/internship_posts/`, config)
+    return response.data
+}
+
+export async function sendInternshipContract(payload, config) {
+    const response = await baseLink.post("contracts/", payload, config)
     return response.data
 }
 

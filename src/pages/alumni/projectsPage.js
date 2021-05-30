@@ -15,18 +15,10 @@ const ProjectsPage = () => {
     
     const columns = [
       {
-        title: 'S/N',
-        dataIndex: 'sn',
-        key: 'sn',
-        // ellipsis: 'true',
-        render: text => <a>{text}</a>,
+        title: 'S/No',
+        key: 'index',
+        render: ( value, object, index) =>  (page - 1) * 5 + (index+1),
       },
-      // {
-      //   title: 'Date Added',
-      //   dataIndex: 'project_date_created',
-      //   key: 'date',
-      //   // ellipsis: 'true'
-      // },
       {
         title: 'Project Title',
         key: 'project_title',
@@ -83,6 +75,8 @@ const ProjectsPage = () => {
     const user = useSelector(selectUserData)
     const config = useSelector(apiConfigurations)
     const [alumniProjects, setalumniProjects] = useState([])
+    const [page, setPage] = useState(1)
+    
   
   const getAlumniProjects = async () => {
 
@@ -109,7 +103,11 @@ useEffect(() => {
         </Card.Header>
         <Card.Body style={{ overflowX: 'scroll' }}  >
           <Button>Add Project</Button>
-          <Table columns={columns} dataSource={alumniProjects} pagination={{pageSize: 5}} column={{ellipsis: true}} />
+          <Table
+            columns={columns}
+            dataSource={alumniProjects}
+            pagination={{ onChange(current) {setPage(current)}, pageSize: 5 }}
+            column={{ ellipsis: true }} />
        </Card.Body>
         <ContentModal
           show={modalShow}

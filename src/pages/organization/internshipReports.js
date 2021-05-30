@@ -54,7 +54,8 @@ const InternshipReports = () => {
     render: (text, record) => (
       <Space size="middle">
         <Link to={{pathname: "/post_applicants", post: record }}>
-          <Button variant="link" >{record.status === 'completed' ? '' : 'View Applicants'}</Button>
+          {/* <Button variant="link" >View Applicants</Button> */}
+          <Button variant="link" >{record.status === 'completed' ? 'Check Info' : 'View Applicants'}</Button>
         </Link>
         {/* <Button variant="link" onClick={(e) => { e.preventDefault(); setModalShow(true); setPost(record) }} >Add Schedule</Button> */}
       </Space>
