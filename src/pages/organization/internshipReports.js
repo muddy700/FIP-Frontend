@@ -55,7 +55,7 @@ const InternshipReports = () => {
       <Space size="middle">
         <Link to={{pathname: "/post_applicants", post: record }}>
           {/* <Button variant="link" >View Applicants</Button> */}
-          <Button variant="link" >{record.status === 'completed' ? 'Check Info' : 'View Applicants'}</Button>
+          <Button variant="link" >{record.status === 'completed' ? record.reporting_instructions ? '' : 'Add Reporting instructions' : 'View Applicants'}</Button>
         </Link>
         {/* <Button variant="link" onClick={(e) => { e.preventDefault(); setModalShow(true); setPost(record) }} >Add Schedule</Button> */}
       </Space>
@@ -103,7 +103,7 @@ const InternshipReports = () => {
     return (
     <Card >
         <Card.Header >
-          <Message variant='info' >Dear {user.username}, You have Accepted The Following Applicants</Message>
+          <Message variant='info' >Dear {user.username}, You have The Following Applicants</Message>
         </Card.Header>
             <Card.Body style={{ overflowX: 'scroll' }}  >
                 

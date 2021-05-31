@@ -148,8 +148,18 @@ export async function getOrganizationInternshipPosts(organizationId, config) {
     return response.data
 }
 
+export async function getOrganizationContracts(organizationId, config) {
+    const response = await baseLink.get(`filter/organization/${organizationId}/contracts/`, config)
+    return response.data
+}
+
 export async function sendInternshipContract(payload, config) {
     const response = await baseLink.post("contracts/", payload, config)
+    return response.data
+}
+
+export async function editInternshipContract(payload, config) {
+    const response = await baseLink.put(`contracts/${payload.id}/`, payload, config)
     return response.data
 }
 

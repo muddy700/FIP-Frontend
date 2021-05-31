@@ -90,6 +90,7 @@ const InternshipChances = () => {
   const [newPost, setNewPost] = useState(initialPost)
   const [skills, setSkills] = useState([])
   const [editingMode, setEditingMode] = useState(false)
+  const [postError, setPostError] = useState('')
 
   const viewPost = (id) => {
     const postInfo = internshipPosts.find(post => post.id === id)
@@ -115,6 +116,7 @@ const InternshipChances = () => {
   }
 
   const onPostFormChange = (e) => {
+    setPostError('')
     setNewPost({
       ...newPost,
       [e.target.name]: e.target.value,
@@ -138,6 +140,7 @@ const InternshipChances = () => {
 
   const onPostFormSubmit = async (e) => {
     e.preventDefault();
+    setPostError('')
     let { profession_name, ...payload } = newPost
     const randomNumber = Math.floor((Math.random() * 1000) + 1);
     const year = new Date().getFullYear()
@@ -154,6 +157,7 @@ const InternshipChances = () => {
         setEditingMode(false)
       }
       else {
+        // const refNo = `FIP/${year}/P331`
         const refNo = `FIP/${year}/P${randomNumber}`
         payload = {...payload, reference_number: refNo}
         response = await pushInternshipPost(payload, config)
@@ -162,12 +166,18 @@ const InternshipChances = () => {
       }
               setNewPost(initialPost)
               setModalShow(false)
-              setModalMode('')
+      setModalMode('')
+      setPostError('')
         } catch (error) {
             console.log({
                 'request': 'Send Or Edit Internship Post Request',
-                'Error => ': error
+                'Error => ': error.response.data
             })
+      if (error.response.data.reference_number) {
+        console.log('ref repeated')
+        setPostError('Ooops...!, some error occured. Please try again')
+        // onPostFormSubmit(e)
+            }
         }
   }
 
@@ -180,7 +190,7 @@ const InternshipChances = () => {
         } catch (error) {
             console.log({
                 'request': 'Fetch Organization Internship Posts Request',
-                'Error => ': error
+                'Error => ': error.response.data
             })
         }
   }
@@ -286,7 +296,11 @@ const InternshipChances = () => {
       <Button
         type="submit"
         variant={editingMode ? 'success' : 'primary'}
-        style={{ float: 'right' }}>{editingMode ? 'Save' : 'Send'} </Button>
+        style={{ float: 'right' }}>{postError !== '' ? 'try again' : editingMode ? 'Save' : 'Send'} </Button>
+      <Button
+        variant="danger"
+        hidden={postError === '' ? true : false}
+      > {postError} </Button>
     </Form> 
   const modalTitle = modalMode !== 'form' ? "Post Details" : editingMode ? 'Edit post info' : 'Fill Post Details' ;
   const modalContent = modalMode === 'form' ? postForm : postDetails;
@@ -294,7 +308,7 @@ const InternshipChances = () => {
     return (
     <Card >
         <Card.Header >
-          <Message variant='info' >Dear {user.username}, You have posted the following chances</Message>
+          <Message variant='info' >Dear {user.username}, You have posted the following internship chances</Message>
         </Card.Header>
             <Card.Body style={{ overflowX: 'scroll' }}  >
                 

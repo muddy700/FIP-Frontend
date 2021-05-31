@@ -286,6 +286,21 @@ const PostApplicants = () => {
        })
     }
     
+  const changePostReportingStatus = async () => {
+    const payload = {
+      ...post, reporting_instructions: true
+    }
+
+    try {
+      const response = await editInternshipPost(post.id, payload, config)
+    } catch (error) {
+          console.log({ 
+              'request': 'Edit Post Reporting Instructions Request',
+              'Error => ': error.response.data
+          })
+    }
+  }
+
   const submitPostSchedule = async (e) => {
     e.preventDefault()
     const payload = {
@@ -298,18 +313,19 @@ const PostApplicants = () => {
       var response = '';
       if (oldSchedule.post === post.id) {
         response = await editPostSchedule(oldSchedule.id, payload, config) }
-        else {
-          response = await createPostSchedule(payload, config) }
-          console.log(response)
-          setModalMode('')
-          setModalShow(false)
-          getInterviewSchedules()
-        } catch (error) {
-            console.log({ 
-                'request': 'Set Interview Schedule Request',
-                'Error => ': error
-            })
-        }
+      else {
+        response = await createPostSchedule(payload, config) }
+        // console.log(response)
+        setModalMode('')
+      setModalShow(false)
+      if(response.post_stage === 'completed') changePostReportingStatus()
+        getInterviewSchedules()
+      } catch (error) {
+          console.log({ 
+              'request': 'Set Interview Schedule Request',
+              'Error => ': error.response.data
+          })
+      }
   }
   
   const scheduleForm =

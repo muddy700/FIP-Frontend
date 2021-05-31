@@ -1,0 +1,19 @@
+Done
+
+    31/5/2021
+1. Handled Repeatition Of Post Reference Number When Creating An Internship Post.
+2. Filtered Completed Posts That Doesn't Have Reporting Instructions And Allowed Organizations To Add These Instructions In Internship Report Page.
+3. Removed Actions In Alumni Applications Results In Which He/She Has Already Reported.
+4. Allowed Organization To Release Alumni, View Contract And Extend Internship Contract
+
+
+Planned
+1. Validate All Forms And Provide A Fixed Error Display Area.
+2. Allow Organizations To Upload Results(ie Practical or Oral Interview Results) From A File(ie. Excel).
+3.Add Loaders In API Requests(ie.. After Submit A Form)
+4. Prevent Taken  Alumni From Signing Another Contract
+    =>Assumptions : 1 Alumni has only 1 Contract In 1 organization
+5. Disable Button For Completed Posts In Internship Report Table
+6. Allow Organization To View Approved Alumni Profiles
+7. Allow Organization To Rate Released Alumni By Adding 'Ratings' Field In Alumni Profile
+8. SetIsLoading(false In All Catch Methods)
