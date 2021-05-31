@@ -154,7 +154,7 @@ const ApprovedAlumni = () => {
 
       try {
         const profile = await getAlumniProfile(record.alumni, config)
-        const payload2 = {...profile[0], is_taken: false }
+        const payload2 = {...profile[0], is_taken: false, organization: 38 }
         
         try {
           const response2 = await editAlumniProfile(payload2, config)
@@ -184,7 +184,8 @@ const ApprovedAlumni = () => {
     try {
       const profile = await getAlumniProfile(selectedApplication.alumni, config)
       const payload3 = {
-        ...profile[0], is_taken: true
+        ...profile[0], is_taken: true,
+        organization: selectedApplication.organization
       }
       
       try {
@@ -299,7 +300,7 @@ const ApprovedAlumni = () => {
         <Card.Body style={{ overflowX: 'scroll' }}  >
           {applications.length !== 0 ? <>
                 <Row style={{marginBottom: '16px'}}>
-                    <Col md={{ span: 4}}>
+                    <Col md={{ span: 4, offset: 8}}>
                         <InputGroup>
                             <FormControl
                               placeholder="Enter to search"

@@ -332,17 +332,17 @@ const PostApplicants = () => {
     <Form onSubmit={submitPostSchedule}>
       <Form.Row>
               <Form.Group as ={Col} controlId="exampleForm.ControlInput1" >
-                <Form.Label>Event Date</Form.Label>
+          <Form.Label>{post.status === 'completed' ? 'Reporting Date' : 'Event Date'}</Form.Label>
                 <Form.Control onChange={handleScheduleForm} name='event_date' type="datetime-local" placeholder="event date" />
               </Form.Group>
                <Form.Group as ={Col} controlId="exampleForm.ControlInput1">
                 <Form.Label>Location</Form.Label>
-                <Form.Control onChange={handleScheduleForm} name='location' type="text" placeholder="enter interview location" />
+                <Form.Control onChange={handleScheduleForm} name='location' type="text" placeholder="enter location" />
               </Form.Group>
         </Form.Row>
           
               <Form.Group controlId="exampleForm.ControlInput1">
-                <Form.Label>Requirement</Form.Label>
+                <Form.Label>Requirements</Form.Label>
                 <Form.Control onChange={handleScheduleForm} name='requirements' type="text" placeholder=" " />
            </Form.Group>
            <Button type='submit' >Send</Button>
