@@ -46,7 +46,7 @@ const PasswordPage = () => {
         }
         else if (new_password.length < 6) {
             setErrorMode(true)
-            setErrorMessage('Enter Atleast 8 Characters')
+            setErrorMessage('Enter Atleast 6 Characters')
             return false;
         }
         else if (repeat_password === '') {

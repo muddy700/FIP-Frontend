@@ -290,7 +290,8 @@ const ProfilePage = () => {
                         </Card.Footer>
                     </Card>
                 </Col>
-                <Col md={{span:4, offset:1}} xs={12} >
+                <Col md={{ span: 4, offset: 1 }} xs={12} >
+                    
                     <Card>
                         <Card.Header style={{textAlign: 'center'}}><b>Photo</b></Card.Header>
                         <Card.Body style={{placeItems: 'center', display: 'grid'}}>
@@ -312,6 +313,7 @@ const ProfilePage = () => {
                             </Row>
                         </Card.Footer>
                     </Card>
+                    
                 </Col>
             </Row>
             <ContentModal

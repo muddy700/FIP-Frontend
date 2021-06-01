@@ -8,6 +8,11 @@ Done
 5. Edited Schedule Form 'Event Date' To 'Reporting Date' If It's Reporting Instructions
 6. Added Organization Id In Alumni Profile When Sending Contract (ie.. is_taken: true, organization: 38)
 
+    1/6/2021
+1. Allowed Organization To Rate On Alumni Performance
+2. Allowed Organization To Change Password
+3. Allowed Organizations To Update Their Profiles(ie.. Image And Info)
+
 
 Planned
 1. Validate All Forms And Provide A Fixed Error Display Area.
@@ -23,3 +28,5 @@ Planned
 //10. If It's Reporting Instructions Change Event Date To Reporting Date In The Reporting form
 11. Add Page In Organization For Viewing Alumni Profile And Related Info
 12. Adding Search Functionality
+13. Checks If Password Meets Requirements (ie..8 charracters, Uppercase, lowercase, special charracters, and numbers) then Display strong %
+14. Change Choose File Into Change Image In Profile Page

@@ -103,6 +103,11 @@ export async function getAlumniProfile(alumniId, config) {
     return response.data
 }
 
+export async function sendAlumniRatings(payload, config) {
+    const response = await baseLink.post('alumni_ratings/', payload, config)
+    return response.data
+}
+
 export async function editAlumniProfile(payload, config) {
     const response = await baseLink.put(`alumni_profiles/${payload.id}/`, payload, config)
     return response.data
@@ -175,6 +180,16 @@ export async function getProfessions(config) {
 
 export async function getOrganizationProfiles(config) {
     const response = await baseLink.get("organization_profile/", config)
+    return response.data
+}
+
+export async function editOrganizationProfile(payload, config) {
+    const response = await baseLink.put(`organization_profile/${payload.id}/`, payload, config)
+    return response.data
+}
+
+export async function getOrganizationProfile(organizationId, config) {
+    const response = await baseLink.get(`filter/organization/${organizationId}/profile/`, config)
     return response.data
 }
 

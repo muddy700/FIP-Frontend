@@ -1,8 +1,9 @@
 import React, {useState, useEffect} from 'react'
 import '../../App.css'
-import { Table, Space } from 'antd';
+import { Table, Space, Popconfirm } from 'antd';
+
 import Icon from 'supercons'
-import { Button, Row, Col, Card, InputGroup, FormControl, Form } from 'react-bootstrap'
+import { Button, Row, Col, Card, InputGroup, FormControl, Form, Modal } from 'react-bootstrap'
 import Message from '../../components/message'
 import { useLocation, useHistory } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
@@ -13,11 +14,15 @@ import {
   getOrganizationContracts,
   getProcessedApplications,
   sendInternshipContract,
-  editInternshipContract
+  editInternshipContract,
+  sendAlumniRatings
 } from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 import Loader from '../../components/loader';
+import { Rate } from 'antd';
+
+const desc = ['terrible', 'bad', 'normal', 'good', 'wonderful'];
 
 const ApprovedAlumni = () => {
   
@@ -52,10 +57,13 @@ const ApprovedAlumni = () => {
     render: (text, record) => (
       <Space size="middle">
         {record.has_reported && record.has_released ? 
-        <span style={{color: 'red'}}>Released</span> : record.has_reported ? <>
-        <Button variant="link" size="sm"
-          onClick={e => { e.preventDefault(); releaseAlumni(record)}}>Release
-        </Button>
+          <span style={{ color: 'red' }}>Released</span> : record.has_reported ? <>
+            <Popconfirm title="Are you sure？"
+              onConfirm={e => { e.preventDefault(); releaseAlumni(record) }}>
+          <Button variant="link" size="sm"
+            >Release
+          </Button>
+        </Popconfirm>
         <Button variant="link" size="sm"
             onClick={e => { e.preventDefault(); selectContract(record.alumni) }}>View Contract
         </Button>
@@ -87,6 +95,11 @@ const ApprovedAlumni = () => {
     profession: ''
   }
 
+  const ratingInfo = {
+    alumni: '',
+    organization: '',
+    value: ''
+  }
   const history = useHistory();
   const config = useSelector(apiConfigurations)
   const user = useSelector(selectUserData)
@@ -100,6 +113,10 @@ const ApprovedAlumni = () => {
   const [organizationContracts, setOrganizationContracts] = useState([])
   const [activeContents, setActiveContents] = useState('')
   const [activeContract, setActiveContract] = useState({})
+  const [showRateModal, setShowRateModal] = useState(false)
+  const [rateValue, setRateValue] = useState(0)
+  const [ratingPayload, setRatingPayload] = useState(ratingInfo)
+  const [isRating, setIsRating] = useState(false)
 
   const fetchPostApplicants = async () => {
     try {
@@ -116,7 +133,33 @@ const ApprovedAlumni = () => {
         })
     }
   }
+
    
+  const handleRateValue = (value) => {
+    setRateValue(value)
+    setRatingPayload({
+      ...ratingPayload, value: value
+    })
+  }
+  
+  const sendRatings = async () => {
+    setIsRating(true)
+    
+    try {
+      const response = await sendAlumniRatings(ratingPayload, config)
+      setShowRateModal(false)
+      setIsRating(false)
+      setRateValue(0)
+      setRatingPayload(ratingInfo)
+      
+    } catch (error) {
+        console.log({ 
+            'request': 'Send Ratings Request',
+            'Error => ': error.response.data
+        })
+    }
+  }
+
   const selectContract = (alumniId) => {
     const contract = organizationContracts.find(item => item.alumni === alumniId)
     setActiveContract(contract)
@@ -143,7 +186,14 @@ const ApprovedAlumni = () => {
   }, [])
 
   const releaseAlumni = async (record) => {
+    setShowRateModal(true)
     setIsReleasing(true)
+    setRatingPayload({
+      ...ratingPayload,
+      alumni: record.alumni,
+      organization: record.organization
+    })
+
     const payload1 = {
       ...record,
       has_released: true
@@ -295,7 +345,8 @@ const ApprovedAlumni = () => {
  return (
     <Card >
         <Card.Header >
-          <Message variant='info' >{applications.length === 0 ? 'You have not approved any applicant yet' : 'You have approved the following applicants'}</Message>
+       <Message variant='info' >{applications.length === 0 ? 'You have not approved any applicant yet' : 'You have approved the following applicants'}</Message>
+       {/* <Button onClick={() => setShowRateModal(true)}>show</Button> */}
         </Card.Header>
         <Card.Body style={{ overflowX: 'scroll' }}  >
           {applications.length !== 0 ? <>
@@ -331,6 +382,35 @@ const ApprovedAlumni = () => {
           content={activeContents === 'form' || activeContents === 'editing-form' ? modalForm : modalContract}
           onHide={() => { setModalShow(false); setActiveContents(''); setActiveContract({}); setContractInfo(initialContract) }}
         />
+        
+     <Modal
+        show={showRateModal}
+       onHide={() => { setShowRateModal(false); setRateValue(0); setRatingPayload(ratingInfo); setIsRating(false) }}
+        size="sm"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+     > {isReleasing ?
+         <Modal.Body>
+           <Loader message="Releasing..." />
+         </Modal.Body>
+        : <>
+         <Modal.Header>Rate This Alumni Performance</Modal.Header>
+         <Modal.Body style={{ backgroundColor: 'lightblue' }}>
+             {isRating ?
+               <Loader message="Rating..." /> :
+               <span>
+                 <Rate style={{ color: 'blue' }} tooltips={desc} onChange={handleRateValue} value={rateValue} />
+                 {rateValue ? <span className="ant-rate-text">{desc[rateValue - 1]}</span> : ''}
+               </span>}
+         </Modal.Body>
+         <Modal.Footer>
+           <Button onClick={() => { setShowRateModal(false);  setRateValue(0); setRatingPayload(ratingInfo); setIsRating(false) }}>Skip</Button>
+           <Button
+             disabled={rateValue === 0 ? true : false}
+             onClick={sendRatings}
+           >Rate</Button>
+         </Modal.Footer> </>}
+      </Modal>
         </Card>
     )
 }
