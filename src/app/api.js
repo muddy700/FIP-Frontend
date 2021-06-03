@@ -93,6 +93,15 @@ export async function fetchalumniProjects(alumniId, config) {
     return response.data
 }
 
+export async function sendProject(payload, config) {
+    const response = await baseLink.post('projects/', payload, config)
+    return response.data
+}
+export async function addProjectMember(payload, config) {
+    const response = await baseLink.post('projects_members/', payload, config)
+    return response.data
+}
+
 export async function fetchDesignationAnnouncements(designationId, config) {
     const response = await baseLink.get(`filter/designation/${designationId}/announcements`, config)
     return response.data
