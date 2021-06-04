@@ -112,6 +112,21 @@ export async function getAlumniProfile(alumniId, config) {
     return response.data
 }
 
+export async function fetchCvPersonalInfo(alumniId, config) {
+    const response = await baseLink.get(`filter/alumni/${alumniId}/cv_personal_informations`, config)
+    return response.data
+}
+
+export async function editCvPersonalInfo(cvInfoId, payload, config) {
+    const response = await baseLink.put(`cvs_personal_informations/${cvInfoId}/`, payload, config)
+    return response.data
+}
+
+export async function sendCvPersonalInfo(payload, config) {
+    const response = await baseLink.post('cvs_personal_informations/', payload, config)
+    return response.data
+}
+
 export async function sendAlumniRatings(payload, config) {
     const response = await baseLink.post('alumni_ratings/', payload, config)
     return response.data

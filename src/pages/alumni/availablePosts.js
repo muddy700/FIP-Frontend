@@ -15,8 +15,8 @@ import { Tooltip } from 'antd';
 
 const AvailablePostsPage = () => {
 
-    const config = useSelector(apiConfigurations)
     const dispatch = useDispatch()
+    const config = useSelector(apiConfigurations)
     const user = useSelector(selectUserData)
     const internshipPosts = useSelector(selectInternshipPostList)
     const [selectedPost, setSelectedPost] = useState('')

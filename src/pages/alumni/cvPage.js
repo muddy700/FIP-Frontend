@@ -1,19 +1,25 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import dp from '../../Black2.jpg'
 import Message from '../../components/message'
 import { Card, Row, Col, Button, Accordion, Form } from 'react-bootstrap'
+import { editCvPersonalInfo, fetchCvPersonalInfo, sendCvPersonalInfo } from '../../app/api'
+import { useSelector, useDispatch}  from 'react-redux'
+import { apiConfigurations, selectUserData } from '../../slices/userSlice';
+import Loader from '../../components/loader'
 
 const CvPage = () => {
-    const personal_info = {
-        'first_name': '',
+    const initial_personal_info = {
+        first_name: '',
+        middle_name: '',
         last_name: '',
-        phone: '',
+        alumni_phone_number: '',
         email: '',
         date_of_birth: '',
         nationality: '',
         country: '',
         city: '',
-        profile_image: null,
+        cv_image: null,
+        uploaded_image: null
     }
 
     const education = {
@@ -58,18 +64,57 @@ const CvPage = () => {
         }
     ]
 
-    const [personalInfo, setPersonalInfo] = useState(personal_info)
+     const config2 = {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                'Authorization': `Token ${localStorage.getItem('token')}`    }
+    }
+    
+    const [personalInfo, setPersonalInfo] = useState(initial_personal_info)
     const [educationInfo, setEducationInfo] = useState(education)
     const [experienceInfo, setExperienceInfo] = useState(workExperience)
     const [certificateInfo, setCertificateInfo] = useState(certificate)
     const [alumniSkills, setAlumniSkills] = useState([])
+    const [isSendingProfileInfo, setIsSendingProfileInfo] = useState(false)
+    const [personalInfoErrorMessage, setPersonalInfoErrorMessage] = useState('')
+
+    const config = useSelector(apiConfigurations)
+    const user = useSelector(selectUserData)
+
+
+    const getCvPersonalInfo = async () => {
+        try {
+            const response = await fetchCvPersonalInfo(user.userId, config)
+            if (response.length === 0) {
+                setPersonalInfo({
+                    ...personalInfo,
+                    first_name: user.first_name,
+                    last_name: user.last_name,
+                    alumni: user.userId,
+                    email: user.email,
+                    alumni_phone_number: user.phone,
+                    profile: user.profileId
+                })
+            }
+            // else console.log(response)
+            else setPersonalInfo(response[0])
+        } catch (error) {
+            console.log('Get Cv-Personal-Info Request: ', error)
+        }
+    }
+
+
+    useEffect(() => {
+        getCvPersonalInfo();
+    }, [])
 
     const onPersonalInfoChange = (e) => {
-        e.preventDefault()
-        if (e.target.name === 'profile_image') {
+        // e.preventDefault()
+        setPersonalInfoErrorMessage('')
+        if (e.target.name === 'cv_image') {
             setPersonalInfo({
                 ...personalInfo,
-                profile_image: e.target.files[0]
+                uploaded_image: e.target.files[0]
             })
         }
         else {
@@ -77,6 +122,88 @@ const CvPage = () => {
                 ...personalInfo,
                 [e.target.name]: e.target.value
             })
+        }
+    }
+
+    const personalInfoValidator = () => {
+        if (personalInfo.date_of_birth === '') {
+            setPersonalInfoErrorMessage('Enter date of birth')
+            return false
+        }
+        else if(personalInfo.nationality === '') {
+            setPersonalInfoErrorMessage('Enter nationality')
+            return false
+        }
+        else if(personalInfo.city === '') {
+            setPersonalInfoErrorMessage('Enter city')
+            return false
+        }
+        else if(personalInfo.country === '') {
+            setPersonalInfoErrorMessage('Enter country')
+            return false
+        }
+        else {
+            setPersonalInfoErrorMessage('')
+            return true
+        }
+    }
+
+    const savePersonalInfo = async (e) => {
+        e.preventDefault()
+        const isPersonalInfoFormValid = personalInfoValidator()
+
+        if (isPersonalInfoFormValid) {
+            setIsSendingProfileInfo(true)
+            var image_file;
+            var blob;
+            if (personalInfo.uploaded_image !== null) {
+                image_file = personalInfo.uploaded_image
+                console.log('called......1')
+            }
+            else if (personalInfo.cv_image === null) {
+                blob = await (await fetch(user.profile_image)).blob();
+                image_file = new File([blob], `${user.username}.jpg`, {type:"image/jpeg", lastModified:new Date()});
+                console.log('called......2')
+            }
+            else if (personalInfo.cv_image !== null)  {
+                console.log('called......3')
+                blob = await (await fetch(personalInfo.cv_image)).blob();
+                image_file = new File([blob], `${user.username}.jpg`, { type: "image/jpeg", lastModified: new Date() });
+            }
+
+            const payload = new FormData()
+            payload.append('alumni', user.userId)
+            payload.append('profile', personalInfo.profile)
+            payload.append('cv_image', image_file)
+            payload.append('middle_name', personalInfo.middle_name)
+            payload.append('date_of_birth', personalInfo.date_of_birth)
+            payload.append('nationality', personalInfo.nationality)
+            payload.append('country', personalInfo.country)
+            payload.append('city', personalInfo.city)
+
+            try {
+                var response;
+                if (personalInfo.id) {
+                    // console.log('id : => ', personalInfo.id)
+                    // payload.append('id', personalInfo.id)
+                    // console.log(personalInfo)
+                    response = await editCvPersonalInfo(personalInfo.id, payload, config2)
+                }
+                else {
+                    response = await sendCvPersonalInfo(payload, config2)
+                }
+                // console.log(response)
+                console.log('done....')
+                setIsSendingProfileInfo(false)
+                setPersonalInfo({...response, uploaded_image: null})
+
+            } catch (error) {
+                console.log('Send Or Edit Cv-Personal-Info Request: ', error.response.data)
+                setIsSendingProfileInfo(false)
+            }
+        }
+        else {
+            console.log('Personal Info Form Is Not Valid')
         }
     }
 
@@ -101,10 +228,6 @@ const CvPage = () => {
         console.log(certificateInfo)
     }
 
-    const savePersonalInfo = (e) => {
-        e.preventDefault()
-        console.log(personalInfo)
-    }
 
     const onEducationInfoChange = (e) => {
         e.preventDefault()
@@ -164,13 +287,14 @@ const CvPage = () => {
                                                     <Card style={{ placeItems: 'center', paddingBottom: '12px', marginBottom: '12px' }}>
                                                         <Card.Body>
                                                             <Card.Img
-                                                                src={personalInfo.profile_image ? URL.createObjectURL(personalInfo.profile_image) : dp}
+                                                                src={personalInfo.uploaded_image ? URL.createObjectURL(personalInfo.uploaded_image) :
+                                                                    personalInfo.cv_image ? personalInfo.cv_image : user.profile_image}
                                                                 style={{ width: '100px', height: '100px' }}></Card.Img>
                                                         </Card.Body>
                                                         <Card.Footer style={{ padding: 0 }}>
                                                             <Form.File id="formcheck-api-regular">
-                                                                <Form.File.Input onChange={onPersonalInfoChange} name="profile_image" accept="image/*" />
-                                                            {/* <input type="file" onChange={onPersonalInfoChange} name="profile_image" accept="image/*" /> */}
+                                                                <Form.File.Input onChange={onPersonalInfoChange} name="cv_image" accept="image/*" />
+                                                            {/* <input type="file" onChange={onPersonalInfoChange} name="cv_image" accept="image/*" /> */}
                                                             </Form.File>
                                                         </Card.Footer>
                                                     </Card>
@@ -181,37 +305,51 @@ const CvPage = () => {
                                                         <Form.Label>First name</Form.Label>
                                                             <Form.Control
                                                                 type="text"
+                                                                disabled
                                                                 placeholder="first name"
                                                                 value={personalInfo.first_name}
                                                                 onChange={onPersonalInfoChange}
                                                                 name="first_name" />
                                                         </Form.Group>
 
-                                                        <Form.Group as={Col} controlId="formGridPassword">
+                                                        <Form.Group as={Col} controlId="formGridEmail">
+                                                        <Form.Label>Middle name</Form.Label>
+                                                            <Form.Control
+                                                                type="text"
+                                                                placeholder="middle name"
+                                                                value={personalInfo.middle_name}
+                                                                onChange={onPersonalInfoChange}
+                                                                name="middle_name" />
+                                                        </Form.Group>
+                                                    </Form.Row>
+
+                                                        <Form.Group controlId="formGridPassword">
                                                         <Form.Label>Last Name</Form.Label>
                                                             <Form.Control
                                                                 type="text"
+                                                                disabled
                                                                 placeholder="last name"
                                                                 value={personalInfo.last_name}
                                                                 onChange={onPersonalInfoChange}
                                                                 name="last_name" />
                                                         </Form.Group>
-                                                    </Form.Row>
 
                                                     <Form.Group controlId="formGridAddress1">
                                                         <Form.Label>Phone</Form.Label>
                                                         <Form.Control
                                                             type="text"
+                                                            disabled
                                                             placeholder="phone number"
-                                                            value={personalInfo.phone}
+                                                            value={personalInfo.alumni_phone_number}
                                                             onChange={onPersonalInfoChange}
-                                                            name="phone"  />
+                                                            name="alumni_phone_number"  />
                                                     </Form.Group>
 
                                                     <Form.Group controlId="formGridAddress2">
                                                         <Form.Label>Email</Form.Label>
                                                         <Form.Control
                                                             type="email"
+                                                            disabled
                                                             placeholder="email"
                                                             value={personalInfo.email}
                                                             onChange={onPersonalInfoChange}
@@ -272,7 +410,12 @@ const CvPage = () => {
                                             </Row>
                                             <Row >
                                                 <Col md={12}>
-                                                <Button variant="primary" type="submit" style={{width: '100%'}}> Save </Button>
+                                                    <Button
+                                                        variant={personalInfoErrorMessage === '' ? "primary" : 'danger'}
+                                                        type="submit"
+                                                        style={{ width: '100%' }}
+                                                    >{personalInfoErrorMessage !== '' ? personalInfoErrorMessage : isSendingProfileInfo ? 
+                                                    <Loader message="Saving Info..." /> : 'Save' } </Button>
                                                 </Col>
                                             </Row></Form>
                                         </Card.Body>
@@ -523,7 +666,8 @@ const CvPage = () => {
                             <Row>
                                 <Col md={3}>
                                     <Card.Img
-                                        src={personalInfo.profile_image ? URL.createObjectURL(personalInfo.profile_image) : dp}
+                                        src={personalInfo.uploaded_image ? URL.createObjectURL(personalInfo.uploaded_image) :
+                                            personalInfo.cv_image ? personalInfo.cv_image : user.profile_image}
                                         style={{ width: '70px', height: '70px' }}></Card.Img>
                                 </Col>
                                 <Col><Card.Title>{personalInfo.first_name}  {personalInfo.last_name}</Card.Title></Col>
@@ -539,12 +683,16 @@ const CvPage = () => {
                                         <Col><small>{personalInfo.first_name}</small></Col>
                                     </Row>
                                     <Row >
+                                        <Col md={5}><small><b>Middle Name</b></small></Col>
+                                        <Col><small>{personalInfo.middle_name}</small></Col>
+                                    </Row>
+                                    <Row >
                                         <Col md={5}><small><b>Last Name</b></small></Col>
                                         <Col><small>{personalInfo.last_name}</small></Col>
                                     </Row>
                                     <Row >
                                         <Col md={5}><small><b>Phone</b></small></Col>
-                                        <Col><small>{personalInfo.phone}</small></Col>
+                                        <Col><small>{personalInfo.alumni_phone_number}</small></Col>
                                     </Row>
                                     <Row >
                                         <Col md={5}><small><b>Email</b></small></Col>
@@ -757,4 +905,3 @@ const CvPage = () => {
 }
 
 export default CvPage
-
