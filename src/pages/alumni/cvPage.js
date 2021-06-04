@@ -1,8 +1,8 @@
 import React, {useState, useEffect} from 'react'
 import dp from '../../Black2.jpg'
 import Message from '../../components/message'
-import { Card, Row, Col, Button, Accordion, Form } from 'react-bootstrap'
-import { editCvPersonalInfo, fetchCvPersonalInfo, sendCvPersonalInfo } from '../../app/api'
+import { Card, Row, Col, Button, Accordion, Form, Alert } from 'react-bootstrap'
+import { editCvPersonalInfo, fetchCvPersonalInfo, sendCvPersonalInfo, sendCvEducationInfo, fetchCvEducationInfo } from '../../app/api'
 import { useSelector, useDispatch}  from 'react-redux'
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import Loader from '../../components/loader'
@@ -22,11 +22,11 @@ const CvPage = () => {
         uploaded_image: null
     }
 
-    const education = {
-        Institution: '',
-        Level: '',
-        From: '',
-        To: ''
+    const initialEducationInfo = {
+        institution: '',
+        education_level: '',
+        start_year: '',
+        completion_year: ''
     }
 
     const workExperience = {
@@ -70,13 +70,23 @@ const CvPage = () => {
                 'Authorization': `Token ${localStorage.getItem('token')}`    }
     }
     
-    const [personalInfo, setPersonalInfo] = useState(initial_personal_info)
-    const [educationInfo, setEducationInfo] = useState(education)
     const [experienceInfo, setExperienceInfo] = useState(workExperience)
     const [certificateInfo, setCertificateInfo] = useState(certificate)
     const [alumniSkills, setAlumniSkills] = useState([])
+
+    const [personalInfo, setPersonalInfo] = useState(initial_personal_info)
     const [isSendingProfileInfo, setIsSendingProfileInfo] = useState(false)
     const [personalInfoErrorMessage, setPersonalInfoErrorMessage] = useState('')
+    const [hasPersonalInfoSaved, setHasPersonalInfoSaved] = useState(false)
+    const [hasPersonalInfoChanged, setHasPersonalInfoChanged] = useState(false)
+    
+    const [educationInfo, setEducationInfo] = useState(initialEducationInfo)
+    const [educationInfoSet, setEducationInfoSet] = useState([])
+    const [isSendingEducationInfo, setIsSendingEducationInfo] = useState(false)
+    const [educationInfoErrorMessage, setEducationInfoErrorMessage] = useState('')
+    const [hasEducationInfoSaved, setHasEducationInfoSaved] = useState(false)
+    const [hasEducationInfoChaned, setHasEducationInfoChaned] = useState(false)
+
 
     const config = useSelector(apiConfigurations)
     const user = useSelector(selectUserData)
@@ -97,20 +107,35 @@ const CvPage = () => {
                 })
             }
             // else console.log(response)
-            else setPersonalInfo(response[0])
+            else {
+                setPersonalInfo({
+                ...response[0],
+                uploaded_image: null})
+            }
         } catch (error) {
             console.log('Get Cv-Personal-Info Request: ', error)
         }
     }
 
+    const getCvEducationInfo = async () => {
+        try {
+            const response = await fetchCvEducationInfo(user.userId, config)
+            setEducationInfoSet(response)
+        } catch (error) {
+            console.log('Get Cv Education Info Set', error.response.data)
+        }
+    }
 
     useEffect(() => {
         getCvPersonalInfo();
+        getCvEducationInfo()
     }, [])
 
     const onPersonalInfoChange = (e) => {
         // e.preventDefault()
+        setHasPersonalInfoSaved(false)
         setPersonalInfoErrorMessage('')
+        setHasPersonalInfoChanged(true)
         if (e.target.name === 'cv_image') {
             setPersonalInfo({
                 ...personalInfo,
@@ -170,6 +195,7 @@ const CvPage = () => {
                 blob = await (await fetch(personalInfo.cv_image)).blob();
                 image_file = new File([blob], `${user.username}.jpg`, { type: "image/jpeg", lastModified: new Date() });
             }
+            else console.log('else called')
 
             const payload = new FormData()
             payload.append('alumni', user.userId)
@@ -184,27 +210,97 @@ const CvPage = () => {
             try {
                 var response;
                 if (personalInfo.id) {
-                    // console.log('id : => ', personalInfo.id)
-                    // payload.append('id', personalInfo.id)
-                    // console.log(personalInfo)
                     response = await editCvPersonalInfo(personalInfo.id, payload, config2)
                 }
                 else {
                     response = await sendCvPersonalInfo(payload, config2)
                 }
-                // console.log(response)
-                console.log('done....')
                 setIsSendingProfileInfo(false)
+                setHasPersonalInfoSaved(true)
+                setHasPersonalInfoChanged(false)
                 setPersonalInfo({...response, uploaded_image: null})
 
             } catch (error) {
                 console.log('Send Or Edit Cv-Personal-Info Request: ', error.response.data)
                 setIsSendingProfileInfo(false)
+                setPersonalInfoErrorMessage('Ooops...!, Some Error Occured. Try Again')
             }
         }
         else {
             console.log('Personal Info Form Is Not Valid')
         }
+    }
+
+    const onEducationInfoChange = (e) => {
+        // e.preventDefault()
+        setEducationInfoErrorMessage('')
+        setHasEducationInfoChaned(true)
+        setHasEducationInfoSaved(false)
+        if (e.target.value === '-select-') {
+            setEducationInfo({
+                ...educationInfo,
+                education_level: ''
+            })
+         }
+        else {
+            setEducationInfo({
+                ...educationInfo,
+                [e.target.name] : e.target.value
+             })
+        }
+    }
+
+    const educationInfoValidator = () => {
+        if (educationInfo.institution === '') {
+            setEducationInfoErrorMessage('Enter Institution name')
+            return false
+        }
+        else if (educationInfo.education_level === '') {
+            setEducationInfoErrorMessage('Select Education Level')
+            return false
+        }
+        else if (educationInfo.start_year === '') {
+            setEducationInfoErrorMessage('Select Start year')
+            return false
+        }
+        else if (educationInfo.completion_year === '') {
+            setEducationInfoErrorMessage('Select Completion year')
+            return false
+        }
+        else {
+            setEducationInfoErrorMessage('')
+            return true
+        }
+    }
+
+    const saveEducationInfo = async (e) => {
+        e.preventDefault();
+
+        const isEducationInfoFormValid = educationInfoValidator()
+
+        if (isEducationInfoFormValid) {
+            setIsSendingEducationInfo(true)
+            const payload = {
+                ...educationInfo,
+                alumni: user.userId
+            }
+            try {
+                const response1 = await sendCvEducationInfo(payload, config)
+                setEducationInfoSet([...educationInfoSet,
+                response1])
+                setHasEducationInfoChaned(false)
+                setHasEducationInfoSaved(true)
+                setEducationInfo(initialEducationInfo)
+                setIsSendingEducationInfo(false)
+
+            } catch (error) {
+                console.log('Send CV Education Info ', error.response.data)
+                setIsSendingEducationInfo(false)
+                setEducationInfoErrorMessage('Ooops...!, Some Error Occured. Try Again')
+            }
+
+        }
+        else {console.log('Education Info Form Is Not Valid') }
     }
 
     const onCertificateInfoChange = (e) => {
@@ -229,18 +325,6 @@ const CvPage = () => {
     }
 
 
-    const onEducationInfoChange = (e) => {
-        e.preventDefault()
-        setEducationInfo({
-            ...educationInfo,
-            [e.target.name] : e.target.value
-         })
-    }
-
-    const saveEducationInfo = (e) => {
-        e.preventDefault();
-        console.log(educationInfo)
-    }
 
     const onExperienceInfoChange = (e) => {
         e.preventDefault();
@@ -411,11 +495,21 @@ const CvPage = () => {
                                             <Row >
                                                 <Col md={12}>
                                                     <Button
+                                                        disabled={!hasPersonalInfoChanged}
+                                                        hidden={hasPersonalInfoSaved}
                                                         variant={personalInfoErrorMessage === '' ? "primary" : 'danger'}
                                                         type="submit"
                                                         style={{ width: '100%' }}
                                                     >{personalInfoErrorMessage !== '' ? personalInfoErrorMessage : isSendingProfileInfo ? 
-                                                    <Loader message="Saving Info..." /> : 'Save' } </Button>
+                                                            <Loader message="Saving Info..." /> : 'Save'}
+                                                    </Button>
+                                                     <Alert
+                                                        onClose={() => setHasPersonalInfoSaved(false)}
+                                                        dismissible
+                                                        variant='success'
+                                                        style={{textAlign: 'center'}}
+                                                        hidden={!hasPersonalInfoSaved}
+                                                    >Your Personal Info Saved Successfull.</Alert>
                                                 </Col>
                                             </Row></Form>
                                         </Card.Body>
@@ -438,18 +532,18 @@ const CvPage = () => {
                                                             placeholder="institution name"
                                                             value={educationInfo.institution}
                                                             onChange={onEducationInfoChange}
-                                                            name="Institution" />
+                                                            name="institution" />
                                                     </Form.Group>
 
                                                     <Form.Group as={Col} controlId="formGridPassword">
                                                     <Form.Label>Education Level</Form.Label>
                                                         <Form.Control as="select"
-                                                            size="lg"
-                                                            value={educationInfo.level}
+                                                            size="md"
+                                                            value={educationInfo.education_level}
                                                             onChange={onEducationInfoChange}
-                                                            name="Level">
-                                                        <option>---Select Level---</option>
-                                                        <option value="primary">Primary</option>
+                                                            name="education_level">
+                                                        <option>-select-</option>
+                                                        <option value="Primary">Primary</option>
                                                         <option value="O-Level">O-Level</option>
                                                         <option value="A-Level">A-Level</option>
                                                         <option value="Certificate">Certificate</option>
@@ -464,25 +558,40 @@ const CvPage = () => {
                                                     <Form.Label>From</Form.Label>
                                                         <Form.Control
                                                             type="month"
-                                                            placeholder="start date"
-                                                            value={educationInfo.from}
+                                                            placeholder="start year"
+                                                            value={educationInfo.start_year}
                                                             onChange={onEducationInfoChange}
-                                                            name="From" />
+                                                            name="start_year" />
                                                     </Form.Group>
 
                                                     <Form.Group as={Col} controlId="formGridPassword">
                                                     <Form.Label>To</Form.Label>
                                                         <Form.Control
                                                             type="month"
-                                                            placeholder="nationality"
-                                                            value={educationInfo.to}
+                                                            placeholder="completion_year"
+                                                            value={educationInfo.completion_year}
                                                             onChange={onEducationInfoChange}
-                                                            name="To" />
+                                                            name="completion_year" />
                                                     </Form.Group>
                                                 </Form.Row>
                                                 <Row >
                                                 <Col md={12}>
-                                                <Button variant="primary" type="submit" style={{width: '100%'}}> Save </Button>
+                                                    <Button
+                                                        disabled={!hasEducationInfoChaned}
+                                                        hidden={hasEducationInfoSaved}
+                                                        variant={educationInfoErrorMessage === '' ? "primary" : 'danger'}
+                                                        type="submit"
+                                                        style={{ width: '100%' }}
+                                                    >{educationInfoErrorMessage !== '' ? educationInfoErrorMessage : isSendingEducationInfo ? 
+                                                        <Loader message="Saving Info..." /> : 'Save'}
+                                                    </Button>
+                                                     <Alert
+                                                        onClose={() => setHasEducationInfoSaved(false)}
+                                                        dismissible
+                                                        variant='success'
+                                                        style={{textAlign: 'center'}}
+                                                        hidden={!hasEducationInfoSaved}
+                                                    >Your Personal Info Saved Successfull.</Alert>
                                                 </Col>
                                                 </Row>
 
@@ -566,7 +675,7 @@ const CvPage = () => {
                                                 </Form.Row>
                                                 <Row >
                                                 <Col md={12}>
-                                                <Button variant="primary" type="submit" style={{width: '100%'}}> Save </Button>
+                                                <Button>Save</Button>
                                                 </Col>
                                                 </Row>
 
@@ -670,7 +779,7 @@ const CvPage = () => {
                                             personalInfo.cv_image ? personalInfo.cv_image : user.profile_image}
                                         style={{ width: '70px', height: '70px' }}></Card.Img>
                                 </Col>
-                                <Col><Card.Title>{personalInfo.first_name}  {personalInfo.last_name}</Card.Title></Col>
+                                <Col><Card.Title>{personalInfo.first_name} {personalInfo.middle_name} {personalInfo.last_name}</Card.Title></Col>
                             </Row>   <hr/> 
                             <Card style={{border:'none'}} >
                             <Row>
@@ -732,49 +841,50 @@ const CvPage = () => {
                             </Row> */}
                                 
                              <Card style={{border:'none'}}>
-                            <Row>
-                                <Col md={4}><b>Education</b></Col>
-                                <Col md={8}>
-                                   
-                                <Card style={{border:'none'}}>
-                                    <Row >
-                                        <Col md={5}><small><b>Institute Name</b></small></Col>
-                                        <Col><small>{educationInfo.Institution}</small></Col>
-                                    </Row>
-                                    <Row >
-                                        <Col md={5}><small><b>Level</b></small></Col>
-                                        <Col><small>{educationInfo.Level}</small></Col>
-                                    </Row>
-                                    <Row >
-                                        <Col md={5}><small><b>From</b></small></Col>
-                                        <Col><small>{educationInfo.From}</small></Col>
-                                    </Row>
-                                    <Row >
-                                        <Col md={5}><small><b>To</b></small></Col>
-                                        <Col><small>{educationInfo.To}</small></Col>
-                                    </Row>
-                                </Card><hr /> 
-                                <Card style={{border:'none'}}>
-                                    <Row >
-                                        <Col md={5}><small><b>Institute Name</b></small></Col>
-                                        <Col><small>{educationInfo.Institution}</small></Col>
-                                    </Row>
-                                    <Row >
-                                        <Col md={5}><small><b>Level</b></small></Col>
-                                        <Col><small>{educationInfo.Level}</small></Col>
-                                    </Row>
-                                    <Row >
-                                        <Col md={5}><small><b>From</b></small></Col>
-                                        <Col><small>{educationInfo.From}</small></Col>
-                                    </Row>
-                                    <Row >
-                                        <Col md={5}><small><b>To</b></small></Col>
-                                        <Col><small>{educationInfo.To}</small></Col>
-                                    </Row>
-                                </Card>
-                                     
-                                </Col>
+                                <Row>
+                                    <b>EDUCATION</b>
                                 </Row>
+                                <Row hidden={!hasEducationInfoChaned}>    
+                                    <Card style={{border:'none', paddingLeft: '20px'}}>
+                                        <Row >
+                                            <Col ><small><b>Institution</b></small></Col>
+                                            <Col><small>{educationInfo.institution}</small></Col>
+                                        </Row>
+                                        <Row >
+                                            <Col ><small><b>Level</b></small></Col>
+                                            <Col><small>{educationInfo.education_level}</small></Col>
+                                        </Row>
+                                        <Row >
+                                            <Col ><small><b>From</b></small></Col>
+                                            <Col><small>{educationInfo.start_year}</small></Col>
+                                        </Row>
+                                        <Row >
+                                            <Col ><small><b>To</b></small></Col>
+                                            <Col><small>{educationInfo.completion_year}</small></Col>
+                                        </Row>
+                                    </Card>
+                                </Row>
+                                {educationInfoSet.map(info => (
+                                    <Row key={info.id}>
+                                        <Card style={{ border: 'none', paddingLeft: '20px' }}>
+                                            <Row >
+                                                <Col ><small><b>Institution</b></small></Col>
+                                                <Col><small>{info.institution}</small></Col>
+                                            </Row>
+                                            <Row >
+                                                <Col ><small><b>Level</b></small></Col>
+                                                <Col><small>{info.education_level}</small></Col>
+                                            </Row>
+                                            <Row >
+                                                <Col ><small><b>From</b></small></Col>
+                                                <Col><small>{info.start_year}</small></Col>
+                                            </Row>
+                                            <Row >
+                                                <Col ><small><b>To</b></small></Col>
+                                                <Col><small>{info.completion_year}</small></Col>
+                                            </Row>
+                                        </Card>
+                                    </Row>))}
                             </Card><hr/>
                             
                             {/* <Row>

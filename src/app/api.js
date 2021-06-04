@@ -117,13 +117,31 @@ export async function fetchCvPersonalInfo(alumniId, config) {
     return response.data
 }
 
+
 export async function editCvPersonalInfo(cvInfoId, payload, config) {
     const response = await baseLink.put(`cvs_personal_informations/${cvInfoId}/`, payload, config)
     return response.data
 }
 
+
 export async function sendCvPersonalInfo(payload, config) {
     const response = await baseLink.post('cvs_personal_informations/', payload, config)
+    return response.data
+}
+
+
+export async function fetchCvEducationInfo(alumniId, config) {
+    const response = await baseLink.get(`filter/alumni/${alumniId}/cv_education_informations`, config)
+    return response.data
+}
+
+export async function editCvEducationInfo(cvEducationId, payload, config) {
+    const response = await baseLink.put(`cvs_education_informations/${cvEducationId}/`, payload, config)
+    return response.data
+}
+
+export async function sendCvEducationInfo(payload, config) {
+    const response = await baseLink.post('cvs_education_informations/', payload, config)
     return response.data
 }
 

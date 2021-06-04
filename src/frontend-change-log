@@ -19,7 +19,7 @@ Done
 
     4/6/2021
 1. Solved The Error In Allowing Alumni To Update And Save Their CV PersonalInformation
-2. 
+2. Allowed Alumni To Add Education Level In Their CV
 
 
 
@@ -39,4 +39,8 @@ Planned
 11. Add Page In Organization For Viewing Alumni Profile And Related Info
 12. Adding Search Functionality
 13. Checks If Password Meets Requirements (ie..8 charracters, Uppercase, lowercase, special charracters, and numbers) then Display strong %
-14. Change Choose File Into Change Image In Profile Page
+14. Change Choose File Into Change Image In Profile Page.
+//15. If No Changes Dont Submit The Form Of Personal Info
+16. Change Input Type From month with year to only year in CV-Education Time Period
+17. Allow Coordinator To Upload List Of Graduates ie.. Using Excel With The Same Name In DB
+18. Think On How To Achieve Interoperability
