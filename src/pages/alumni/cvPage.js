@@ -7,7 +7,8 @@ import {
     editCvPersonalInfo, fetchCvEducationInfo,
     sendCvEducationInfo, editCvEducationInfo,
     fetchCvExperienceInfo, sendCvExperienceInfo,
-    editCvExperienceInfo
+    editCvExperienceInfo, fetchAlumniCertificates,
+    editAlumniCertificate, sendAlumniCertificate
 } from '../../app/api'
 import { useSelector, useDispatch}  from 'react-redux'
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
@@ -44,11 +45,11 @@ const CvPage = () => {
         completion_date: ''
     }
 
-    const certificate = {
+    const initialCertificateInfo = {
         name: '',
         authority: '',
         certificate_file: null,
-        date_of_certification: ''
+        // date_of_certification: ''
     }
 
     const skillsList = [
@@ -76,7 +77,6 @@ const CvPage = () => {
                 'Authorization': `Token ${localStorage.getItem('token')}`    }
     }
     
-    const [certificateInfo, setCertificateInfo] = useState(certificate)
     const [alumniSkills, setAlumniSkills] = useState([])
     
     const [personalInfo, setPersonalInfo] = useState(initial_personal_info)
@@ -103,9 +103,28 @@ const CvPage = () => {
     const [selectedExperienceInfo, setSelectedExperienceInfo] = useState({})
     const [isEditingExperienceInfo, setisEditingExperienceInfo] = useState(false)
 
+    const [certificateInfo, setCertificateInfo] = useState(initialCertificateInfo)
+    const [certificatesList, setCertificatesList] = useState([])
+    const [isSendingCertificate, setIsSendingCertificate] = useState(false)
+    const [certificateErrorMessage, setCertificateErrorMessage] = useState('')
+    const [hasCertificateInfoSaved, setHasCertificateInfoSaved] = useState(false)
+    const [hasCertificateInfoChanged, setHasCertificateInfoChanged] = useState(false)
+    const [selectedCertificateInfo, setselectedCertificateInfo] = useState({})
+    const [isEditingCertificateInfo, setisEditingCertificateInfo] = useState(false)
+    
     const config = useSelector(apiConfigurations)
     const user = useSelector(selectUserData)
+    const [activeForm, setActiveForm] = useState(null)
 
+
+    const changeActiveForm = (formId) => {
+        if (activeForm === formId) {
+            setActiveForm(null)
+        }
+        else {
+            setActiveForm(formId)
+        }
+    }
 
     const getCvPersonalInfo = async () => {
         try {
@@ -146,7 +165,16 @@ const CvPage = () => {
             const response = await fetchCvExperienceInfo(user.userId, config)
             setExperienceInfoSet(response)
         } catch (error) {
-            console.log('Get Cv Experience Info Set', error.response.data)
+            console.log('Get Cv Experience Info Set ', error.response.data)
+        }
+    }
+
+    const getAlumniCertificates = async () => {
+        try {
+            const response = await fetchAlumniCertificates(user.userId, config)
+            setCertificatesList(response)
+        } catch (error) {
+            console.log('Get Alumni Certificates ', error.response.data)
         }
     }
 
@@ -154,6 +182,7 @@ const CvPage = () => {
         getCvPersonalInfo();
         getCvEducationInfo();
         getCvExperienceInfo();
+        getAlumniCertificates();
     }, [])
 
     const onPersonalInfoChange = (e) => {
@@ -422,7 +451,11 @@ const CvPage = () => {
     }
 
     const onCertificateInfoChange = (e) => {
-        e.preventDefault()
+        // console.log(e.target)
+        // e.preventDefault()
+        setHasCertificateInfoSaved(false)
+        setHasCertificateInfoChanged(true)
+        setCertificateErrorMessage('')
         if (e.target.name === 'certificate_file') {
             setCertificateInfo({
                 ...certificateInfo,
@@ -437,9 +470,72 @@ const CvPage = () => {
         }
     }
 
-    const saveCertificateInfo = (e) => {
+    const certificateFormValidator = () => {
+        if (certificateInfo.name === '') {
+            setCertificateErrorMessage('Enter Certificate Name')
+            return false
+        }
+        else if (certificateInfo.authority === '') {
+            setCertificateErrorMessage('Enter Certificate Authority')
+            return false
+        }
+        else if (certificateInfo.certificate_file === null) {
+            setCertificateErrorMessage('Select Certificate')
+            return false
+        }
+        else {
+            setCertificateErrorMessage('')
+            return true
+        }
+    }
+
+    const saveCertificateInfo =async (e) => {
         e.preventDefault();
-        console.log(certificateInfo)
+        const isCertificateFormValid = certificateFormValidator()
+
+        if (isCertificateFormValid) {
+            setIsSendingCertificate(true)
+            var response;
+            var payload = new FormData()
+            payload.append('alumni', user.userId)
+            payload.append('name', certificateInfo.name)
+            payload.append('authority', certificateInfo.authority)
+
+            try {
+                if (isEditingCertificateInfo) {
+
+                    const blob = await (await fetch(certificateInfo.certificate_file)).blob();
+                    const pdf_file = new File([blob], `${certificateInfo.name}.pdf`, { type: "application/pdf", lastModified: new Date() });
+                    payload.append('certificate_file', pdf_file)
+
+                    response = await editAlumniCertificate(certificateInfo.id, payload, config2)
+                    const newSet = certificatesList.map(item => item.id === response.id ? response : item)
+                    setCertificatesList(newSet)
+                    setisEditingCertificateInfo(false)
+                }
+                else {
+                    payload.append('certificate_file', certificateInfo.certificate_file)
+                    response = await sendAlumniCertificate(payload, config2)
+                    setCertificatesList([
+                        ...certificatesList,
+                        response
+                    ])
+                }
+                setHasCertificateInfoSaved(true)
+                setHasCertificateInfoChanged(false)
+                setCertificateInfo(initialCertificateInfo)
+                setIsSendingCertificate(false)
+                
+            } catch (error) {
+                console.log('Send Or Edit Alumni Certificate ', error.response.data)
+                setIsSendingCertificate(false)
+                setCertificateErrorMessage('Ooops...!, Some Error Occured. Try Again')
+            }
+            
+        }
+        else {
+            console.log('Certificate Form Is Not Valid')
+        }
     }
 
 
@@ -465,7 +561,12 @@ const CvPage = () => {
                             <Accordion>
                                 <Card>
                                     <Card.Header style={{backgroundColor: 'white'}}>
-                                        <Accordion.Toggle as={Card.Header} variant="link" eventKey="0">
+                                        <Accordion.Toggle
+                                            as={Card.Header}
+                                            variant="link"
+                                            eventKey="0"
+                                            onClick={e => { e.preventDefault(); changeActiveForm(0)}}
+                                        >
                                             Personal Informations
                                         </Accordion.Toggle>
                                     </Card.Header>
@@ -622,7 +723,11 @@ const CvPage = () => {
                                 </Card>
                                 <Card>
                                     <Card.Header style={{backgroundColor: 'white'}}>
-                                        <Accordion.Toggle as={Card.Header} variant="link" eventKey="1">
+                                        <Accordion.Toggle
+                                            as={Card.Header}
+                                            variant="link" eventKey="1"
+                                            onClick={e => { e.preventDefault(); changeActiveForm(1) }}
+                                        >
                                             Education
                                         </Accordion.Toggle>
                                     </Card.Header>
@@ -707,7 +812,11 @@ const CvPage = () => {
                                 </Card>
                                 <Card >
                                     <Card.Header style={{backgroundColor: 'white'}}>
-                                        <Accordion.Toggle as={Card.Header} variant="link" eventKey="2">
+                                        <Accordion.Toggle
+                                            as={Card.Header}
+                                            variant="link" eventKey="2"
+                                            onClick={e => { e.preventDefault(); changeActiveForm(2) }}
+                                        >
                                             Work Experiance
                                         </Accordion.Toggle>
                                     </Card.Header>
@@ -805,7 +914,11 @@ const CvPage = () => {
                                 </Card>
                                 <Card>
                                     <Card.Header style={{backgroundColor: 'white'}}>
-                                        <Accordion.Toggle as={Card.Header} variant="link" eventKey="3">
+                                        <Accordion.Toggle
+                                            as={Card.Header}
+                                            variant="link" eventKey="3"
+                                            onClick={e => { e.preventDefault(); changeActiveForm(3) }}
+                                        >
                                             Skills
                                         </Accordion.Toggle>
                                     </Card.Header>
@@ -831,7 +944,11 @@ const CvPage = () => {
                                 </Card>
                                 <Card>
                                     <Card.Header style={{backgroundColor: 'white'}}>
-                                        <Accordion.Toggle as={Card.Header} variant="link" eventKey="4">
+                                        <Accordion.Toggle
+                                            as={Card.Header}
+                                            variant="link" eventKey="4"
+                                            onClick={e => { e.preventDefault(); changeActiveForm(4) }}
+                                        >
                                             Certification
                                         </Accordion.Toggle>
                                     </Card.Header>
@@ -862,10 +979,15 @@ const CvPage = () => {
                                                  <Form.Row>
                                                     <Form.Group as={Col} controlId="formGridEmail">
                                                     <Form.Label>Certificate File</Form.Label>
-                                                    <Form.Control type="file" name="certificate_file" />
+                                                        <Form.Control
+                                                            type="file"
+                                                            name="certificate_file"
+                                                            // value={certificateInfo.certificate_file.name}
+                                                            onChange={onCertificateInfoChange}
+                                                            accept="application/pdf" />
                                                     </Form.Group>
 
-                                                    <Form.Group as={Col} controlId="formGridPassword">
+                                                    {/* <Form.Group as={Col} controlId="formGridPassword">
                                                     <Form.Label>Date Of Certification</Form.Label>
                                                         <Form.Control
                                                             type="month"
@@ -873,11 +995,26 @@ const CvPage = () => {
                                                             value={certificateInfo.date_of_certification}
                                                             onChange={onCertificateInfoChange}
                                                             name="date_of_certification" />
-                                                    </Form.Group>
+                                                    </Form.Group> */}
                                                 </Form.Row>
                                                 <Row >
                                                 <Col md={12}>
-                                                <Button variant="primary" type="submit" style={{width: '100%'}}> Save </Button>
+                                                    <Button
+                                                        disabled={!hasCertificateInfoChanged}
+                                                        hidden={hasCertificateInfoSaved}
+                                                        variant={certificateErrorMessage === '' ? "primary" : 'danger'}
+                                                        type="submit"
+                                                        style={{ width: '100%' }}
+                                                    >{certificateErrorMessage !== '' ? certificateErrorMessage : isSendingCertificate ? 
+                                                        <Loader message="Saving Info..." /> : 'Save'}
+                                                    </Button>
+                                                     <Alert
+                                                        onClose={() => setHasCertificateInfoSaved(false)}
+                                                        dismissible
+                                                        variant='success'
+                                                        style={{textAlign: 'center'}}
+                                                        hidden={!hasCertificateInfoSaved}
+                                                    >Your Certificate Info Saved Successfull.</Alert>
                                                 </Col>
                                                 </Row>
                                             </Form>
@@ -892,7 +1029,12 @@ const CvPage = () => {
                     <Card>
                         <Card.Header>CV Preview</Card.Header>
                         <Card.Body>
-                            <Row>
+                            <Row hidden={activeForm !== null} style={{alignItems: 'center'}}>
+                                <Message variant="info">
+                                    Select any part of the CV to preview your details.
+                                </Message>
+                            </Row>
+                            <Row hidden={activeForm !== 0}>
                                 <Col md={3}>
                                     <Card.Img
                                         src={personalInfo.uploaded_image ? URL.createObjectURL(personalInfo.uploaded_image) :
@@ -903,10 +1045,11 @@ const CvPage = () => {
                                     <Card.Title>{personalInfo.first_name} {personalInfo.middle_name} {personalInfo.last_name}</Card.Title>
                                     <i>Curriculum Vitae</i>
                                 </Col>
-                            </Row>   <hr/> 
-                            <Card style={{border:'none'}} >
+                            </Row>
+                            {/* <hr/>  */}
+                            <Card style={{ border: 'none' }} hidden={activeForm !== 0}>
                             <Row>
-                                <Col md={4}><b>Personal Informations</b></Col>
+                                <Col md={4}><b>PERSONAL PARTICULARS</b></Col>
                                 <Col md={8}>
                                   
                               <Card style={{border:'none'}}>
@@ -950,7 +1093,8 @@ const CvPage = () => {
                                       
                                 </Col>
                                 </Row>
-                            </Card> <hr/> 
+                            </Card>
+                            {/* <hr /> */}
                             {/* <Row>
                                 <Col md={4}><b>Education</b></Col>
                                 <Col>
@@ -963,7 +1107,8 @@ const CvPage = () => {
                                 </Col>
                             </Row> */}
                                 
-                             <Card style={{border:'none'}}>
+                            
+                             <Card style={{border:'none'}} hidden={activeForm !== 1}>
                                 <Row >
                                     <b>EDUCATION BACKGROUND</b>
                                 </Row>
@@ -1026,7 +1171,8 @@ const CvPage = () => {
                                             </Row>
                                         </Card>
                                     </Row>))}
-                            </Card><hr/>
+                            </Card>
+                            {/* <hr/> */}
                             
                             {/* <Row>
                                 <Col md={4}><b>Work Experiance</b></Col>
@@ -1039,7 +1185,7 @@ const CvPage = () => {
                                     ))}
                                 </Col>
                             </Row> */}
-                             <Card style={{border:'none'}}>
+                             <Card style={{border:'none'}} hidden={activeForm !== 2}>
                                 <Row >
                                     <b>WORK EXPERIENCE</b>
                                 </Row>
@@ -1118,11 +1264,12 @@ const CvPage = () => {
                                             </Row>
                                         </Card>
                                     </Row>))}
-                            </Card><hr/>
+                            </Card>
+                            {/* <hr/> */}
                             
-                            <Card style={{border:'none'}}>
+                            <Card style={{border:'none'}} hidden={activeForm !== 3}>
                             <Row>
-                                <Col md={4}><b>Skills</b></Col>
+                                <Col md={4}><b>SKILLS</b></Col>
                                 <Col md={8}>
                                     <Card style={{border:'none'}} >
                                         <Row >
@@ -1136,43 +1283,61 @@ const CvPage = () => {
                                     </Card>
                                 </Col>
                                 </Row>
-                            </Card><hr/>
+                            </Card>
+                            {/* <hr/> */}
                           
-                            <Card style={{border:'none'}}  >
+                            <Card style={{border:'none'}} hidden={activeForm !== 4}>
                             <Row>
-                                <Col md={4}><b>Certification</b></Col>
-                                <Col md={8}>
-                                    <Card style={{border:'none'}} >
+                                <b>CERTIFICTIONS</b>
+                            </Row>
+                                <Row hidden={!hasCertificateInfoChanged}>
+                                    <Card style={{border:'none', width: '100%'}} >
                                         <Row >
-                                            <Col md={5}><small><b>Name</b></small></Col>
+                                            <Col ><small><b>Name</b></small></Col>
                                             <Col><small>{certificateInfo.name}</small></Col>
                                         </Row>
                                         <Row >
-                                            <Col md={5}><small><b>Authority</b></small></Col>
+                                            <Col ><small><b>Authority</b></small></Col>
                                             <Col><small>{certificateInfo.authority}</small></Col>
                                         </Row>
                                         <Row >
-                                            <Col md={5}><small><b>Date of Certification</b></small></Col>
-                                            <Col><small>{certificateInfo.date_of_certification}</small></Col>
-                                        </Row>
-                                    </Card> <hr />
-                                    <Card style={{border:'none'}} >
-                                        <Row >
-                                            <Col md={5}><small><b>Name</b></small></Col>
-                                            <Col><small>{certificateInfo.name}</small></Col>
-                                        </Row>
-                                        <Row >
-                                            <Col md={5}><small><b>Authority</b></small></Col>
-                                            <Col><small>{certificateInfo.authority}</small></Col>
-                                        </Row>
-                                        <Row >
-                                            <Col md={5}><small><b>Date of Certification</b></small></Col>
-                                            <Col><small>{certificateInfo.date_of_certification}</small></Col>
+                                            <Col ><small><b>Certificate File</b></small></Col>
+                                            <Col><small>{ certificateInfo.certificate_file !== null ? certificateInfo.certificate_file.name : 'No File Selected'}</small></Col>
                                         </Row>
                                     </Card>
-                                     
-                                </Col>
                                 </Row>
+                                {certificatesList.map((item, index) => (
+                                    <Row
+                                        key={item.id}
+                                        onMouseEnter={e => { e.preventDefault(); setselectedCertificateInfo(item) }}
+                                        onMouseLeave={e => { e.preventDefault(); setselectedCertificateInfo({}) }}
+                                    >
+                                        <Card style={{ border: 'none', paddingLeft: '20px', width: '100%' }}>
+                                            <Row style={{width: '100%'}}>
+                                                <i>Certificate {index + 1}</i>
+                                                <Button
+                                                    hidden={item.id !== selectedCertificateInfo.id}
+                                                    onClick={e => {
+                                                        e.preventDefault();
+                                                        setCertificateInfo(selectedCertificateInfo);
+                                                        setisEditingCertificateInfo(true);
+                                                        setHasCertificateInfoSaved(false)
+                                                    }}
+                                                    size="sm"
+                                                    style={{marginLeft: '75%'}}
+                                                >Edit</Button>
+                                            </Row>
+                                            <Row >
+                                                <Col md={4}><small><b>Name</b></small></Col>
+                                                <Col><small>{item.name}</small></Col>
+                                            </Row>
+                                            <Row >
+                                                <Col md={4}><small><b>Authority</b></small></Col>
+                                                <Col><small>{item.authority}</small></Col>
+                                            </Row>
+                                        </Card>
+                                    </Row>
+                                ))}
                             </Card>
 {/* 
                             <Row>

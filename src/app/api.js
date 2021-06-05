@@ -83,6 +83,21 @@ export async function getAlumniApplications(alumniId, config) {
     return response.data
 }
 
+export async function fetchAlumniCertificates(alumniId, config) {
+    const response = await baseLink.get(`filter/alumni/${alumniId}/certificates`, config)
+    return response.data
+}
+
+export async function sendAlumniCertificate(payload, config) {
+    const response = await baseLink.post('certificates/', payload, config)
+    return response.data
+}
+
+export async function editAlumniCertificate(certificateId, payload, config) {
+    const response = await baseLink.put(`certificates/${certificateId}/`, payload, config)
+    return response.data
+}
+
 export async function fetchalumniProjects(alumniId, config) {
     const response = await baseLink.get(`filter/member/${alumniId}/projects`, config)
     return response.data
