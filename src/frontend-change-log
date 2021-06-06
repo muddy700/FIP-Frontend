@@ -26,6 +26,9 @@ Done
 2. Allowed Alumni To Add And Edit Their Work Experiences
 3. Allowed Alumni To Add And Edit Their Certificates
 
+    6/6/2021
+1. Allowed Alumni To Add And Delete Their Skills
+
 
 Planned
 1. Validate All Forms And Provide A Fixed Error Display Area.
@@ -49,3 +52,6 @@ Planned
 18. Think On How To Achieve Interoperability
 19. Display Preview Only For Openned Accordion Form 
 20. Allow Alumni To Delete Certificate Or Any Other Data In Cv List
+21. Handle Profile Error For New Organizations Which Doesnt Have Profiles Yet.
+22. Handle Alumni Skills In Cv Page When Saving Selected SKills(The Remaining Checks Auto)
+23. Reference Part In CV Can Be Replaced By UDOM??

@@ -122,6 +122,27 @@ export async function getAlumniProfile(alumniId, config) {
     return response.data
 }
 
+export async function fetchAlumniSkills(alumniId, config) {
+    const response = await baseLink.get(`filter/alumni/${alumniId}/professions`, config)
+    return response.data
+}
+
+export async function addAlumniSkills(payloads, config) {
+   const requests = payloads.map(item => baseLink.post('alumni_professions/', item, config))
+   const  responseArray = await axios.all([...requests])
+   return responseArray
+}
+
+export async function dropAlumniSkill(skillId, config) {
+    const response = await baseLink.delete(`alumni_professions/${skillId}/`, config)
+   return response.data
+}
+
+export async function fetchAllSkills(config) {
+    const response = await baseLink.get('professions/', config)
+    return response.data
+}
+
 export async function fetchCvPersonalInfo(alumniId, config) {
     const response = await baseLink.get(`filter/alumni/${alumniId}/cv_personal_informations`, config)
     return response.data

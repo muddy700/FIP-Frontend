@@ -8,11 +8,14 @@ import {
     sendCvEducationInfo, editCvEducationInfo,
     fetchCvExperienceInfo, sendCvExperienceInfo,
     editCvExperienceInfo, fetchAlumniCertificates,
-    editAlumniCertificate, sendAlumniCertificate
+    editAlumniCertificate, sendAlumniCertificate,
+    fetchAlumniSkills, fetchAllSkills, addAlumniSkills,
+    dropAlumniSkill
 } from '../../app/api'
 import { useSelector, useDispatch}  from 'react-redux'
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import Loader from '../../components/loader'
+import ContentModal from '../../components/contentModal'
 
 const CvPage = () => {
     const initial_personal_info = {
@@ -77,8 +80,6 @@ const CvPage = () => {
                 'Authorization': `Token ${localStorage.getItem('token')}`    }
     }
     
-    const [alumniSkills, setAlumniSkills] = useState([])
-    
     const [personalInfo, setPersonalInfo] = useState(initial_personal_info)
     const [isSendingProfileInfo, setIsSendingProfileInfo] = useState(false)
     const [personalInfoErrorMessage, setPersonalInfoErrorMessage] = useState('')
@@ -102,6 +103,16 @@ const CvPage = () => {
     const [hasExperienceInfoChanged, setHasExperienceInfoChanged] = useState(false)
     const [selectedExperienceInfo, setSelectedExperienceInfo] = useState({})
     const [isEditingExperienceInfo, setisEditingExperienceInfo] = useState(false)
+    
+    const [allSkills, setAllSkills] = useState([])
+    const [alumniSkills, setAlumniSkills] = useState([])
+    const [knownSkills, setKnownSkills] = useState([])
+    const [newSkills, setNewSkills] = useState([])
+    const [isSendingSkills, setIsSendingSkills] = useState(false)
+    const [skillsErrorMessage, setSkillsErrorMessage] = useState('')
+    const [hasSkillsInfoSaved, setHasSkillsInfoSaved] = useState(false)
+    const [hasSkillsInfoChanged, setHasSkillsInfoChanged] = useState(false)
+    const [selectedSkill, setSelectedSkill] = useState({})
 
     const [certificateInfo, setCertificateInfo] = useState(initialCertificateInfo)
     const [certificatesList, setCertificatesList] = useState([])
@@ -115,6 +126,7 @@ const CvPage = () => {
     const config = useSelector(apiConfigurations)
     const user = useSelector(selectUserData)
     const [activeForm, setActiveForm] = useState(null)
+    const [modalShow, setModalShow] = useState(false)
 
 
     const changeActiveForm = (formId) => {
@@ -125,6 +137,9 @@ const CvPage = () => {
             setActiveForm(formId)
         }
     }
+
+    const modalTitle = 'Full Cv Preview'
+    const modalContent = 'CV Contents'
 
     const getCvPersonalInfo = async () => {
         try {
@@ -178,11 +193,34 @@ const CvPage = () => {
         }
     }
 
+    const getAlumniSkills = async () => {
+        try {
+            const response = await fetchAlumniSkills(user.userId, config)
+            setAlumniSkills(response)
+            const skillsIds = response.map(skill => skill.profession)
+            setKnownSkills(skillsIds)
+        } catch (error) {
+            console.log('Get Alumni skills ', error.response.data)
+        }
+    }
+
+    const getAllSkills = async () => {
+        try {
+            const response = await fetchAllSkills(config)
+           setAllSkills(response)
+        } catch (error) {
+            console.log('Get All Skills ', error.response.data)
+        }
+    }
+    
+
     useEffect(() => {
         getCvPersonalInfo();
         getCvEducationInfo();
         getCvExperienceInfo();
         getAlumniCertificates();
+        getAlumniSkills();
+        getAllSkills();
     }, [])
 
     const onPersonalInfoChange = (e) => {
@@ -449,6 +487,65 @@ const CvPage = () => {
             console.log('CV Experience Form Is Not Valid')
         }
     }
+    
+    const onAlumniSkillChange = (e) => {
+        const skillId = e.target.value;
+        setHasSkillsInfoChanged(true)
+        setHasSkillsInfoSaved(false)
+        setSkillsErrorMessage('')
+        const isThere = newSkills.find(id => id === skillId)
+
+        if (isThere) {
+            const freshSkills = newSkills.filter(id => id !== skillId)
+            setNewSkills(freshSkills)
+        }
+        else setNewSkills([...newSkills, skillId]) 
+    }
+
+    const saveAlumniSkills = async (e) => {
+        e.preventDefault();
+        if (newSkills.length === 0) {
+            console.log('No Skill Selected')
+            setSkillsErrorMessage('No Skill Selected')
+        }
+        else {
+            setIsSendingSkills(true)
+            const payloads = newSkills.map(item => {
+                return {
+                    alumni: user.userId,
+                    profession: item
+                }
+            })
+            try {
+                const responseArray = addAlumniSkills(payloads, config)
+                setNewSkills([])
+                setHasSkillsInfoSaved(true)
+                setHasSkillsInfoChanged(false)
+                setIsSendingSkills(false)
+                getAlumniSkills()
+                getAllSkills()
+            } catch (error) {
+                console.log('Send Alumni Skills ', error.response.data)
+                setIsSendingSkills(false)
+                setSkillsErrorMessage('Ooops...!, Some Error Occured. Try Again')
+            }
+        }
+    }
+
+
+    const deleteAlumniSkill = async () => {
+        try {
+            const response = await dropAlumniSkill(selectedSkill.id, config)
+            const remainingSkills = alumniSkills.filter(skill => skill.id !== selectedSkill.id)
+            setAlumniSkills(remainingSkills)
+            const remainingIds = knownSkills.filter(id => id !== selectedSkill.profession)
+            setKnownSkills(remainingIds)
+            setSelectedSkill({})
+            setHasSkillsInfoSaved(false)
+        } catch (error) {
+            console.log('Delete Alumni Skill ', error.response.data)            
+        }
+    }
 
     const onCertificateInfoChange = (e) => {
         // console.log(e.target)
@@ -539,17 +636,6 @@ const CvPage = () => {
     }
 
 
-
-    const handleAlumniSkills = (e) => {
-        const name = e.target.value;
-        const isThere = alumniSkills.find((skill) => skill === name)
-
-        if (isThere) {
-            const newSkills = alumniSkills.filter(skill => skill !== name)
-            setAlumniSkills(newSkills)
-        }
-        else { setAlumniSkills([...alumniSkills, name]) }
-    }
 
     return (    
         <Card style={{border:'none'}}>
@@ -924,18 +1010,34 @@ const CvPage = () => {
                                     </Card.Header>
                                     <Accordion.Collapse eventKey="3">
                                         <Card.Body>
-                                            <Form>
-                                                {skillsList.map(skill => (
+                                            <Form onSubmit={e => saveAlumniSkills(e)}>
+                                                {allSkills.filter(item => !knownSkills.includes(item.id))
+                                                    .map(skill => (
                                                     <Form.Check
                                                         type="checkbox"
                                                         id={skill.id}
-                                                        label={skill.name}
-                                                        value={skill.name}
-                                                        onChange={handleAlumniSkills} />
+                                                        label={skill.profession_name}
+                                                        value={skill.id}
+                                                        onChange={onAlumniSkillChange} />
                                                 ))}
                                                 <Row >
                                                 <Col md={12}>
-                                                <Button variant="primary" type="submit" style={{width: '100%'}}> Save </Button>
+                                                    <Button
+                                                        disabled={!hasSkillsInfoChanged}
+                                                        hidden={hasSkillsInfoSaved}
+                                                        variant={skillsErrorMessage === '' ? "primary" : 'danger'}
+                                                        type="submit"
+                                                        style={{ width: '100%' }}
+                                                    >{skillsErrorMessage !== '' ? skillsErrorMessage : isSendingSkills ? 
+                                                        <Loader message="Saving Info..." /> : 'Save'}
+                                                    </Button>
+                                                     <Alert
+                                                        onClose={() => setHasSkillsInfoSaved(false)}
+                                                        dismissible
+                                                        variant='success'
+                                                        style={{textAlign: 'center'}}
+                                                        hidden={!hasSkillsInfoSaved}
+                                                    >Your Skills Info Saved Successfull.</Alert>
                                                 </Col>
                                                 </Row>
                                             </Form>
@@ -1027,7 +1129,13 @@ const CvPage = () => {
                 </Col>
                 <Col>
                     <Card>
-                        <Card.Header>CV Preview</Card.Header>
+                        <Card.Header>
+                            CV Preview
+                            <Button
+                                style={{ float: 'right' }}
+                                onClick={e => { e.preventDefault(); setModalShow(true)}}
+                            >Full Preview</Button>
+                        </Card.Header>
                         <Card.Body>
                             <Row hidden={activeForm !== null} style={{alignItems: 'center'}}>
                                 <Message variant="info">
@@ -1047,51 +1155,49 @@ const CvPage = () => {
                                 </Col>
                             </Row>
                             {/* <hr/>  */}
-                            <Card style={{ border: 'none' }} hidden={activeForm !== 0}>
+                            <Card style={{ border: 'none', paddingTop: '5%' }} hidden={activeForm !== 0}>
                             <Row>
-                                <Col md={4}><b>PERSONAL PARTICULARS</b></Col>
-                                <Col md={8}>
-                                  
-                              <Card style={{border:'none'}}>
+                                <b>PERSONAL PARTICULARS</b><hr />
+                            </Row>
+                            <Row>     
+                              <Card style={{border:'none',width: '100%', paddingLeft: '5%'}}>
                                     <Row >
-                                        <Col md={5}><small><b>First Name</b></small></Col>
+                                        <Col md={4}><small><b>First Name</b></small></Col>
                                         <Col><small>{personalInfo.first_name}</small></Col>
                                     </Row>
                                     <Row >
-                                        <Col md={5}><small><b>Middle Name</b></small></Col>
+                                        <Col md={4}><small><b>Middle Name</b></small></Col>
                                         <Col><small>{personalInfo.middle_name}</small></Col>
                                     </Row>
                                     <Row >
-                                        <Col md={5}><small><b>Last Name</b></small></Col>
+                                        <Col md={4}><small><b>Last Name</b></small></Col>
                                         <Col><small>{personalInfo.last_name}</small></Col>
                                     </Row>
                                     <Row >
-                                        <Col md={5}><small><b>Phone</b></small></Col>
+                                        <Col md={4}><small><b>Phone</b></small></Col>
                                         <Col><small>{personalInfo.alumni_phone_number}</small></Col>
                                     </Row>
                                     <Row >
-                                        <Col md={5}><small><b>Email</b></small></Col>
+                                        <Col md={4}><small><b>Email</b></small></Col>
                                         <Col><small>{personalInfo.email}</small></Col>
                                     </Row>
                                     <Row >
-                                        <Col md={5}><small><b>Date of Birth</b></small></Col>
+                                        <Col md={4}><small><b>Date of Birth</b></small></Col>
                                         <Col><small>{personalInfo.date_of_birth}</small></Col>
                                     </Row>
                                     <Row >
-                                        <Col md={5}><small><b>Nationality</b></small></Col>
+                                        <Col md={4}><small><b>Nationality</b></small></Col>
                                         <Col><small>{personalInfo.nationality}</small></Col>
                                     </Row>
                                     <Row >
-                                        <Col md={5}><small><b>Country</b></small></Col>
+                                        <Col md={4}><small><b>Country</b></small></Col>
                                         <Col><small>{personalInfo.country}</small></Col>
                                     </Row>
                                     <Row >
-                                        <Col md={5}><small><b>City</b></small></Col>
+                                        <Col md={4}><small><b>City</b></small></Col>
                                         <Col><small>{personalInfo.city}</small></Col>
                                     </Row>
                                  </Card>
-                                      
-                                </Col>
                                 </Row>
                             </Card>
                             {/* <hr /> */}
@@ -1111,6 +1217,9 @@ const CvPage = () => {
                              <Card style={{border:'none'}} hidden={activeForm !== 1}>
                                 <Row >
                                     <b>EDUCATION BACKGROUND</b>
+                                </Row>
+                                <Row hidden={educationInfoSet.length !== 0 || hasEducationInfoChanged} style={{paddingTop: '5%'}}>
+                                    <Message variant='info'>You don't have any education info yet. Fill the form to preview</Message>
                                 </Row>
                                 <Row hidden={!hasEducationInfoChanged}>    
                                     <Card style={{border:'none', paddingLeft: '20px'}}>
@@ -1189,30 +1298,33 @@ const CvPage = () => {
                                 <Row >
                                     <b>WORK EXPERIENCE</b>
                                 </Row>
+                                <Row hidden={experienceInfoSet.length !== 0 || hasExperienceInfoChanged} style={{paddingTop: '5%'}}>
+                                    <Message variant='info'>You don't have any work experience yet. Fill the form to preview</Message>
+                                </Row>
                                 <Row hidden={!hasExperienceInfoChanged}> 
-                                    <Card style={{border:'none'}}>
+                                    <Card style={{border:'none', paddingLeft: '20px', width: '100%'}}>
                                         <Row >
-                                            <Col ><small><b>Company</b></small></Col>
+                                            <Col md={4}><small><b>Company</b></small></Col>
                                             <Col><small>{experienceInfo.company_name}</small></Col>
                                         </Row>
                                         <Row >
-                                            <Col ><small><b>Job Title</b></small></Col>
+                                            <Col md={4} ><small><b>Job Title</b></small></Col>
                                             <Col><small>{experienceInfo.job_title}</small></Col>
                                         </Row>
                                         <Row >
-                                            <Col ><small><b>City</b></small></Col>
+                                            <Col md={4} ><small><b>City</b></small></Col>
                                             <Col><small>{experienceInfo.city}</small></Col>
                                         </Row>
                                         <Row >
-                                            <Col ><small><b>Country</b></small></Col>
+                                            <Col md={4} ><small><b>Country</b></small></Col>
                                             <Col><small>{experienceInfo.country}</small></Col>
                                         </Row>
                                         <Row >
-                                            <Col ><small><b>From</b></small></Col>
+                                            <Col md={4} ><small><b>From</b></small></Col>
                                             <Col><small>{experienceInfo.start_date}</small></Col>
                                         </Row>
                                         <Row >
-                                            <Col ><small><b>To</b></small></Col>
+                                            <Col md={4} ><small><b>To</b></small></Col>
                                             <Col><small>{experienceInfo.completion_date}</small></Col>
                                         </Row>
                                     </Card>
@@ -1268,40 +1380,61 @@ const CvPage = () => {
                             {/* <hr/> */}
                             
                             <Card style={{border:'none'}} hidden={activeForm !== 3}>
-                            <Row>
-                                <Col md={4}><b>SKILLS</b></Col>
-                                <Col md={8}>
-                                    <Card style={{border:'none'}} >
-                                        <Row >
-                                            <Col>
-                                                <ul style={{paddingLeft: 0 }}><small>{alumniSkills.map((skill => (
-                                                    <li key={skill} > {skill}</li>
+                                <Row>
+                                    <b>SKILLS</b>
+                                </Row>
+                                <Row hidden={alumniSkills.length !== 0 } style={{paddingTop: '5%'}}>
+                                    <Message variant='info'>You don't have any skill yet. Fill the form to preview</Message>
+                                </Row>
+                                <Row>
+                                    <Col md={{span: 12, offset: 0}}>
+                                        <Card style={{border:'none'}} >
+                                            <Row >
+                                                <ul style={{ paddingLeft: 0, width: '100%' }}><small>
+                                                    {alumniSkills.map((skill => (
+                                                        <li
+                                                            key={skill.id}
+                                                            style={{ backgroundColor: `${ skill.id === selectedSkill.id ? 'lightgray' : '' }`, display: 'flex', paddingLeft: '4%'}}
+                                                            onMouseEnter={e => { e.preventDefault(); setSelectedSkill(skill) }}
+                                                            onMouseLeave={e => { e.preventDefault(); setSelectedSkill({}) }}
+                                                        >
+                                                            <span style={{width: '80%'}}>{skill.profession_name}</span>
+                                                            <Button
+                                                                hidden={skill.id !== selectedSkill.id}
+                                                                onClick={e => {
+                                                                    e.preventDefault();
+                                                                    deleteAlumniSkill();
+                                                                }}
+                                                                size="sm"
+                                                                variant="danger"
+                                                            >Delete</Button>
+                                                        </li>
                                                 )))}</small>
                                                 </ul>
-                                            </Col>
-                                        </Row>
-                                    </Card>
-                                </Col>
+                                            </Row>
+                                        </Card>
+                                    </Col>
                                 </Row>
                             </Card>
-                            {/* <hr/> */}
-                          
                             <Card style={{border:'none'}} hidden={activeForm !== 4}>
                             <Row>
-                                <b>CERTIFICTIONS</b>
+                                <b>CERTIFICATIONS</b>
+                            </Row>
+                            <Row hidden={certificatesList.length !== 0 || hasCertificateInfoChanged} style={{paddingTop: '5%'}}>
+                                <Message variant='info'>You don't have any certificate yet. Fill the form to preview</Message>
                             </Row>
                                 <Row hidden={!hasCertificateInfoChanged}>
-                                    <Card style={{border:'none', width: '100%'}} >
+                                    <Card style={{border:'none', width: '100%', paddingLeft: '20px'}} >
                                         <Row >
-                                            <Col ><small><b>Name</b></small></Col>
+                                            <Col md={4}><small><b>Name</b></small></Col>
                                             <Col><small>{certificateInfo.name}</small></Col>
                                         </Row>
                                         <Row >
-                                            <Col ><small><b>Authority</b></small></Col>
+                                            <Col md={4} ><small><b>Authority</b></small></Col>
                                             <Col><small>{certificateInfo.authority}</small></Col>
                                         </Row>
                                         <Row >
-                                            <Col ><small><b>Certificate File</b></small></Col>
+                                            <Col md={4} ><small><b>Certificate File</b></small></Col>
                                             <Col><small>{ certificateInfo.certificate_file !== null ? certificateInfo.certificate_file.name : 'No File Selected'}</small></Col>
                                         </Row>
                                     </Card>
@@ -1360,6 +1493,13 @@ const CvPage = () => {
                     </Card>
                 </Col>
             </Row>
+            <ContentModal
+                show={modalShow}
+                isTable={false}
+                title={modalTitle}
+                content={modalContent}
+                onHide={() => setModalShow(false)}
+            />
 
         </Card>
     )
