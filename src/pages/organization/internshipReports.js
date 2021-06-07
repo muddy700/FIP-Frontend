@@ -9,7 +9,7 @@ import { useSelector}  from 'react-redux'
 import { getAlumniApplications, getOrganizationInternshipPosts, getProcessedApplications, getProfessions, pullInternshipPosts, pushInternshipPost, getSchedules } from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
-import { findAllByDisplayValue } from '@testing-library/dom';
+// import { findAllByDisplayValue } from '@testing-library/dom';
 
 const InternshipReports = () => {
 
@@ -112,7 +112,7 @@ const InternshipReports = () => {
                       {/* <Button>New Post</Button> */}
                     </Col>
                     <Col md={{ span: 3, offset: 6 }}>
-                                       <InputGroup>
+                        <InputGroup>
                             <FormControl
                             placeholder="Type To Search"
                             aria-label="Message Content"
@@ -123,7 +123,7 @@ const InternshipReports = () => {
                                     <Icon glyph="search" size={20} />
                                 </Button>
                             </InputGroup.Append>
-                            </InputGroup>
+                        </InputGroup>
                     </Col>
                 </Row>
                 <hr/>

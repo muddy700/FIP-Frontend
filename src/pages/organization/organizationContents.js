@@ -15,6 +15,7 @@ import InternshipChances from './internshipChances';
 import InternshipReports from './internshipReports';
 import PostApplicants from './post_applicants';
 import ApprovedAlumni from './approvedPage';
+import PublishedAlumniPage from './publishedAlumniPage';
 
 const OrganizationContents = () => {
 
@@ -23,6 +24,9 @@ const OrganizationContents = () => {
             <Switch>
             <Route exact path={["/dashboard", "/"]}>
                 <DashboardPage />
+              </Route>
+            <Route exact path="/published_alumni">
+                <PublishedAlumniPage />
               </Route>
             <Route exact path="/field_applications">
                 <FieldApplications />

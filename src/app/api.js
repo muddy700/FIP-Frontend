@@ -103,6 +103,21 @@ export async function editAlumniCertificate(certificateId, payload, config) {
     return response.data
 }
 
+export async function fetchAllProjects(config) {
+    const response = await baseLink.get('projects_members/', config)
+    return response.data
+}
+
+export async function fetchAllRatings(config) {
+    const response = await baseLink.get('alumni_ratings', config)
+    return response.data
+}
+
+export async function fetchAllAlumniSkills(config) {
+    const response = await baseLink.get('alumni_professions/', config)
+    return response.data
+}
+
 export async function fetchalumniProjects(alumniId, config) {
     const response = await baseLink.get(`filter/member/${alumniId}/projects`, config)
     return response.data
@@ -205,6 +220,11 @@ export async function editAlumniProfile(payload, config) {
 
 export async function getInterviewQuestions(professionId, config) {
     const response = await baseLink.get(`filter/profession/${professionId}/questions/`, config)
+    return response.data
+}
+
+export async function fetchPublishedAlumni(config) {
+    const response = await baseLink.get('filter/published_alumni/', config)
     return response.data
 }
 

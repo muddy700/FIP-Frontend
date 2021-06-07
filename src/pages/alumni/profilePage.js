@@ -1,10 +1,10 @@
 import React, {useState, useEffect} from 'react'
-import { Card, Row, Col, Button, Table, Form, Alert } from 'react-bootstrap'
+import { Card, Row, Col, Button, Table, Form, Alert, Tooltip } from 'react-bootstrap'
 import '../../styles/alumni.css'
 import Message from '../../components/message'
 import { selectUserData, saveUser, apiConfigurations } from '../../slices/userSlice'
 import { useSelector, useDispatch}  from 'react-redux'
-import { editUserProfile, getAlumniProfile, editUserInfo } from '../../app/api'
+import { editUserProfile, getAlumniProfile, editUserInfo, editAlumniProfile } from '../../app/api'
 import Loader from '../../components/loader'
 import ContentModal from '../../components/contentModal'
 
@@ -28,6 +28,7 @@ const ProfilePage = () => {
     const [successMessage, setSuccessMessage] = useState('')
     const [showProfileForm, setShowProfileForm] = useState(false)
     const [profileChanges, setProfileChanges] = useState(initialProfile)
+    const [isPublishing, setIsPublishing] = useState(false)
 
     const getProfile = async () => {
         try {
@@ -167,6 +168,22 @@ const ProfilePage = () => {
         }
     }
 
+
+    const publishAlumni = async () => {
+        setIsPublishing(true)
+        const payload = {
+            ...alumniProfile,
+            is_public: !alumniProfile.is_public
+        }
+        try {
+            const response = await editAlumniProfile(payload, config)
+            setAlumniProfile(response)
+            setIsPublishing(false)
+        } catch (error) {
+            console.log('Publishing Alumni Info ', error.response.data)
+            setIsPublishing(false)
+        }
+    }
     const formTitle = 'Edit Profile Info';
     const formContents = <Form onSubmit={sendProfileChanges}>
             <Form.Row>
@@ -313,6 +330,17 @@ const ProfilePage = () => {
                             </Row>
                         </Card.Footer>
                     </Card>
+                    {/* <Tooltip placement="topLeft" title="Make your profile, CV and other particulars public , so that organizations may view"> */}
+                        <Button
+                            style={{ marginTop: '20%', width: '100%' }}
+                            variant={alumniProfile.is_public ? 'danger' : 'primary'}
+                            onClick={e => { e.preventDefault(); publishAlumni()}}
+                        >
+                            {isPublishing ? <Loader message='Publishing...' /> :
+                                alumniProfile.is_public ? 'Hide Your Info' :
+                                    'Publish Your Info'}
+                        </Button>
+                    {/* </Tooltip> */}
                     
                 </Col>
             </Row>

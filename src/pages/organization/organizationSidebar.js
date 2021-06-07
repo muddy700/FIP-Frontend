@@ -22,6 +22,11 @@ const OrganizationSidebar = () => {
                 </Link>
             </li>
             <li className="list-item">
+                <Link to = "/published_alumni" className="aside-link">
+                     <Icon glyph="person" size={32} /> <span>Published Alumni</span>
+                </Link>
+            </li>
+            <li className="list-item">
                 <Accordion  style={{backgroundColor: 'inherit', border: 'none'}}>
                 <div>
                     <Accordion.Toggle as="div" variant="link" eventKey="0">
