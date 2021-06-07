@@ -7,6 +7,7 @@ import { useSelector, useDispatch}  from 'react-redux'
 import { editOrganizationProfile, editUserInfo, editUserProfile, getAlumniProfile, getOrganizationProfile } from '../../app/api'
 import Loader from '../../components/loader'
 import ContentModal from '../../components/contentModal'
+import dpPlaceHolder from '../../images/default-for-user.png'
 
 const ProfilePage = () => {
     
@@ -85,7 +86,7 @@ const ProfilePage = () => {
         const prof_img = new File([blob], `${user.username}.jpg`, {type:"image/jpeg", lastModified:new Date()});
 
         const payload3 = new FormData();
-        payload3.append('profile_image', prof_img)
+        if(user.profile_image) payload3.append('profile_image', prof_img)
         payload3.append('user', user.userId)
         payload3.append('designation', user.designation_id)
         payload3.append('phone', profileInfo.phone)
@@ -117,13 +118,18 @@ const ProfilePage = () => {
                     setShowProfileForm(false)
 
                 } catch (error) {
-                console.log('Edit User-Profile Request', error.response.data) }
+                    console.log('Edit User-Profile Request ', error.response.data)
+                    setIsLoading2(false)
+                }
                 
             } catch (error) {
-                console.log('Edit Organization-Profile Request', error.response.data) }
+                console.log('Edit Organization-Profile Request', error.response.data)
+                setIsLoading2(false)
+            }
             
         } catch (error) {
-            console.log('Edit Organization-Info Request', error.response.data) }
+            console.log('Edit Organization-Info Request', error.response.data)
+            setIsLoading2(false)}
     }
 
     const formTitle = "Edit Profile Info"
@@ -294,7 +300,7 @@ const ProfilePage = () => {
                     <Card>
                         <Card.Header style={{textAlign: 'center'}}><b>Logo</b></Card.Header>
                         <Card.Body style={{placeItems: 'center', display: 'grid'}}>
-                            <Card.Img src={profileImage ? URL.createObjectURL(profileImage) : user.profile_image} style={{ width: '90%', height: '200px' }}></Card.Img>
+                            <Card.Img src={profileImage ? URL.createObjectURL(profileImage) : user.profile_image ? user.profile_image : dpPlaceHolder} style={{ width: '90%', height: '200px' }}></Card.Img>
                             <Card.Title style={{ marginTop: '15px' }}>{user.username}</Card.Title>
                         </Card.Body>
                         <Card.Footer style={{backgroundColor: 'inherit'}}>

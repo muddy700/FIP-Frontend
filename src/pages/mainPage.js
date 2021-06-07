@@ -12,6 +12,8 @@ import { useSelector}  from 'react-redux'
 import { selectUserData } from '../slices/userSlice'
 import OrganizationSidebar from './organization/organizationSidebar';
 import OrganizationContents from './organization/organizationContents';
+import RankerContents from './ranker/rankerContents';
+import RankerSidebar from './ranker/rankerSidebar';
 
 const mql = window.matchMedia(`(min-width: 800px)`);
 
@@ -56,10 +58,14 @@ export const HomePage = () => {
     activeContents =  <OrganizationContents />
     activeSidebar = <OrganizationSidebar />
   }
+  else if (userRole === 'ranker') {
+    activeContents =  <RankerContents />
+    activeSidebar = <RankerSidebar />
+  }
 
-      const sidebarProps = {
-        sidebar: activeSidebar,
-        docked: sidebarDocked,
+    const sidebarProps = {
+      sidebar: activeSidebar,
+      docked: sidebarDocked,
       collapsed: collapse,
       sidebarClassName: "sidebar-card",
       // contentId: "custom-sidebar-content-id",
@@ -73,20 +79,22 @@ export const HomePage = () => {
         onSetOpen: onSetSidebarOpen,
       rootClassName: "root-card"
     };
-  return (<Router>
-    <div className="main-page-container" style={{height: '100vh', overflowY: 'hidden'}}>
-      <Header changeCollapse={changeCollapse} />
-      <Sidebar {...sidebarProps}>
-        <div style={{border: 'none', padding: 'none'}}>
-          <Card.Body style={{overflowY: 'auto', maxHeight: '90vh', padding: 0, border: 'none'}}>
-            {activeContents}
-          </Card.Body>
-          <div style={{ backgroundColor: '#2F4050', textAlign: 'center', color: 'white', paddingBottom: '7px', paddingTop: '2px' }}>
-            <i>CIVE-FIP@2021</i>
+  return (
+    <Router>
+      <div className="main-page-container" style={{height: '100vh', overflowY: 'hidden'}}>
+        <Header changeCollapse={changeCollapse} />
+        <Sidebar {...sidebarProps}>
+          <div style={{border: 'none', padding: 'none'}}>
+            <Card.Body style={{overflowY: 'auto', maxHeight: '90vh', padding: 0, border: 'none'}}>
+              {activeContents}
+            </Card.Body>
+            <div style={{ backgroundColor: '#2F4050', textAlign: 'center', color: 'white', paddingBottom: '7px', paddingTop: '2px' }}>
+              <i>CIVE-FIP@2021</i>
+            </div>
           </div>
-        </div>
-      </Sidebar>
-    </div> </Router>
+        </Sidebar>
+      </div>
+    </Router>
     );
   }
 

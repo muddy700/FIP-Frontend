@@ -28,6 +28,11 @@ Done
 
     6/6/2021
 1. Allowed Alumni To Add And Delete Their Skills
+2. Added Ranker Modules And Allow Him/Her To Add Organizations
+
+    7/6/2021
+1. Added Default Profile Image For Users With No Images In Their Profiles.(Ranker and Organization)
+2. 
 
 
 Planned
@@ -50,8 +55,10 @@ Planned
 16. Change Input Type From month with year to only year in CV-Education Time Period
 17. Allow Coordinator To Upload List Of Graduates ie.. Using Excel With The Same Name In DB
 18. Think On How To Achieve Interoperability
-19. Display Preview Only For Openned Accordion Form 
+//19. Display Preview Only For Openned Accordion Form 
 20. Allow Alumni To Delete Certificate Or Any Other Data In Cv List
 21. Handle Profile Error For New Organizations Which Doesnt Have Profiles Yet.
 22. Handle Alumni Skills In Cv Page When Saving Selected SKills(The Remaining Checks Auto)
 23. Reference Part In CV Can Be Replaced By UDOM??
+24.  Validate Selected File If Its An Image Or Pdf
+//25. Add Organization box address when creating Account

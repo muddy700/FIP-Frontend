@@ -2,10 +2,10 @@ import baseLink from './base'
 import  axios from 'axios'
 
 // User APIs
-// export async function createUser(payload) {
-//     const response = await baseLink.post("register/", payload )
-//     return response.data
-// }
+export async function createUser(payload) {
+    const response = await baseLink.post("register/", payload )
+    return response.data
+}
 
 export async function authenticateUser(payload) {
     const response = await baseLink.post("login/", payload)
@@ -34,6 +34,11 @@ export async function getUserProfile(config) {
 
 export async function editUserProfile(profileId, payload, config) {
     const response = await baseLink.put(`users_profiles/${profileId}/`, payload, config)
+    return response.data
+}
+
+export async function createUserProfile(payload, config) {
+    const response = await baseLink.post('users_profiles/', payload, config)
     return response.data
 }
 
@@ -260,6 +265,11 @@ export async function getProcessedApplications(organizationId, config) {
 
 export async function getProfessions(config) {
     const response = await baseLink.get("professions/", config)
+    return response.data
+}
+
+export async function createOrganizationProfile(payload, config) {
+    const response = await baseLink.post("organization_profile/", payload, config)
     return response.data
 }
 
