@@ -13,20 +13,27 @@ import { findAllByDisplayValue } from '@testing-library/dom';
 
 function PublishedAlumniPage() {
 
-const desc = ['terrible', 'bad', 'normal', 'good', 'wonderful'];
+    const desc = ['terrible', 'bad', 'normal', 'good', 'wonderful'];
+    // const years = ['2016', '2017', '2018', '2019', '2020']
 
 
     const config = useSelector(apiConfigurations)
     const user = useSelector(selectUserData)
+
+    //Original States Of Data
     const [publishedAlumni, setPublishedAlumni] = useState([])
     const [allProjects, setAllProjects] = useState([])
     const [allAlumniSkills, setAllAlumniSkills] = useState([])
     const [allRatings, setAllRatings] = useState([])
 
+    //Filter Values
+    const [filteredArray, setFilteredArray] = useState([])
+
     const getPublishedAlumni = async () => {
         try {
             const response = await fetchPublishedAlumni(config)
             setPublishedAlumni(response)
+            setFilteredArray(response)
         } catch (error) {
            console.log('Get Published Alumnik ', error.reponse.data) 
         }
@@ -35,9 +42,10 @@ const desc = ['terrible', 'bad', 'normal', 'good', 'wonderful'];
     const getAllProjects = async () => {
         try {
             const response = await fetchAllProjects(config)
-            setAllProjects(response)
+            const recommended_projects = response.filter(item => item.project_recommendation_status)
+            setAllProjects(recommended_projects)
         } catch (error) {
-            console.log('Get All Projects')
+            console.log('Get Recommended Projects')
         }
     }
 
@@ -66,6 +74,22 @@ const desc = ['terrible', 'bad', 'normal', 'good', 'wonderful'];
         getAllRatings()
     }, [])
 
+    const filterByGpa = (e) => {
+        const gpaPoints = e.target.value;
+        const qualifiedAlumni = publishedAlumni.filter(item => item.gpa >= gpaPoints)
+        setFilteredArray(qualifiedAlumni)
+    }
+
+    const filterByCompletionYear = (e) => {
+        const year = e.target.value;
+        const qualifiedAlumni = publishedAlumni.filter(item => item.completion_year === year)
+        if (!year) setFilteredArray(publishedAlumni)
+        else setFilteredArray(qualifiedAlumni)
+    }
+
+    const filterByNumberOfProjects = () => {
+      
+    }
 
     return (
     <Card >
@@ -74,12 +98,29 @@ const desc = ['terrible', 'bad', 'normal', 'good', 'wonderful'];
         </Card.Header>
             <Card.Body style={{ overflowX: 'scroll' }}  >
                 <Row style={{ marginBottom: '16px' }}>
-                    <span style={{width: '80%'}}>
-                        <Button>Filter By Projects</Button> &nbsp;
-                        <Button>Filter By Skills</Button> &nbsp;
-                        <Button>Filter By GPA</Button> &nbsp;
+                    <span style={{width: '80%', display: 'flex'}}>
+                        <Button
+                            onClick={e => {
+                                e.preventDefault();
+                                filterByNumberOfProjects()
+                            }}>By Number Of Projects</Button> &nbsp;
+                        <Button>By Skills</Button> &nbsp;
+                        <Form.Control 
+                            size="md"
+                            type="number"
+                            style={{width: '15%'}}
+                            placeholder='enter year'
+                            onChange={filterByCompletionYear}>
+                        </Form.Control>
+                        <Form.Control 
+                            size="md"
+                            type="number"
+                            style={{width: '15%'}}
+                            placeholder='enter gpa'
+                            onChange={filterByGpa}>
+                        </Form.Control>
                     </span>
-                    <InputGroup style={{width: '20%',}}>
+                    {/* <InputGroup style={{width: '20%',}}>
                         <FormControl
                         placeholder="Type To Search"
                         aria-label="Message Content"
@@ -90,48 +131,50 @@ const desc = ['terrible', 'bad', 'normal', 'good', 'wonderful'];
                                 <Icon glyph="search" size={20} />
                             </Button>
                         </InputGroup.Append>
-                    </InputGroup>
+                    </InputGroup> */}
                 </Row>
-                {/* {publishedAlumni.map(person => (
-                    <h5 key={person.id}>{person.registration_number}</h5>
-                ))} */}
-                <Row style={{ marginBottom: '16px' }}>
+                <Row style={{ marginBottom: '16px'}}>
                 <List
-                    itemLayout="vertical"
+                        itemLayout="vertical"
+                        style={{width: '100%'}}
                     size="small"
                     pagination={{ pageSize: 5, }}
-                    dataSource={publishedAlumni}
+                    dataSource={filteredArray}
                     renderItem={profile => (
                         <List.Item
                             key={profile.id}
                             className="list-items"
                             style={{padding: 0,}}
                         >
-                            {/* <List.Item.Meta
-                                title={<h5><Button variant="link"
-                                        >{profile.registration_number}
-                                        </Button></h5>}
-                            /> */}
                             <Row
                                 style={{
                                     // border: '1px solid blue',
                                     borderRadius: '5px',
                                     backgroundColor: 'lightgray',
                                     width: '98%',
-                                    paddingLeft: '3%',
+                                    padding: '1% 3%',
                                     margin: '1% 1%',
                                 }}>
-                                <span style={{width: '100%'}}>Name: &nbsp; {profile.registration_number} </span>
-                                <span style={{width: '100%'}}> &nbsp; Program: {profile.degree_program} </span>
-                                <span style={{width: '100%'}}> &nbsp; Completion Year: {profile.completion_year} </span>
-                                <span style={{width: '100%'}}> &nbsp; Number of projects: {allProjects.filter(item => (item.member === profile.alumni && item.project_recommendation_status)).length} </span>
-                                <span style={{width: '100%'}}> &nbsp; GPA: {profile.gpa} </span>
-                                <span style={{ width: '100%' }}> &nbsp; Skills: <ol>{allAlumniSkills.filter(item => item.alumni === profile.alumni).map(skill => (
+                                <span style={{ width: '100%' }}><b>Name :</b> &nbsp; {profile.first_name} {profile.last_name} </span>
+                                <Col md={4}>
+                                    <span><b>Program :</b> {profile.degree_program} </span><br />
+                                    <span ><b>Completion Year :</b> {profile.completion_year} </span> <br />
+                                    <span ><b>Number of projects:</b> {allProjects.filter(item => (item.member === profile.alumni)).length} </span> <br />
+                                    <span ><b>GPA: </b>{profile.gpa} </span>
+                                </Col>
+                                <Col md={4}>
+                                <span><b>Skills: </b><ol>{allAlumniSkills.filter(item => item.alumni === profile.alumni).map(skill => (
                                     <li>{skill.profession_name}</li>))}</ol> </span>
-                                <span style={{ width: '100%' }}> &nbsp; Ratings: <ol>{allRatings.filter(rate => rate.alumni === profile.alumni).map(item => (
-                                    <li>{item.organization_name} : {desc[item.value - 1 ]}</li>
+                                     </Col>
+                                <Col md={4}>
+                                    <span style={{ width: '100%' }}>
+                                        <b>Ratings: </b>
+                                        <span>{allRatings.filter(rate => rate.alumni === profile.alumni).length === 0 ? 'No ratings yet' : ''}</span>
+                                        <ol>{allRatings.filter(rate => rate.alumni === profile.alumni)
+                                            .map(item => (<li>{item.organization_name} : <i>{desc[item.value - 1 ]}</i></li>
                                 ))} </ol></span>
-                                <Link to={{pathname: "/post_details", postId:profile.id, }}>
+                                 </Col>
+                                <Link style={{marginLeft: '85%'}} to={{pathname: `/alumni/${profile.alumni}/details` }}>
                                     <Button variant="link" >More Details</Button>
                                 </Link>
                             </Row>

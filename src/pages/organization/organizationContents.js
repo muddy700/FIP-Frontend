@@ -16,6 +16,7 @@ import InternshipReports from './internshipReports';
 import PostApplicants from './post_applicants';
 import ApprovedAlumni from './approvedPage';
 import PublishedAlumniPage from './publishedAlumniPage';
+import AlumniDetailsPage from './alumniDetailsPage';
 
 const OrganizationContents = () => {
 
@@ -27,6 +28,9 @@ const OrganizationContents = () => {
               </Route>
             <Route exact path="/published_alumni">
                 <PublishedAlumniPage />
+              </Route>
+            <Route exact path="/alumni/:id/details">
+                <AlumniDetailsPage />
               </Route>
             <Route exact path="/field_applications">
                 <FieldApplications />
