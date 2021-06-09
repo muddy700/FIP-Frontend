@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { Card, Row, Col, Button, Accordion, Form, Alert } from 'react-bootstrap'
 import Message from '../../components/message'
 import dpPlaceHolder from '../../images/default-for-user.png'
+import ContentModal from '../../components/contentModal'
 
 const AlumniDetailsPage = () => {
     
@@ -22,7 +23,13 @@ const AlumniDetailsPage = () => {
     const [alumniRatings, setAlumniRatings] = useState([])
     const [activeInfo, setActiveInfo] = useState(0)
     const [alumniProjects, setAlumniProjects] = useState([])
+    const [selectedCertificateInfo, setSelectedCertificateInfo] = useState({})
+    const [selectedProject, setSelectedProject] = useState({})
+    const [showModal, setShowModal] = useState(false)
+
     const desc = ['terrible', 'bad', 'normal', 'good', 'wonderful'];
+    const [modalTitle, setModalTitle] = useState('')
+    const [modalContent, setModalContent] = useState('')
 
 
     const getProfile = async () => {
@@ -122,12 +129,21 @@ const AlumniDetailsPage = () => {
 
     }, [])
 
+    const closeModal = () => {
+        setShowModal(false)
+        setModalContent('')
+        setModalTitle('')
+    }
+
     return (
         <Card>
-            <Row style={{padding: '1% 2%'}}>
-                <Message variant="info">Alumni Details</Message>
-            </Row>
-            <Row style={{padding: '1% 2%'}}>
+            <Card.Header style={{padding: '1% 2% 0px 2%', width: '100%'}}>
+                <Message variant="info">
+                    Alumni Details
+                    <Button style={{marginLeft: '70%',}}>Invite this alumni</Button>
+                </Message>
+            </Card.Header>
+            <Row style={{padding: '0px 2% 0px 2%'}}>
                 <Col md={4}>
                     <Card>
                         <Card.Header style={{backgroundColor: 'lightslategray'}}>
@@ -181,7 +197,11 @@ const AlumniDetailsPage = () => {
                 </Col>
                 <Col>
                     <Card>
-                        <Card.Header style={{ backgroundColor: 'lightslategray' }}>Preview</Card.Header>
+                        <Card.Header style={{ backgroundColor: 'lightslategray' }}>
+                            Preview
+                {/* <Button size="sm" style={{marginLeft: '40%'}}>Invite</Button> */}
+                             
+                            </Card.Header>
                         <Card.Body>
                             {activeInfo === 0 ?
                             <Message variant="info" >Select information category to preview</Message> :
@@ -352,10 +372,31 @@ const AlumniDetailsPage = () => {
                                             <b>PROJECTS</b>}
                                         </Row>
                                         {alumniProjects.map((info, index )=> (
-                                        <Row key={info.id} >
-                                            <Card style={{ border: 'none', paddingLeft: '20px', width: '100%' }}>
+                                            <Row
+                                                key={info.id}
+                                                onMouseEnter={e => { e.preventDefault(); setSelectedProject(info) }}
+                                                onMouseLeave={e => { e.preventDefault(); setSelectedProject({}) }}
+                                                style={{ marginBottom: '2%' }}
+                                            >
+                                            <Card style={{ border: 'none', paddingLeft: '20px', width: '100%', }}>
                                                 <Row style={{width: '100%'}}>
                                                     <i>Project {index + 1}</i>
+                                                <Button
+                                                    hidden={info.id !== selectedProject.id}
+                                                    onClick={e => {
+                                                        e.preventDefault();
+                                                        setShowModal(true)
+                                                        // setModalTitle(item.name)
+                                                        setModalContent(<object
+                                                            type="application/pdf"
+                                                            data={`https://res.cloudinary.com/muddy700/raw/upload/v1/${info.project_report}`}
+                                                            width="100%"
+                                                            height="500px"
+                                                        >{info.project_title}</object>)
+                                                    }}
+                                                    size="sm"
+                                                    style={{marginLeft: '75%'}}
+                                                >view File</Button>
                                                 </Row>
                                                 <Row >
                                                     <Col md={4}><small><b>Title</b></small></Col>
@@ -369,11 +410,7 @@ const AlumniDetailsPage = () => {
                                                     <Col md={4}><small><b>Sponsor</b></small></Col>
                                                     <Col ><small>{info.project_sponsor}</small></Col>
                                                 </Row>
-                                                <Row >
-                                                    <Col md={4}><small><b>Title</b></small></Col>
-                                                    <Col ><small>{info.project_title}</small></Col>
-                                                </Row>
-                                                
+                                                    <hr style={{ borderTop: '1px solid black' }}/>
                                             </Card>
                                         </Row>))}
 
@@ -382,30 +419,35 @@ const AlumniDetailsPage = () => {
                                     {/* Certificate Info */}
 
                                     <Card hidden={activeInfo !== 6} style={{paddingLeft: '3%', border: 'none'}}>
-                                        <Row >{alumniSkills.length === 0 ?
+                                        <Row >{alumniCertificates.length === 0 ?
                                             <Message variant="info">No certification informations yet </Message> :
                                             <b>CERTIFICATES</b>}
                                         </Row>
                                 {alumniCertificates.map((item, index) => (
                                     <Row
                                         key={item.id}
-                                        // onMouseEnter={e => { e.preventDefault(); setselectedCertificateInfo(item) }}
-                                        // onMouseLeave={e => { e.preventDefault(); setselectedCertificateInfo({}) }}
+                                        onMouseEnter={e => { e.preventDefault(); setSelectedCertificateInfo(item) }}
+                                        onMouseLeave={e => { e.preventDefault(); setSelectedCertificateInfo({}) }}
                                     >
                                         <Card style={{ border: 'none', paddingLeft: '20px', width: '100%' }}>
                                             <Row style={{width: '100%'}}>
                                                 <i>Certificate {index + 1}</i>
                                                 <Button
-                                                    // hidden={item.id !== selectedCertificateInfo.id}
-                                                    // onClick={e => {
-                                                    //     e.preventDefault();
-                                                    //     setCertificateInfo(selectedCertificateInfo);
-                                                    //     setisEditingCertificateInfo(true);
-                                                    //     setHasCertificateInfoSaved(false)
-                                                    // }}
+                                                    hidden={item.id !== selectedCertificateInfo.id}
+                                                    onClick={e => {
+                                                        e.preventDefault();
+                                                        setShowModal(true)
+                                                        setModalTitle(item.name)
+                                                        setModalContent(<object
+                                                            type="application/pdf"
+                                                            data={item.certificate_file}
+                                                            width="100%"
+                                                            height="500px"
+                                                        >{item.name}</object>)
+                                                    }}
                                                     size="sm"
                                                     style={{marginLeft: '75%'}}
-                                                >view</Button>
+                                                >view File</Button>
                                             </Row>
                                             <Row >
                                                 <Col md={4}><small><b>Name</b></small></Col>
@@ -442,6 +484,14 @@ const AlumniDetailsPage = () => {
                     </Card>
                 </Col>
             </Row>
+            <ContentModal
+                show={showModal}
+                isTable={false}
+                // title={modalTitle}
+                content={modalContent}
+                onHide={() => closeModal()}
+        />
+
         </Card>
     )
 }
