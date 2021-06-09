@@ -6,7 +6,7 @@ import { Button, Row, Col, Card, InputGroup, FormControl, Form, Tooltip } from '
 import Message from '../../components/message'
 import { Link } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
-import { fetchAllProjects, fetchPublishedAlumni, fetchAllAlumniSkills, fetchAllRatings } from '../../app/api';
+import { fetchAllProjects, fetchPublishedAlumni, fetchAllAlumniSkills, fetchAllRatings, fetchAllSkills } from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 import { findAllByDisplayValue } from '@testing-library/dom';
@@ -25,6 +25,7 @@ function PublishedAlumniPage() {
     const [allProjects, setAllProjects] = useState([])
     const [allAlumniSkills, setAllAlumniSkills] = useState([])
     const [allRatings, setAllRatings] = useState([])
+    const [allSkills, setAllSkills] = useState([])
 
     //Filter Values
     const [filteredArray, setFilteredArray] = useState([])
@@ -67,11 +68,21 @@ function PublishedAlumniPage() {
         }
     }
 
+    const getAllSkills = async () => {
+        try {
+            const response = await fetchAllSkills(config)
+            setAllSkills(response)
+        } catch (error) {
+            console.log('Get All Skills')
+        }
+    }
+
     useEffect(() => {
         getPublishedAlumni();
         getAllProjects();
         getAllAlumniSkills();
-        getAllRatings()
+        getAllRatings();
+        getAllSkills()
     }, [])
 
     const filterByGpa = (e) => {
@@ -88,55 +99,99 @@ function PublishedAlumniPage() {
     }
 
     const filterByNumberOfProjects = () => {
-      
+        let mergedArray = [];
+
+      for(let i = 0; i < publishedAlumni.length; i++) {
+          let alu = publishedAlumni[i];
+
+          let alumni_projects = allProjects.filter(item => item.member === alu.alumni)
+
+          if (alumni_projects && alumni_projects.length) {
+              alu = { ...publishedAlumni[i], projects: [...alumni_projects ] }
+          }
+          mergedArray.push(alu)
+        }
+        // console.log(mergedArray)
+        const sortedArray = mergedArray.slice().sort((a, b) => b.projects.length - a.projects.length)
+        setFilteredArray(sortedArray)
+    }
+
+    const filterBySkills = (e) => {
+        const skillId = e.target.value;
+        if (skillId === 'all') {
+            setFilteredArray(publishedAlumni)
+        }
+        else {
+            let mergedArray = [];
+
+            for (let i = 0; i < publishedAlumni.length; i++) {
+                let alu = publishedAlumni[i];
+
+                let alumni_skills = allAlumniSkills.filter(item => item.alumni === alu.alumni)
+
+                if (alumni_skills && alumni_skills.length) {
+                    alu = { ...publishedAlumni[i], skills: [...alumni_skills] }
+                }
+                mergedArray.push(alu)
+            }
+
+            let filtered_alumni = [];
+            for (let j = 0; j < mergedArray.length; j++) {
+                let hasSkill = '';
+                hasSkill = mergedArray[j].skills.find(skill => skill.profession === parseInt(skillId));
+                if (hasSkill) {
+                    filtered_alumni.push(mergedArray[j])
+                }
+                else {
+                    console.log('no skills')
+                }
+            }
+            setFilteredArray(filtered_alumni)
+        }
     }
 
     return (
     <Card >
         <Card.Header >
-          <Message variant='info' >Currently Published Alumni</Message>
+                <Message variant='info' >{publishedAlumni.length !== 0 ? 'Currently Published Alumni' : 'No Published Alumni Yet'}</Message>
         </Card.Header>
             <Card.Body style={{ overflowX: 'scroll' }}  >
-                <Row style={{ marginBottom: '16px' }}>
-                    <span style={{width: '80%', display: 'flex'}}>
+                <Row style={{ marginBottom: '16px', paddingLeft: '1%' }}>
                         <Button
                             onClick={e => {
                                 e.preventDefault();
                                 filterByNumberOfProjects()
-                            }}>By Number Of Projects</Button> &nbsp;
-                        <Button>By Skills</Button> &nbsp;
+                            }}>sort by number of projects</Button> &nbsp; &nbsp; 
+                        <Form.Control as="select"
+                            size="md"
+                            style={{width: '20%'}}
+                            onChange={filterBySkills}>
+                            <option value="all">--filter by Skills--</option>
+                            {allSkills.map(skill => (
+                                <option value={skill.id}>{skill.profession_name} </option>
+                            ))}
+                        </Form.Control> &nbsp; &nbsp; 
                         <Form.Control 
                             size="md"
                             type="number"
-                            style={{width: '15%'}}
-                            placeholder='enter year'
+                            style={{width: '25%'}}
+                            placeholder='filter by completion year'
                             onChange={filterByCompletionYear}>
-                        </Form.Control>
+                        </Form.Control> &nbsp; &nbsp; 
                         <Form.Control 
                             size="md"
                             type="number"
-                            style={{width: '15%'}}
-                            placeholder='enter gpa'
+                            style={{width: '20%'}}
+                            placeholder='filter by gpa'
                             onChange={filterByGpa}>
                         </Form.Control>
-                    </span>
-                    {/* <InputGroup style={{width: '20%',}}>
-                        <FormControl
-                        placeholder="Type To Search"
-                        aria-label="Message Content"
-                        aria-describedby="basic-addon2"
-                        />
-                        <InputGroup.Append>
-                            <Button variant="outline-primary">
-                                <Icon glyph="search" size={20} />
-                            </Button>
-                        </InputGroup.Append>
-                    </InputGroup> */}
                 </Row>
-                <Row style={{ marginBottom: '16px'}}>
+                <Row style={{ marginBottom: '16px' }}>
+                    <Row style={{marginLeft: '35%'}}>{filteredArray.length === 0 ?
+                        <Message variant="info">No data matched your filter</Message> : ''}</Row>
                 <List
-                        itemLayout="vertical"
-                        style={{width: '100%'}}
+                    itemLayout="vertical"
+                    style={{width: '100%'}}
                     size="small"
                     pagination={{ pageSize: 5, }}
                     dataSource={filteredArray}

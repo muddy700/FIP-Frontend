@@ -1,8 +1,11 @@
 import React, {useState, useEffect} from 'react'
 import { useParams } from 'react-router-dom'
-import { fetchAllRatings, fetchAlumniCertificates, fetchAlumniSkills, fetchCvEducationInfo, fetchCvExperienceInfo, fetchCvPersonalInfo, getAlumniProfile, } from '../../app/api'
+import { fetchAllRatings, fetchAlumniCertificates, fetchalumniProjects, fetchAlumniSkills, fetchCvEducationInfo, fetchCvExperienceInfo, fetchCvPersonalInfo, getAlumniProfile, } from '../../app/api'
 import { selectUserData, saveUser, apiConfigurations } from '../../slices/userSlice'
-import { useSelector, useDispatch}  from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
+import { Card, Row, Col, Button, Accordion, Form, Alert } from 'react-bootstrap'
+import Message from '../../components/message'
+import dpPlaceHolder from '../../images/default-for-user.png'
 
 const AlumniDetailsPage = () => {
     
@@ -11,12 +14,16 @@ const AlumniDetailsPage = () => {
     const config = useSelector(apiConfigurations)
 
     const [alumniProfile, setAlumniProfile] = useState({})
-    const [alumniPersonaInfo, setAlumniPersonaInfo] = useState({})
+    const [alumniPersonalInfo, setAlumniPersonalInfo] = useState({})
     const [alumniEducationInfo, setAlumniEducationInfo] = useState([])
     const [alumniExperienceInfo, setAlumniExperienceInfo] = useState([])
     const [alumniCertificates, setAlumniCertificates] = useState([])
     const [alumniSkills, setAlumniSkills] = useState([])
     const [alumniRatings, setAlumniRatings] = useState([])
+    const [activeInfo, setActiveInfo] = useState(0)
+    const [alumniProjects, setAlumniProjects] = useState([])
+    const desc = ['terrible', 'bad', 'normal', 'good', 'wonderful'];
+
 
     const getProfile = async () => {
         try {
@@ -30,10 +37,11 @@ const AlumniDetailsPage = () => {
         }
     }
 
-    const getPersonalInfo = async () => {
+    const getalumniPersonalInfo = async () => {
         try {
             const response = await fetchCvPersonalInfo(alumniId, config)
-            setAlumniPersonaInfo(response[0])
+            // console.log(response)
+            setAlumniPersonalInfo(response[0])
         } catch (error) {
             console.log({
                 'Request': 'Get Published Alumni Personal Info Request',
@@ -88,21 +96,353 @@ const AlumniDetailsPage = () => {
         }
     }
 
+      const getProjects = async () => {
+    
+    try {
+        const response = await fetchalumniProjects(alumniId, config)
+        const recommended_projects = response.filter(item => item.project_recommendation_status)
+      setAlumniProjects(recommended_projects)
+    } catch (error) {
+      console.log({
+        'Request': 'Get Published Alumni Projects Request',
+        'Error => ' : error.response.data,
+      })
+    }
+    }
+    
     useEffect(() => {
         getProfile();
-        getPersonalInfo();
+        getalumniPersonalInfo();
         getEducationInfo();
         getExperienceInfo();
         getCertificates();
         getSkills();
         getRatings();
+        getProjects();
 
     }, [])
 
     return (
-        <div>
-            <h1>Alumni Info {alumniId}</h1>
-        </div>
+        <Card>
+            <Row style={{padding: '1% 2%'}}>
+                <Message variant="info">Alumni Details</Message>
+            </Row>
+            <Row style={{padding: '1% 2%'}}>
+                <Col md={4}>
+                    <Card>
+                        <Card.Header style={{backgroundColor: 'lightslategray'}}>
+                            <b>Information Category</b>
+                        </Card.Header>
+                        <Card.Body>
+                            <Button
+                                variant="link"
+                                style={{ marginBottom: '2%', height: '50px', color: 'black', backgroundColor: 'lightgray', width: '100%' }}
+                                onClick={e => { e.preventDefault(); setActiveInfo(1)}}
+                            > Personal Informations
+                            </Button>
+                            <Button
+                                variant="link"
+                                style={{ marginBottom: '2%', height: '50px', color: 'black', backgroundColor: 'lightgray', width: '100%' }}
+                                onClick={e => { e.preventDefault(); setActiveInfo(2)}}
+                            > Education Informations
+                            </Button>
+                            <Button
+                                variant="link"
+                                style={{ marginBottom: '2%', height: '50px', color: 'black', backgroundColor: 'lightgray', width: '100%' }}
+                                onClick={e => { e.preventDefault(); setActiveInfo(3)}}
+                            > Experience Informations
+                            </Button>
+                            <Button
+                                variant="link"
+                                style={{ marginBottom: '2%', height: '50px', color: 'black', backgroundColor: 'lightgray', width: '100%' }}
+                                onClick={e => { e.preventDefault(); setActiveInfo(4)}}
+                            > Skills Informations
+                            </Button>
+                            <Button
+                                variant="link"
+                                style={{ marginBottom: '2%', height: '50px', color: 'black', backgroundColor: 'lightgray', width: '100%' }}
+                                onClick={e => { e.preventDefault(); setActiveInfo(5)}}
+                            > Projects
+                            </Button>
+                            <Button
+                                variant="link"
+                                style={{ marginBottom: '2%', height: '50px', color: 'black', backgroundColor: 'lightgray', width: '100%' }}
+                                onClick={e => { e.preventDefault(); setActiveInfo(6)}}
+                            > Certifications
+                            </Button>
+                            <Button
+                                variant="link"
+                                style={{ marginBottom: '2%', height: '50px', color: 'black', backgroundColor: 'lightgray', width: '100%' }}
+                                onClick={e => { e.preventDefault(); setActiveInfo(7)}}
+                            > Ratings
+                            </Button>
+                        </Card.Body>
+                    </Card>
+                </Col>
+                <Col>
+                    <Card>
+                        <Card.Header style={{ backgroundColor: 'lightslategray' }}>Preview</Card.Header>
+                        <Card.Body>
+                            {activeInfo === 0 ?
+                            <Message variant="info" >Select information category to preview</Message> :
+                                <Card.Body>
+                                    
+                                    {/* Personal Particulars */}
+                                    {alumniPersonalInfo ? <>
+                                    <Row hidden={activeInfo !== 1}>
+                                        <Col md={3}>
+                                            <Card.Img
+                                                src={alumniPersonalInfo ? alumniPersonalInfo.cv_image : dpPlaceHolder}
+                                                style={{ width: '70px', height: '70px' }}></Card.Img>
+                                        </Col>
+                                        <Col>
+                                            <Card.Title>{alumniPersonalInfo.first_name} {alumniPersonalInfo.middle_name} {alumniPersonalInfo.last_name}</Card.Title>
+                                            {/* <i>Curriculum Vitae</i> */}
+                                        </Col>
+                                    </Row>
+                                    <Card style={{ border: 'none', paddingTop: '5%' }} hidden={activeInfo !== 1}>
+                                        <Row>
+                                            <b>PERSONAL PARTICULARS</b><hr />
+                                        </Row>
+                                        <Row>
+                                            <Card style={{ border: 'none', width: '100%', paddingLeft: '5%' }}>
+                                                <Row >
+                                                    <Col md={4}><small><b>First Name</b></small></Col>
+                                                    <Col><small>{alumniPersonalInfo.first_name}</small></Col>
+                                                </Row>
+                                                <Row >
+                                                    <Col md={4}><small><b>Middle Name</b></small></Col>
+                                                    <Col><small>{alumniPersonalInfo.middle_name}</small></Col>
+                                                </Row>
+                                                <Row >
+                                                    <Col md={4}><small><b>Last Name</b></small></Col>
+                                                    <Col><small>{alumniPersonalInfo.last_name}</small></Col>
+                                                </Row>
+                                                <Row >
+                                                    <Col md={4}><small><b>Phone</b></small></Col>
+                                                    <Col><small>{alumniPersonalInfo.alumni_phone_number}</small></Col>
+                                                </Row>
+                                                <Row >
+                                                    <Col md={4}><small><b>Email</b></small></Col>
+                                                    <Col><small>{alumniPersonalInfo.email}</small></Col>
+                                                </Row>
+                                                <Row >
+                                                    <Col md={4}><small><b>Date of Birth</b></small></Col>
+                                                    <Col><small>{alumniPersonalInfo.date_of_birth}</small></Col>
+                                                </Row>
+                                                <Row >
+                                                    <Col md={4}><small><b>Nationality</b></small></Col>
+                                                    <Col><small>{alumniPersonalInfo.nationality}</small></Col>
+                                                </Row>
+                                                <Row >
+                                                    <Col md={4}><small><b>Country</b></small></Col>
+                                                    <Col><small>{alumniPersonalInfo.country}</small></Col>
+                                                </Row>
+                                                <Row >
+                                                    <Col md={4}><small><b>City</b></small></Col>
+                                                    <Col><small>{alumniPersonalInfo.city}</small></Col>
+                                                </Row>
+                                            </Card>
+                                        </Row>
+                                    </Card></> : <span hidden={activeInfo !== 1}>
+                                    <Message variant="info">No personal informations yet </Message> </span>}
+
+                                    {/* Education info */}
+                                    <Card hidden={activeInfo !== 2} style={{paddingLeft: '3%', border: 'none'}}>
+                                        <Row >{alumniEducationInfo.length === 0 ?
+                                            <Message variant="info">No education informations yet </Message> :
+                                            <b>EDUCATION BACKGROUND</b>}
+                                        </Row>
+                                        {alumniEducationInfo.map((info, index )=> (
+                                        <Row key={info.id} >
+                                            <Card style={{ border: 'none', paddingLeft: '20px', width: '100%' }}>
+                                                <Row style={{width: '100%'}}>
+                                                    <i>Level {index + 1}</i>
+                                                </Row>
+                                                <Row >
+                                                    <Col md={4}><small><b>Institution</b></small></Col>
+                                                    <Col ><small>{info.institution}</small></Col>
+                                                </Row>
+                                                <Row >
+                                                    <Col md={4} ><small><b>Level</b></small></Col>
+                                                    <Col ><small>{info.education_level}</small></Col>
+                                                </Row>
+                                                <Row >
+                                                    <Col md={4} ><small><b>From</b></small></Col>
+                                                    <Col><small>{info.start_year}</small></Col>
+                                                </Row>
+                                                <Row >
+                                                    <Col md={4} ><small><b>To</b></small></Col>
+                                                    <Col><small>{info.completion_year}</small></Col>
+                                                </Row>
+                                            </Card>
+                                        </Row>))}
+                                    </Card>
+                                    
+                                    {/* Experience Info */}
+                                    <Card hidden={activeInfo !== 3} style={{paddingLeft: '3%', border: 'none'}}>
+                                        <Row >{alumniExperienceInfo.length === 0 ?
+                                            <Message variant="info">No experience informations yet </Message> :
+                                            <b>EXPERIENCE INFORMATION</b>}
+                                        </Row>
+                                        
+                                {alumniExperienceInfo.map((info, index) => (
+                                    <Row key={info.id} >
+                                        <Card style={{ border: 'none', paddingLeft: '20px', width: '100%' }}>
+                                            <Row style={{width: '100%'}}>
+                                                <i>Experience {index + 1}</i>
+                                            </Row>
+                                            <Row >
+                                                <Col md={4}><small><b>Company</b></small></Col>
+                                                <Col><small>{info.company_name}</small></Col>
+                                            </Row>
+                                            <Row >
+                                                <Col md={4}><small><b>Job Title</b></small></Col>
+                                                <Col><small>{info.job_title}</small></Col>
+                                            </Row>
+                                            <Row >
+                                                <Col md={4}><small><b>City</b></small></Col>
+                                                <Col><small>{info.city}</small></Col>
+                                            </Row>
+                                            <Row >
+                                                <Col md={4}><small><b>Country</b></small></Col>
+                                                <Col><small>{info.country}</small></Col>
+                                            </Row>
+                                            <Row >
+                                                <Col md={4}><small><b>From</b></small></Col>
+                                                <Col><small>{info.start_date}</small></Col>
+                                            </Row>
+                                            <Row >
+                                                <Col md={4}><small><b>To</b></small></Col>
+                                                <Col><small>{info.completion_date}</small></Col>
+                                            </Row>
+                                        </Card>
+                                    </Row>))}
+                                    </Card>
+
+                                    {/* Skills Info */}
+
+                                    <Card hidden={activeInfo !== 4} style={{paddingLeft: '3%', border: 'none'}}>
+                                        <Row >{alumniSkills.length === 0 ?
+                                            <Message variant="info">No skills informations yet </Message> :
+                                            <b>SKILLS INFORMATION</b>}
+                                        </Row>
+                                        <Row>
+                                            <Col md={{span: 12, offset: 0}}>
+                                                <Card style={{border:'none'}} >
+                                                    <Row >
+                                                        <ol style={{ paddingLeft: '5%', width: '100%' }}><small>
+                                                            {alumniSkills.map((skill => (
+                                                                <li key={skill.id}>
+                                                                    <span style={{width: '80%'}}>{skill.profession_name}</span>
+                                                                </li>
+                                                        )))}</small>
+                                                        </ol>
+                                                    </Row>
+                                                </Card>
+                                            </Col>
+                                        </Row>
+                                    </Card>
+
+                                    {/* Projects Info */}
+
+                                    <Card hidden={activeInfo !== 5} style={{paddingLeft: '3%', border: 'none'}}>
+                                        <Row >{alumniProjects.length === 0 ?
+                                            <Message variant="info">No projects informations yet </Message> :
+                                            <b>PROJECTS</b>}
+                                        </Row>
+                                        {alumniProjects.map((info, index )=> (
+                                        <Row key={info.id} >
+                                            <Card style={{ border: 'none', paddingLeft: '20px', width: '100%' }}>
+                                                <Row style={{width: '100%'}}>
+                                                    <i>Project {index + 1}</i>
+                                                </Row>
+                                                <Row >
+                                                    <Col md={4}><small><b>Title</b></small></Col>
+                                                    <Col ><small>{info.project_title}</small></Col>
+                                                </Row>
+                                                <Row >
+                                                    <Col md={4}><small><b>Year</b></small></Col>
+                                                    <Col ><small>{info.project_year}</small></Col>
+                                                </Row>
+                                                <Row >
+                                                    <Col md={4}><small><b>Sponsor</b></small></Col>
+                                                    <Col ><small>{info.project_sponsor}</small></Col>
+                                                </Row>
+                                                <Row >
+                                                    <Col md={4}><small><b>Title</b></small></Col>
+                                                    <Col ><small>{info.project_title}</small></Col>
+                                                </Row>
+                                                
+                                            </Card>
+                                        </Row>))}
+
+
+                                    </Card>
+                                    {/* Certificate Info */}
+
+                                    <Card hidden={activeInfo !== 6} style={{paddingLeft: '3%', border: 'none'}}>
+                                        <Row >{alumniSkills.length === 0 ?
+                                            <Message variant="info">No certification informations yet </Message> :
+                                            <b>CERTIFICATES</b>}
+                                        </Row>
+                                {alumniCertificates.map((item, index) => (
+                                    <Row
+                                        key={item.id}
+                                        // onMouseEnter={e => { e.preventDefault(); setselectedCertificateInfo(item) }}
+                                        // onMouseLeave={e => { e.preventDefault(); setselectedCertificateInfo({}) }}
+                                    >
+                                        <Card style={{ border: 'none', paddingLeft: '20px', width: '100%' }}>
+                                            <Row style={{width: '100%'}}>
+                                                <i>Certificate {index + 1}</i>
+                                                <Button
+                                                    // hidden={item.id !== selectedCertificateInfo.id}
+                                                    // onClick={e => {
+                                                    //     e.preventDefault();
+                                                    //     setCertificateInfo(selectedCertificateInfo);
+                                                    //     setisEditingCertificateInfo(true);
+                                                    //     setHasCertificateInfoSaved(false)
+                                                    // }}
+                                                    size="sm"
+                                                    style={{marginLeft: '75%'}}
+                                                >view</Button>
+                                            </Row>
+                                            <Row >
+                                                <Col md={4}><small><b>Name</b></small></Col>
+                                                <Col><small>{item.name}</small></Col>
+                                            </Row>
+                                            <Row >
+                                                <Col md={4}><small><b>Authority</b></small></Col>
+                                                <Col><small>{item.authority}</small></Col>
+                                            </Row>
+                                        </Card>
+                                    </Row>
+                                ))}
+
+                                    </Card>
+
+                                {/* Ratings */}
+
+                                    <Card hidden={activeInfo !== 7} style={{paddingLeft: '3%', border: 'none'}}>
+                                        <Row >{alumniRatings.length === 0 ?
+                                            <Message variant="info">No ratings informations yet </Message> :
+                                            <b>RATINGS</b>}
+                                        </Row>
+                                        <Row >
+                                    <span style={{ width: '100%' }}>
+                                        <ol>{alumniRatings
+                                            .map(item => (<li>{item.organization_name} : <i>{desc[item.value - 1 ]}</i></li>
+                                ))} </ol></span>
+                                 </Row>
+
+                                    </Card>
+
+                                </Card.Body>}
+                        </Card.Body>
+                    </Card>
+                </Col>
+            </Row>
+        </Card>
     )
 }
 
