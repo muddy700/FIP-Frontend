@@ -42,7 +42,11 @@ Done
     9/6/2021
 1. Allowed Organization To Filter Published Alumni By Skills And Number Of Projects.
 2. Allowed Organization To View Single Published Alumni Details, including CV-Info and Project reports
+3. Allowed Organization To Invite Published Alumni.
+4. Allowed Invited Alumni To Accept Or Reject Invitation
 
+    10/6/2021
+1. Allowed Organization To Add Contract, Extend Contract, Release And Rate On Invited Alumni, 
 
 Planned
 1. Validate All Forms And Provide A Fixed Error Display Area.
@@ -71,3 +75,4 @@ Planned
 23. Reference Part In CV Can Be Replaced By UDOM??
 24.  Validate Selected File If Its An Image Or Pdf
 //25. Add Organization box address when creating Account
+26. When Release Alumni go And Change Finish Date In Contract

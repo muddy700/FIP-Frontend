@@ -2,24 +2,95 @@ import React, {useState, useEffect} from 'react'
 import { Table, Tag, Space } from 'antd';
 import Card   from 'react-bootstrap/Card'
 import Button  from 'react-bootstrap/Button'
+import {Form, Modal}  from 'react-bootstrap'
 import Message from '../../components/message';
 import '../../styles/alumni.css'
 import Icon from 'supercons'
 import ContentModal from '../../components/contentModal';
-import { editInternshipPost, editSingleApplication, getAlumniApplications, getPostSchedule } from '../../app/api';
+import { editInternshipPost, editJobInvitation, editSingleApplication, fetchAlumniInvitations, getAlumniApplications, getPostSchedule } from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import { useSelector, useDispatch}  from 'react-redux'
+import Loader from '../../components/loader';
 
 const ResultsPage = () => {
+
+  const config = useSelector(apiConfigurations)
+  const user = useSelector(selectUserData)
+
   const [modalShow, setModalShow] = useState(false);
   const [alumniApplications, setAlumniApplications] = useState([])
   const [postSchedule, setPostSchedule] = useState({})
-  const config = useSelector(apiConfigurations)
-  const user = useSelector(selectUserData)
   const [selectedApplication, setSelectedApplication] = useState({})
   const [page, setPage] = useState(1)
   const [activeContent, setActiveContent] = useState('schedule')
   
+  const [alumniInvitations, setAlumniInvitations] = useState([])
+  const [page2, setPage2] = useState(1)
+  const [modalShow2, setModalShow2] = useState(false);
+  const [modal2Title, setModal2Title] = useState('')
+  const [modal2Content, setModal2Content] = useState('')
+  const [rejectedInvitation, setRejectedInvitation] = useState({})
+  const [rejectionMessage, setRejectionMessage] = useState('')
+  const [hasAcceptedAny, setHasAcceptedAny] = useState(false)
+  
+  const columns2 = [
+    {
+      title: 'S/No',
+      key: 'index',
+      render: (value, object, index) => (page2 - 1) * 5 + (index + 1),
+    },
+    {
+      title: 'Organization',
+      dataIndex: 'organization_name',
+      key: 'organization',
+      // ellipsis: 'true'
+    },
+  {
+    title: 'Action',
+    // ellipsis: 'true',
+    key: 'action',
+    render: (text, record) => (
+      <Space size="middle">
+          <Button variant="link"
+            size="sm"
+            onClick={e => {
+            e.preventDefault();
+            setModalShow2(true);
+            setModal2Content(record.invitation_message);
+            setModal2Title(`From ${record.organization_name}`)
+          }}>
+          View Message
+          </Button>
+        {record.status !== 'received' || hasAcceptedAny ?
+          <Button
+            variant="link"
+            style={{ color: `${record.status === 'accepted' ? 'green' : 'red'}` }}
+          >{record.status === 'accepted' ? 'Accepted' : record.status === 'rejected' ? 'Rejected' : ''}</Button> : <>
+            <Button variant="link"
+              size="sm"
+              onClick={e => {
+                e.preventDefault();
+                acceptInvitation(record);
+              }}> Accept
+            </Button>
+            <Button variant="link"
+              size="sm"
+              style={{ color: 'red' }}
+              onClick={e => {
+                e.preventDefault();
+                setModalShow2(true)
+                setRejectedInvitation(record);
+              }}>
+              Reject
+          </Button>  </>
+        }
+          
+      </Space>
+    ),
+  },
+    
+  ];
+
   const columns = [
   {
     title: 'S/No',
@@ -106,8 +177,21 @@ const ResultsPage = () => {
     }
   }
 
+  const getAlumniInvitations = async () => {
+    try {
+      const response = await fetchAlumniInvitations(user.userId, config)
+      setAlumniInvitations(response)
+      const has_accepted = response.find(item => item.status === 'accepted')
+      if(has_accepted) setHasAcceptedAny(true)
+    } catch (error) {
+      console.log('Get Alumni Invitations ', error.response.data)
+    }
+  }
+
+
   useEffect(() => {
     fetchAlumniApplications()
+    getAlumniInvitations()
   }, [])
 
   const confirmAttendance = async () => {
@@ -124,6 +208,47 @@ const ResultsPage = () => {
                 'request': 'Confirm Applicant Attendance Request',
                 'Error => ': error
             }) }
+  }
+
+
+  const acceptInvitation = async (record) => {
+    const payload = {...record, status: 'accepted' }
+    try {
+      const response = await editJobInvitation(payload, config)
+      // const newInvitationList = alumniInvitations.map(item => item.id === response.id ? response : item)
+      // setAlumniInvitations(newInvitationList)
+      getAlumniInvitations()
+    } catch (error) {
+      console.log('Accepting Job Invitation ', error.response.data)
+    }
+  }
+
+  
+  const rejectInvitation = async () => {
+    const payload = {
+      ...rejectedInvitation,
+      status: 'rejected',
+      rejection_message: rejectionMessage
+    }
+    try {
+      const response = await editJobInvitation(payload, config)
+      getAlumniInvitations()
+      setModalShow2(false)
+      setModal2Content('')
+      setModal2Title('')
+      setRejectedInvitation({})
+      setRejectionMessage('')
+    } catch (error) {
+      console.log('Rejecting Job Invitation ', error.response.data)
+    }
+  }
+
+  const closeModal2 = () => {
+    setModalShow2(false)
+    setModal2Content('')
+    setModal2Title('')
+    setRejectedInvitation({})
+    setRejectionMessage('')
   }
 
   const modalContent = postSchedule.id ?   <>
@@ -156,7 +281,8 @@ const ResultsPage = () => {
   const modalTitle = activeContent === 'instructions' ? 'Reporting Instructions' : "Interview Schedule";
 
   return (
-    <Card >
+    <>
+    <Card style={{marginBottom: '32px'}}>
         <Card.Header >
           <Message variant='info' >Dear {user.username}, You have applied the folloving companies</Message>
         </Card.Header>
@@ -174,7 +300,44 @@ const ResultsPage = () => {
         content={modalContent}
         onHide={() => setModalShow(false)}
       />
-        </Card>
+    </Card>
+    <Card style={{width: '100%'}}>
+        <Card.Header >
+          <Message variant='info' >Dear {user.username}, You have been invited with the following companies</Message>
+        </Card.Header>
+        <Card.Body style={{ overflowX:'scroll'}}  >
+        <Table
+          columns={columns2}
+          dataSource={alumniInvitations}
+          pagination={{ onChange(current) {setPage2(current)}, pageSize: 5 }}
+          column={{ ellipsis: true }} />
+        </Card.Body>
+         <Modal
+                aria-labelledby="contained-modal-title-vcenter"
+                centered
+                show={modalShow2}
+                onHide={() => closeModal2()}
+             >
+          <Modal.Header closeButton >
+            {modal2Title ? modal2Title : 'Enter reason(s) for rejecting this offer(if any)'}</Modal.Header>
+          <Modal.Body>
+            {modal2Content ? modal2Content : <>
+              <Form.Control as="textarea"
+                placeholder="enter reason "
+                value={rejectionMessage}
+                onChange={e => { setRejectionMessage(e.target.value) }}
+                aria-label="With textarea" />
+              <Button
+                variant="primary"
+                // disabled={rejectionMessage === ''}
+                onClick={e => { e.preventDefault(); rejectInvitation() }}
+                style={{ width: '100%', marginTop: '3%' }}>Confirm
+                  </Button> </>}
+                </Modal.Body>
+                        
+              </Modal>
+    </Card>
+  </>
     )
 }
 

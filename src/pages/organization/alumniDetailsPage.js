@@ -1,19 +1,37 @@
 import React, {useState, useEffect} from 'react'
 import { useParams } from 'react-router-dom'
-import { fetchAllRatings, fetchAlumniCertificates, fetchalumniProjects, fetchAlumniSkills, fetchCvEducationInfo, fetchCvExperienceInfo, fetchCvPersonalInfo, getAlumniProfile, } from '../../app/api'
+import {
+    addJobInvitation, fetchOrganizationInvitations,
+    fetchAllRatings, fetchAlumniCertificates,
+    fetchalumniProjects, fetchAlumniSkills, fetchCvEducationInfo,
+    fetchCvExperienceInfo, fetchCvPersonalInfo, getAlumniProfile,
+} from '../../app/api'
 import { selectUserData, saveUser, apiConfigurations } from '../../slices/userSlice'
 import { useSelector, useDispatch } from 'react-redux'
-import { Card, Row, Col, Button, Accordion, Form, Alert } from 'react-bootstrap'
+import { Card, Row, Col, Button, Accordion, Form, Alert, Modal } from 'react-bootstrap'
 import Message from '../../components/message'
 import dpPlaceHolder from '../../images/default-for-user.png'
 import ContentModal from '../../components/contentModal'
+import Loader from '../../components/loader'
 
 const AlumniDetailsPage = () => {
     
     const param = useParams()
     const alumniId = param.id
+    const user = useSelector(selectUserData)
     const config = useSelector(apiConfigurations)
 
+    const initialInvitation = {
+        organization: '',
+        alumni: '',
+        invitation_message: ''
+    }
+
+    const [invitationInfo, setInvitationInfo] = useState(initialInvitation)
+    const [invitationMessage, setInvitationMessage] = useState('')
+    const [isSendingInvitation, setIsSendingInvitation] = useState(false)
+    const [organizationInvitations, setOrganizationInvitations] = useState([])
+    const [hasInvited, setHasInvited] = useState(false)
     const [alumniProfile, setAlumniProfile] = useState({})
     const [alumniPersonalInfo, setAlumniPersonalInfo] = useState({})
     const [alumniEducationInfo, setAlumniEducationInfo] = useState([])
@@ -26,11 +44,12 @@ const AlumniDetailsPage = () => {
     const [selectedCertificateInfo, setSelectedCertificateInfo] = useState({})
     const [selectedProject, setSelectedProject] = useState({})
     const [showModal, setShowModal] = useState(false)
+    const [showModal2, setShowModal2] = useState(false)
 
     const desc = ['terrible', 'bad', 'normal', 'good', 'wonderful'];
     const [modalTitle, setModalTitle] = useState('')
     const [modalContent, setModalContent] = useState('')
-
+    // console.log(invitationInfo)
 
     const getProfile = async () => {
         try {
@@ -43,7 +62,7 @@ const AlumniDetailsPage = () => {
             })
         }
     }
-
+   
     const getalumniPersonalInfo = async () => {
         try {
             const response = await fetchCvPersonalInfo(alumniId, config)
@@ -103,18 +122,29 @@ const AlumniDetailsPage = () => {
         }
     }
 
-      const getProjects = async () => {
+    const getProjects = async () => {
     
-    try {
-        const response = await fetchalumniProjects(alumniId, config)
-        const recommended_projects = response.filter(item => item.project_recommendation_status)
-      setAlumniProjects(recommended_projects)
-    } catch (error) {
-      console.log({
-        'Request': 'Get Published Alumni Projects Request',
-        'Error => ' : error.response.data,
-      })
+        try {
+            const response = await fetchalumniProjects(alumniId, config)
+            const recommended_projects = response.filter(item => item.project_recommendation_status)
+            setAlumniProjects(recommended_projects)
+        } catch (error) {
+            console.log({
+                'Request': 'Get Published Alumni Projects Request',
+                'Error => ' : error.response.data,
+            })
+        }
     }
+    
+    const getOrganizationInvitations = async () => {
+        try {
+            const response = await fetchOrganizationInvitations(user.userId, config)
+            setOrganizationInvitations(response)
+            const has_invited = response.find(item => item.alumni === parseInt(alumniId))
+            if(has_invited) setHasInvited(true)
+        } catch (error) {
+            console.log('Get Organization Invitations', error.response.data)
+        }
     }
     
     useEffect(() => {
@@ -126,6 +156,7 @@ const AlumniDetailsPage = () => {
         getSkills();
         getRatings();
         getProjects();
+        getOrganizationInvitations();
 
     }, [])
 
@@ -135,12 +166,54 @@ const AlumniDetailsPage = () => {
         setModalTitle('')
     }
 
+
+    const handleInvitationForm = (e) => {
+        // console.log(e.target.name, e.target.value)
+        setInvitationInfo({
+            ...invitationInfo,
+            [e.target.name]: e.target.value
+        })
+    }
+
+    const sendInvitation = async (e) => {
+        e.preventDefault()
+        setIsSendingInvitation(true)
+        const payload = {
+            ...invitationInfo,
+            alumni: alumniId,
+            organization: user.userId,
+            invitation_message: invitationInfo.invitation_message
+        }
+
+        try {
+            const response = await addJobInvitation(payload, config)
+            // console.log(payload)
+            setIsSendingInvitation(false)
+            setHasInvited(true)
+            // closeModal()
+            setShowModal2(false)
+            setInvitationInfo(initialInvitation)
+        } catch (error) {
+            console.log('Sending Invitation Info From Organization ', error.response.data)
+            setIsSendingInvitation(false)
+        }
+    }
+
     return (
         <Card>
             <Card.Header style={{padding: '1% 2% 0px 2%', width: '100%'}}>
                 <Message variant="info">
                     Alumni Details
-                    <Button style={{marginLeft: '70%',}}>Invite this alumni</Button>
+                    <Button
+                        hidden={hasInvited}
+                        style={{ marginLeft: '70%', }}
+                        onClick={e => {e.preventDefault(); setShowModal2(true)}}
+                    >Invite this alumni</Button>
+                    <Button
+                        variant="success"
+                        style={{ marginLeft: '70%', }}
+                        hidden={!hasInvited}
+                    >Has already invited</Button>
                 </Message>
             </Card.Header>
             <Row style={{padding: '0px 2% 0px 2%'}}>
@@ -487,13 +560,42 @@ const AlumniDetailsPage = () => {
             <ContentModal
                 show={showModal}
                 isTable={false}
-                // title={modalTitle}
+                title={modalTitle}
                 content={modalContent}
                 onHide={() => closeModal()}
-        />
+            />
 
+            <Modal
+                aria-labelledby="contained-modal-title-vcenter"
+                centered
+                show={showModal2}
+                onHide={() => setShowModal2(false)}
+             >
+                <Modal.Header closeButton >Fill invitation descriptions</Modal.Header>
+                <Modal.Body>
+                    <Form onSubmit={sendInvitation}>
+                            <Form.Control
+                                as="textarea"
+                                placeholder="example, reporting date, reporting instructions, Location "
+                                value={invitationInfo.invitation_message}
+                                onChange={handleInvitationForm}
+                                name="invitation_message"
+                                aria-label="With textarea" />
+                            <Button
+                                disabled={invitationInfo.invitation_message === ''}
+                                variant="primary"
+                                type="submit"
+                                style={{ width: '100%', marginTop: '3%' }}
+                            >{isSendingInvitation ?
+                                <Loader message="Sending Invitation..." /> : 'Send'}
+                            </Button>
+                    </Form>
+                    </Modal.Body>
+                        
+              </Modal>
         </Card>
     )
+    
 }
 
 export default AlumniDetailsPage

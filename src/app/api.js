@@ -307,3 +307,23 @@ export async function getOrganizationProfile(organizationId, config) {
     const response = await baseLink.get(`filter/organization/${organizationId}/profile/`, config)
     return response.data
 }
+
+export async function addJobInvitation(payload, config) {
+    const response = await baseLink.post("job_invitations/", payload, config)
+    return response.data
+}
+
+export async function editJobInvitation(payload, config) {
+    const response = await baseLink.put(`job_invitations/${payload.id}/`, payload, config)
+    return response.data
+}
+
+export async function fetchOrganizationInvitations(organizationId, config) {
+    const response = await baseLink.get(`filter/organization/${organizationId}/invitations/`, config)
+    return response.data
+}
+
+export async function fetchAlumniInvitations(alumniId, config) {
+    const response = await baseLink.get(`filter/alumni/${alumniId}/invitations/`, config)
+    return response.data
+}

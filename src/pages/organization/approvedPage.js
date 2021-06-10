@@ -15,7 +15,10 @@ import {
   getProcessedApplications,
   sendInternshipContract,
   editInternshipContract,
-  sendAlumniRatings
+  sendAlumniRatings,
+  fetchOrganizationInvitations,
+  editJobInvitation,
+  getProfessions
 } from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
@@ -28,6 +31,84 @@ const ApprovedAlumni = () => {
   
   // const location = useLocation();
   const [page, setPage] = useState(1)
+  const [page2, setPage2] = useState(1)
+
+    const columns2 = [
+    {
+      title: 'S/No',
+      key: 'index',
+      render: (value, object, index) => (page2 - 1) * 5 + (index + 1),
+    },
+    {
+      title: 'Alumni',
+      dataIndex: 'alumni_name',
+      key: 'alumni',
+      // ellipsis: 'true'
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'alumni',
+      render: text => <span
+        style={{ color: `${text === 'accepted' ? 'green' : text === 'rejected' ? 'red' : 'black'}` }}>{text}</span>
+      // ellipsis: 'true'
+    },
+  {
+    title: 'Action',
+    // ellipsis: 'true',
+    key: 'action',
+    render: (text, record) => (
+      <Space size="middle">
+        {record.status === 'received' ? '' :
+          record.status === 'rejected' ?
+            <Button
+              variant='link'
+              onClick={e => {
+                e.preventDefault();
+                setModalShow3(true);
+                setRejectionReason(record.rejection_message)
+              }}
+            >View Reason</Button> :
+            record.status === 'accepted' && !record.has_reported ?
+              <Button variant="link"
+                size="sm"
+                onClick={e => {
+                  e.preventDefault();
+                  setModalShow4(true)
+                  setByInvitation(true)
+                  setSelectedInvitation(record)
+                }}
+              > Add Contract </Button> :
+              record.has_reported && record.has_released ?
+                <span style={{ color: 'red' }}>Released</span> :
+              record.status === 'accepted' && record.has_reported ? <>
+              <Popconfirm title="Are you sure？"
+                    onConfirm={e => { e.preventDefault(); releaseAlumni(record) }}>
+                <Button variant="link" size="sm"
+                  >Release
+                </Button>
+              </Popconfirm>
+              <Button variant="link"
+                size="sm"
+                onClick={e => {
+                  e.preventDefault();
+                  selectContract(record.alumni)
+                }}
+              >View Contract</Button>
+              <Button variant="link"
+                size="sm"
+                  onClick={e => {
+                    e.preventDefault();
+                    setContractInfo(organizationContracts.find(item => item.alumni === record.alumni))
+                    setModalShow(true)
+                    setActiveContents('editing-form')
+                  }}
+              > Extend </Button></> : ''}
+      </Space>
+    ),
+  },
+    
+  ];
   const columns = [
   {
     title: 'S/No',
@@ -100,6 +181,7 @@ const ApprovedAlumni = () => {
     organization: '',
     value: ''
   }
+
   const history = useHistory();
   const config = useSelector(apiConfigurations)
   const user = useSelector(selectUserData)
@@ -117,6 +199,13 @@ const ApprovedAlumni = () => {
   const [rateValue, setRateValue] = useState(0)
   const [ratingPayload, setRatingPayload] = useState(ratingInfo)
   const [isRating, setIsRating] = useState(false)
+  const [organizationInvitations, setOrganizationInvitations] = useState([])
+  const [selectedInvitation, setSelectedInvitation] = useState({})
+  const [byInvitation, setByInvitation] = useState(false)
+  const [rejectionReason, setRejectionReason] = useState('')
+  const [modalShow3, setModalShow3] = useState(false) //For Rejection Reason
+  const [modalShow4, setModalShow4] = useState(false) //For Contract Form Of Invited Alumni
+  const [skills, setSkills] = useState([])
 
   const fetchPostApplicants = async () => {
     try {
@@ -134,6 +223,15 @@ const ApprovedAlumni = () => {
     }
   }
 
+  const getOrganizationInvitations = async () => {
+      try {
+          const response = await fetchOrganizationInvitations(user.userId, config)
+          setOrganizationInvitations(response)
+      } catch (error) {
+          console.log('Get Organization Invitations', error.response.data)
+      }
+  }
+    
    
   const handleRateValue = (value) => {
     setRateValue(value)
@@ -180,9 +278,23 @@ const ApprovedAlumni = () => {
     }
   }
 
+  const fetchProfessions = async () => {
+        try {
+          const response = await getProfessions(config)
+          setSkills(response)
+        } catch (error) {
+            console.log({
+                'request': 'Fetch Professions Request',
+                'Error => ': error.response.data
+            })
+        }
+  }
+  
   useEffect(() => {
     fetchPostApplicants();
     fetchOrganizationContracts();
+    getOrganizationInvitations();
+    fetchProfessions()
   }, [])
 
   const releaseAlumni = async (record) => {
@@ -200,7 +312,12 @@ const ApprovedAlumni = () => {
     }
 
     try {
-      const response1 = await editSingleApplication(payload1, config)
+      if (record.invitation_message) {
+        const response = await editJobInvitation(payload1, config)
+      }
+      else {
+        const response1 = await editSingleApplication(payload1, config)
+      }
 
       try {
         const profile = await getAlumniProfile(record.alumni, config)
@@ -209,6 +326,7 @@ const ApprovedAlumni = () => {
         try {
           const response2 = await editAlumniProfile(payload2, config)
           fetchPostApplicants()
+          getOrganizationInvitations()
           setIsReleasing(false)
 
         }
@@ -232,10 +350,10 @@ const ApprovedAlumni = () => {
   
   const changeAlumniStatus = async () => {
     try {
-      const profile = await getAlumniProfile(selectedApplication.alumni, config)
+      const profile = await getAlumniProfile(selectedInvitation.alumni ? selectedInvitation.alumni : selectedApplication.alumni, config)
       const payload3 = {
         ...profile[0], is_taken: true,
-        organization: selectedApplication.organization
+        organization: selectedInvitation.organization ? selectedInvitation.organization : selectedApplication.organization
       }
       
       try {
@@ -244,16 +362,24 @@ const ApprovedAlumni = () => {
         setContractInfo(initialContract)
         setIsLoading(false)
         fetchPostApplicants()
+        setSelectedInvitation({})
         fetchOrganizationContracts()
       } catch (error) { console.log('Edit Approved Alumni Profile Error => ', error.response.data ) }
     } catch (error) { console.log('Get Approved Alumni Profile Error => ', error.response.data ) }
   }
 
   const handleContractForm = (e) => {
-    setContractInfo({
-      ...contractInfo,
-      [e.target.name] : e.target.value
-    })
+    if (e.target.name === 'profession' && e.target.value === 'nothing') {
+      setContractInfo({
+        ...contractInfo, profession: ''
+      })
+    }
+    else {
+      setContractInfo({
+        ...contractInfo,
+        [e.target.name]: e.target.value
+      })
+    }
   }
 
   const editContract = async () => {
@@ -270,10 +396,47 @@ const ApprovedAlumni = () => {
     }
   }
 
+  const sendInvitedContract = async () => {
+
+    const payload1 = {
+      alumni: selectedInvitation.alumni,
+      organization: user.userId,
+      finish_date: contractInfo.finish_date,
+      profession: contractInfo.profession
+    }
+
+    const payload2 = {
+      ...selectedInvitation,
+      has_reported: true
+    }
+
+    try {
+      const response1 = await sendInternshipContract(payload1, config)
+      
+      try {
+        const response2 = await editJobInvitation(payload2, config)
+        getOrganizationInvitations() 
+        setIsLoading(false)
+        // setSelectedInvitation({})
+        setModalShow4(false)
+        setByInvitation(false)
+        changeAlumniStatus()
+      } catch (error) {
+        console.log('Confirm Invitatoin Reporting ', error.response.data)
+        setIsLoading(false)
+      }
+
+    } catch (error) {
+      console.log('Sending Contract For Invited ', error.response.data)
+      setIsLoading(false)
+    }
+  }
+
   const sendContract = async (e) => {
     e.preventDefault()
     setIsLoading(true)
     if (contractInfo.id) editContract()
+    else if(byInvitation) sendInvitedContract()
     else {
       const payload1 = {
         alumni: selectedApplication.alumni,
@@ -340,13 +503,48 @@ const ApprovedAlumni = () => {
                     <td className="post-properties">Finish Date</td>
                     <td>{activeContract.finish_date} </td>
                 </tr>
+                <tr>
+                    <td className="post-properties">Job Title</td>
+                    <td>{activeContract.profession_name} </td>
+                </tr>
             </tbody>
 
- return (
-    <Card >
+  const titleForInvitedAlumni = 'Add Contract Info';
+  const contractForInvited = <Form onSubmit={sendContract}>
+        <Form.Group as ={Col} controlId="exampleForm.ControlInput1" >
+          <Form.Label>Finish Date</Form.Label>
+          <Form.Control
+            onChange={handleContractForm}
+            name='finish_date' type="date"
+            placeholder="enter finish date"
+            value={contractInfo.finish_date} />
+        </Form.Group>
+        <Form.Group as={Col} controlId="InternshipPostInput1">
+          <Form.Label>Job Title</Form.Label>
+          <Form.Control as="select"
+              size="md"
+              onChange={handleContractForm}
+              name="profession">
+              <option value='nothing'>---Select Job Title---</option>
+              {skills.map(skill => (
+                <option value={skill.id}>{skill.profession_name} </option>
+              ))}
+          </Form.Control>
+        </Form.Group>
+        <Form.Group as={Col} controlId="exampleForm.ControlInput1">
+        <Button
+            type="submit"
+            style={{ float: 'right' }}
+            disabled={contractInfo.finish_date === '' || contractInfo.profession === '' ? true : false}
+          >{isLoading ? <Loader message="Sending Contract..." /> : 'Send' }</Button>
+        </Form.Group>
+  </Form>
+
+  return (
+    <>
+    <Card style={{marginBottom: '5%'}} >
         <Card.Header >
        <Message variant='info' >{applications.length === 0 ? 'You have not approved any applicant yet' : 'You have approved the following applicants'}</Message>
-       {/* <Button onClick={() => setShowRateModal(true)}>show</Button> */}
         </Card.Header>
         <Card.Body style={{ overflowX: 'scroll' }}  >
           {applications.length !== 0 ? <>
@@ -411,7 +609,37 @@ const ApprovedAlumni = () => {
            >Rate</Button>
          </Modal.Footer> </>}
       </Modal>
-        </Card>
+      </Card>
+
+      <Card>
+        <Card.Header >
+          <Message variant='info' >{organizationInvitations.length === 0 ? 'You have not invited any alumni yet' : 'You have invited the following alumni'}</Message>
+        </Card.Header>
+        <Card.Body>
+          <Table 
+              columns={columns2}
+              dataSource={organizationInvitations}
+              pagination={{ onChange(current) {setPage2(current)}, pageSize: 5 }}
+              column={{ ellipsis: true }} />
+        </Card.Body>
+
+        <ContentModal 
+          show={modalShow3}
+          isTable={false}
+          // title={modalTitle}
+          content={rejectionReason ? rejectionReason : <Message variant='info'>No reason for this rejection</Message>}
+          onHide={() => { setModalShow3(false);}}
+        />
+
+        <ContentModal
+          show={modalShow4}
+          isTable={false}
+          title={titleForInvitedAlumni}
+          content={contractForInvited}
+          onHide={() => { setModalShow4(false);}}
+        />
+      </Card>
+    </>
     )
 }
 
