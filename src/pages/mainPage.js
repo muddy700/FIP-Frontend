@@ -5,7 +5,7 @@ import Sidebar from "react-sidebar";
 import './../styles/sidebar.css'
 import AlumniContents from './alumni/alumniContents';
 import AlumniSidebar from './alumni/alumniSidebar';
-import { Card, Row, Col, Badge, FormControl,  InputGroup, Button} from 'react-bootstrap'
+import { Card} from 'react-bootstrap'
 import StudentContents from './student/studentContents';
 import StudentSidebar from './student/studentSidebar';
 import { useSelector}  from 'react-redux'
@@ -14,6 +14,8 @@ import OrganizationSidebar from './organization/organizationSidebar';
 import OrganizationContents from './organization/organizationContents';
 import RankerContents from './ranker/rankerContents';
 import RankerSidebar from './ranker/rankerSidebar';
+import CoordinatorSidebar from './coordinator/coordinatorSidebar';
+import CoordinatorContent from './coordinator/coordinatorContents'
 
 const mql = window.matchMedia(`(min-width: 800px)`);
 
@@ -61,6 +63,10 @@ export const HomePage = () => {
   else if (userRole === 'ranker') {
     activeContents =  <RankerContents />
     activeSidebar = <RankerSidebar />
+  }
+  else if (userRole === 'coordinator') {
+    activeContents =  <CoordinatorContent />
+    activeSidebar = <CoordinatorSidebar />
   }
 
     const sidebarProps = {

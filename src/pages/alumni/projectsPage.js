@@ -40,12 +40,12 @@ const ProjectsPage = () => {
         render: text => <span>{text.substr(0,4)} </span>
       },
       {
-        title: 'Status',
+        title: 'Recommendation Status',
         key: 'status',
         // ellipsis: 'true',
         dataIndex: 'project_recommendation_status',
-        render: record => <Tag color={record.project_recommendation_status ? "green" : "red"}>
-                  {record.project_recommendation_status ? "accepted" : "pending"}
+        render: text => <Tag color={text ? "green" : "red"}>
+                  {text? 'accepted' : 'pending'}
                 </Tag>
       },
       // {
@@ -94,6 +94,7 @@ const ProjectsPage = () => {
     try {
       const response = await fetchalumniProjects(user.userId, config)
       setalumniProjects(response)
+      // console.log(response)
     } catch (error) {
       console.log({
         'Request': 'Getting Alumni Projects Request',
@@ -135,6 +136,7 @@ const ProjectsPage = () => {
       return true;
     }
   }
+
   const submitProject = async (e) => {
     e.preventDefault()
     const allowedDocFormats = /(\.pdf)$/i;

@@ -127,6 +127,17 @@ export async function sendProject(payload, config) {
     const response = await baseLink.post('projects/', payload, config)
     return response.data
 }
+
+export async function PullProjectsWithoutMembers(config) {
+    const response = await baseLink.get('projects/', config)
+    return response.data
+}
+
+export async function recommendProject(projectId, payload, config) {
+    const response = await baseLink.put(`projects/${projectId}/`, payload, config)
+    return response.data
+}
+
 export async function addProjectMember(payload, config) {
     const response = await baseLink.post('projects_members/', payload, config)
     return response.data
