@@ -4,7 +4,7 @@ import '../../styles/alumni.css'
 import Message from '../../components/message'
 import { selectUserData, saveUser, apiConfigurations } from '../../slices/userSlice'
 import { useSelector, useDispatch}  from 'react-redux'
-import { editUserProfile, getAlumniProfile, editUserInfo, editAlumniProfile } from '../../app/api'
+import { editUserProfile, getAlumniProfile, editUserInfo, getStaffProfile } from '../../app/api'
 import Loader from '../../components/loader'
 import ContentModal from '../../components/contentModal'
 
@@ -20,7 +20,8 @@ const ProfilePage = () => {
     }
 
     const dispatch = useDispatch();
-    const [alumniProfile, setAlumniProfile] = useState({})
+    // const [alumniProfile, setAlumniProfile] = useState({})
+    const [staffProfile, setStaffProfile] = useState({})
     const config = useSelector(apiConfigurations)
     const [profileImage, setProfileImage] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
@@ -32,12 +33,12 @@ const ProfilePage = () => {
 
     const getProfile = async () => {
         try {
-            const profile = await getAlumniProfile(user.userId, config)
-            setAlumniProfile(profile[0])
+            const profile = await getStaffProfile(user.userId, config)
+            setStaffProfile(profile[0])
             // console.log(profile)
         } catch (error) {
             console.log({
-                'Request': 'Getting Alumni Profile Request',
+                'Request': 'Getting Staff Profile Request',
                 'Error => ' : error,
             })
         }
@@ -117,7 +118,7 @@ const ProfilePage = () => {
             first_name: profileChanges.first_name,
             last_name: profileChanges.last_name,
             email: profileChanges.email,
-            password: alumniProfile.pwd
+            // password: alumniProfile.pwd
         }
 
         const blob = await (await fetch(user.profile_image)).blob();
@@ -168,22 +169,6 @@ const ProfilePage = () => {
         }
     }
 
-
-    const publishAlumni = async () => {
-        setIsPublishing(true)
-        const payload = {
-            ...alumniProfile,
-            is_public: !alumniProfile.is_public
-        }
-        try {
-            const response = await editAlumniProfile(payload, config)
-            setAlumniProfile(response)
-            setIsPublishing(false)
-        } catch (error) {
-            console.log('Publishing Alumni Info ', error.response.data)
-            setIsPublishing(false)
-        }
-    }
     const formTitle = 'Edit Profile Info';
     const formContents = <Form onSubmit={sendProfileChanges}>
             <Form.Row>
@@ -260,12 +245,8 @@ const ProfilePage = () => {
                     <Table striped bordered hover>
                             <tbody>
                                 <tr>
-                                    <td className="post-properties">REG NO.</td>
-                                            <td>{alumniProfile.registration_number}</td>
-                                </tr>
-                                <tr>
                                     <td className="post-properties">FIRST NAME</td>
-                                            <td>{user.first_name} </td>
+                                    <td>{user.first_name} </td>
                                 </tr>
                                 <tr>
                                     <td className="post-properties">LAST NAME</td>
@@ -280,16 +261,12 @@ const ProfilePage = () => {
                                     <td>{user.email}</td>
                                 </tr>
                                 <tr>
+                                    <td className="post-properties">DEPARTMENT</td>
+                                    <td>{staffProfile.department_name}</td>
+                                </tr>
+                                <tr>
                                     <td className="post-properties">PHONE</td>
                                     <td>{user.phone}</td>
-                                </tr>
-                                <tr>
-                                    <td className="post-properties">PROGRAM</td>
-                                    <td>{alumniProfile.degree_program}</td>
-                                </tr>
-                                <tr>
-                                    <td className="post-properties">COMPLETION YEAR</td>
-                                    <td>{alumniProfile.completion_year}</td>
                                 </tr>
                             </tbody>
                         </Table>
@@ -299,6 +276,7 @@ const ProfilePage = () => {
                             <Row>
                                 <Col md={{span: 4, offset: 4}}>
                                     <Button
+                                        // disabled
                                         style={{ width: '100%' }}
                                         onClick={prepareForm}
                                     >Edit Info</Button>
@@ -322,6 +300,7 @@ const ProfilePage = () => {
                                         <Form.File.Input onChange={handleProfileImage} name="profile_image" accept="image/*" />
                                     </Form.File>
                                     <Button
+                                        // disabled
                                         style={{ width: '100%', marginTop: '5%' }}
                                         hidden={profileImage ? false : true}
                                         onClick={changeProfileImage}
@@ -330,18 +309,6 @@ const ProfilePage = () => {
                             </Row>
                         </Card.Footer>
                     </Card>
-                    {/* <Tooltip placement="topLeft" title="Make your profile, CV and other particulars public , so that organizations may view"> */}
-                        <Button
-                            style={{ marginTop: '20%', width: '100%' }}
-                            variant={alumniProfile.is_public ? 'danger' : 'primary'}
-                            onClick={e => { e.preventDefault(); publishAlumni()}}
-                        >
-                            {isPublishing ? <Loader message='Publishing...' /> :
-                                alumniProfile.is_public ? 'Hide Your Info' :
-                                    'Publish Your Info'}
-                        </Button>
-                    {/* </Tooltip> */}
-                    
                 </Col>
             </Row>
             <ContentModal

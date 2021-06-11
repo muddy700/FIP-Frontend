@@ -55,7 +55,8 @@ function AlumniProjectsPage() {
         key: 'action',
         render: (text, record) => (
             <Space size="middle">
-                    <Button variant="link"
+                {record.recommendation_status ? '' : <>
+                    <Button variant='link'
                         size="sm"
                         onClick={e => {
                             e.preventDefault();
@@ -68,9 +69,10 @@ function AlumniProjectsPage() {
                             >{record.title}</object>)
                         }}
                     >View Report
-            </Button>
-                {record.recommendation_status ? '' : <>
-                    <Button variant="link"
+                    </Button>
+                    <Button
+                        variant={activeProject.id === record.id ? 'info' : 'link'}
+                        style={{width: 'fitContent'}}
                         size="sm"
                         onClick={e => {
                             e.preventDefault();
@@ -78,7 +80,7 @@ function AlumniProjectsPage() {
                             setActiveProject(record)
                         }}
                     >{isLoading && activeProject.id === record.id ? 
-                    <Loader message='Sending...' /> : 'Recommend'} 
+                    <Loader message='Loading...' /> : 'Recommend'} 
             </Button> </>}
           </Space>
         ),
@@ -91,6 +93,7 @@ function AlumniProjectsPage() {
     const [page, setPage] = useState(1)
     const [modalShow, setModalShow] = useState(false);
     const [allAlumniProjects, setAllAlumniProjects] = useState([])
+    const [filteredProjects, setFilteredProjects] = useState([])
     const [modalTitle, setModalTitle] = useState('')
     const [modalContent, setModalContent] = useState('')
     const [activeProject, setActiveProject] = useState({})
@@ -101,8 +104,9 @@ function AlumniProjectsPage() {
         
         try {
             const response = await PullProjectsWithoutMembers(config)
-            // console.log(response)
-        setAllAlumniProjects(response)
+            let sortedArray = response.slice().sort((a, b) => b.date_added.localeCompare(a.date_added))
+            setAllAlumniProjects(sortedArray)
+            setFilteredProjects(sortedArray)
         } catch (error) {
         console.log({
             'Request': 'Getting All Alumni Projects Request',
@@ -114,6 +118,22 @@ function AlumniProjectsPage() {
     useEffect(() => {
         getAllProjects()
     }, [])
+
+
+    const sortByRecommendationStatus = (value) => {
+        // const sortedArray = allAlumniProjects.slice().sort((a, b) => b.date_added.localeCompare(a.date_added))
+        let sortedArray = [];
+        if (value === 1) {
+            sortedArray = allAlumniProjects.filter(item => item.recommendation_status)
+        }
+        else if (value === 0) {
+            sortedArray = allAlumniProjects.filter(item => !item.recommendation_status)
+        }
+        else {
+            sortedArray = allAlumniProjects
+        }
+        setFilteredProjects(sortedArray)
+    }
 
     const acceptRecommendationRequest = async (record) => {
         setIsLoading(true)
@@ -132,7 +152,9 @@ function AlumniProjectsPage() {
             const response = await recommendProject(record.id, payload, config)
             const newProjectsList = allAlumniProjects.map(item => item.id === response.id ? response : item)
             setAllAlumniProjects(newProjectsList)
+            setFilteredProjects(newProjectsList)
             setIsLoading(false)
+            setActiveProject({})
         } catch (error) {
             console.log('Accept Project Recommendation Request ', error.response.data)
         }
@@ -144,10 +166,12 @@ function AlumniProjectsPage() {
           <Message variant='info' >Projects List</Message>
         </Card.Header>
         <Card.Body style={{ overflowX: 'scroll' }}  >
-          {/* <Button onClick={e => { e.preventDefault(); setModalShow(true)} }>Add Project</Button> */}
+          <Button style={{marginRight: '3%'}} onClick={e => { e.preventDefault(); sortByRecommendationStatus(1)} }>Recommended</Button>
+          <Button style={{marginRight: '3%'}} onClick={e => { e.preventDefault(); sortByRecommendationStatus(0)} }>Pending</Button>
+          <Button style={{marginRight: '3%'}} onClick={e => { e.preventDefault(); sortByRecommendationStatus('')} }>All</Button>
           <Table
             columns={columns}
-            dataSource={allAlumniProjects}
+            dataSource={filteredProjects}
             pagination={{ onChange(current) {setPage(current)}, pageSize: 5 }}
             column={{ ellipsis: true }} />
        </Card.Body>

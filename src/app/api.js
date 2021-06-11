@@ -153,6 +153,11 @@ export async function getAlumniProfile(alumniId, config) {
     return response.data
 }
 
+export async function getStaffProfile(staffId, config) {
+    const response = await baseLink.get(`filter/staff/${staffId}/profile`, config)
+    return response.data
+}
+
 export async function fetchAlumniSkills(alumniId, config) {
     const response = await baseLink.get(`filter/alumni/${alumniId}/professions`, config)
     return response.data

@@ -60,7 +60,7 @@ const InternshipChances = () => {
           title="Are you sure？"
           icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
           onConfirm={e => { e.preventDefault(); deleteInternshipPost(record.id) }}>
-         <Button variant="link" size="sm" >
+         <Button variant="link" style={{color: 'red'}} size="sm" >
           <Icon glyph="delete" size={32} />
           </Button>
         </Popconfirm>
