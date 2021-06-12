@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import '../../styles/alumni.css'
+import Message from '../../components/message'
 import { Card, Row, Col, Button, Modal, Form } from 'react-bootstrap'
 import { useSelector}  from 'react-redux'
 import { apiConfigurations, selectUserData } from '../../slices/userSlice'
@@ -143,7 +144,7 @@ export const InterviewPage = () => {
 
     useEffect(() => {
       fetchQuestionChoices()
-    }, [activeQuestion.id])
+    }, [questions.length ? activeQuestion.id : '' ])
 
     return (
         <Card className="">
@@ -158,31 +159,37 @@ export const InterviewPage = () => {
                     centered
                 >
                     <Modal.Header >
-                        <Modal.Title id="contained-modal-title-vcenter">
+                        <Modal.Title id="contained-modal-title-vcenter">{questions.length ? <>
                             <b>{activeQuestion ? attemptedQuestions.length + '. ' : ''} </b>
-                            {activeQuestion ? activeQuestion.question_body : 'no body'} 
+                           {activeQuestion ? activeQuestion.question_body : 'No questions yet'} </>:
+                            <span>Ooops...!</span> }
                         </Modal.Title>
                     </Modal.Header>
-                    <Modal.Body >
+                    <Modal.Body > {questions.length ?
                         <ul>
                             {questionChoices.map((choice) => (
-                            <li key={choice.id} style={{marginTop: '3px'}}>
-                                 <Form.Check
-                                    type="radio"
-                                    id={choice.id}
-                                    name="selectedChoice"
-                                    label={choice.choice}
-                                    value={choice.isCorrect}
-                                    onChange={handleApplicantAnswers}
-                                />
-                            </li> ))}
-                        </ul>
+                                <li key={choice.id} style={{ marginTop: '3px' }}>
+                                    <Form.Check
+                                        type="radio"
+                                        id={choice.id}
+                                        name="selectedChoice"
+                                        label={choice.choice}
+                                        value={choice.isCorrect}
+                                        onChange={handleApplicantAnswers}
+                                    />
+                                </li>))}
+                        </ul> :
+                        <Message variant='info'>Sorry!, there is no questions yet for this job title</Message>}
                     </Modal.Body>
-                    <Modal.Footer>
+                    <Modal.Footer>{questions.length ?
                         <Button
                             variant="secondary"
                             onClick={changeQuestions}
-                        >{attemptedQuestions.length === 5 ? 'Submit' : 'Next'}</Button>
+                        >{attemptedQuestions.length === 5 ? 'Submit' : 'Next'}</Button> :
+                        <Button
+                            variant="secondary"
+                            onClick={e => { e.preventDefault(); setShowModal(false) }}
+                        >Close</Button>}
                     </Modal.Footer>
                 </Modal>
             </Card.Body>

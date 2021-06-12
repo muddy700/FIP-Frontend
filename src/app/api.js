@@ -279,6 +279,21 @@ export async function getOrganizationInternshipPosts(organizationId, config) {
     return response.data
 }
 
+export async function getOrganizationFieldPosts(organizationId, config) {
+    const response = await baseLink.get(`filter/organization/${organizationId}/field_posts/`, config)
+    return response.data
+}
+
+export async function getFieldPostProfessions(config) {
+    const response = await baseLink.get('field_post_professions/', config)
+    return response.data
+}
+
+export async function getFieldPostPrograms(config) {
+    const response = await baseLink.get('field_post_programs/', config)
+    return response.data
+}
+
 export async function getOrganizationContracts(organizationId, config) {
     const response = await baseLink.get(`filter/organization/${organizationId}/contracts/`, config)
     return response.data
@@ -301,6 +316,11 @@ export async function getProcessedApplications(organizationId, config) {
 
 export async function getProfessions(config) {
     const response = await baseLink.get("professions/", config)
+    return response.data
+}
+
+export async function getPrograms(config) {
+    const response = await baseLink.get("programs/", config)
     return response.data
 }
 
