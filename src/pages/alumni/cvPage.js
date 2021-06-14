@@ -1131,10 +1131,10 @@ const CvPage = () => {
                     <Card>
                         <Card.Header>
                             CV Preview
-                            <Button
+                            {/* <Button
                                 style={{ float: 'right' }}
                                 onClick={e => { e.preventDefault(); setModalShow(true)}}
-                            >Full Preview</Button>
+                            >Full Preview</Button> */}
                         </Card.Header>
                         <Card.Body>
                             <Row hidden={activeForm !== null} style={{alignItems: 'center'}}>
@@ -1460,7 +1460,7 @@ const CvPage = () => {
                                                     style={{marginLeft: '75%'}}
                                                 >Edit</Button>
                                             </Row>
-                                            <Row >
+                                            <Row >        
                                                 <Col md={4}><small><b>Name</b></small></Col>
                                                 <Col><small>{item.name}</small></Col>
                                             </Row>

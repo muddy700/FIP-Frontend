@@ -208,12 +208,14 @@ const FieldChances = () => {
         </Form.Group>
       </Form.Row>
       <Button
-        type="submit"
+                type="submit"
+                disabled
         // variant={editingMode ? 'success' : 'primary'}
                 // style={{ float: 'right' }}>{postError !== '' ? 'try again' : editingMode ? 'Save' : 'Send'}
-                > k</Button>
+                > send</Button>
       <Button
-        variant="danger"
+                variant="danger"
+                hidden
         // hidden={postError === '' ? true : false}
             >
                 {/* {postError} */}
