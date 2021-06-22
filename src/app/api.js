@@ -363,3 +363,8 @@ export async function fetchAlumniInvitations(alumniId, config) {
     const response = await baseLink.get(`filter/alumni/${alumniId}/invitations/`, config)
     return response.data
 }
+
+export async function pushFieldPost(payload, config) {
+    const response = await baseLink.post("field_posts/", payload, config)
+    return response.data
+}

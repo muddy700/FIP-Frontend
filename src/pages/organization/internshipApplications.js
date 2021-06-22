@@ -190,8 +190,6 @@ const InternshipApplications = () => {
   }
   const modalTitle = "Processing Stages";
 
-
-  
          
   const modalContent = <><ul>
                             {stages.map((choice) => (

@@ -8,12 +8,37 @@ import { Button, Row, Col, Card, InputGroup, FormControl, Form } from 'react-boo
 import Message from '../../components/message'
 import { Link } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
-import { getOrganizationFieldPosts, getProfessions, getPrograms, getFieldPostProfessions, getFieldPostPrograms } from '../../app/api';
+import { getOrganizationFieldPosts, getProfessions, getPrograms, getFieldPostProfessions, getFieldPostPrograms, pushFieldPost } from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
+import Loader from '../../components/loader'
 
 const FieldChances = () => {
-  const [page, setPage] = useState(1)
+    const [page, setPage] = useState(1)
+    
+      const options = [
+    {
+      id: 1,
+      text: 'Skill Based'
+    },
+    {
+      id: 2,
+      text: 'Program Based'
+    },
+    {
+      id: 3,
+      text: 'Anyone'
+    }
+  ]
+
+    const initialFieldPost = {
+        reference_number: "FIP/2021/F000",
+        organization: '',
+        // post_description: '',
+        post_capacity: '',
+        expiry_date: ''
+    }
+
 
   const config = useSelector(apiConfigurations)
   const user = useSelector(selectUserData)
@@ -26,10 +51,18 @@ const FieldChances = () => {
     const [postPrograms, setPostPrograms] = useState([])
     const [postSkills, setPostSkills] = useState([])
     const [filteredArray, setFilteredArray] = useState([])
+    const [postMode, setPostMode] = useState('')
+    const [postOptionId, setPostOptionId] = useState(0)
+    const [fieldPostInfo, setFieldPostInfo] = useState(initialFieldPost)
+    const [formErrorMessage, setFormErrorMessage] = useState('')
+    const [isSendingPost, setIsSendingPost] = useState(false)
 
 
     const closeModal = () => {
         setModalShow(false)
+        setPostMode('')
+        setPostOptionId(0)
+        setFieldPostInfo(initialFieldPost)
     }
     
     
@@ -124,7 +157,9 @@ const FieldChances = () => {
             merged_posts.push(obj)
         }
 
-        setFilteredArray(merged_posts)
+            setFilteredArray(merged_posts)
+        // if (merged_posts.length > 0) setFilteredArray(merged_posts)
+        // else setFilteredArray(fieldPosts)
         // console.log(merged_posts)
     }
 
@@ -150,19 +185,120 @@ const FieldChances = () => {
         return sum
     }
 
+    const callPostForm = () => {
+        if (postOptionId === 1) {
+            setPostMode('skills')
+        }
+        else if (postOptionId === 2) {
+            setPostMode('program')
+        }
+        else {
+            setPostMode('all')
+        }
+    }
+
+    const handleFieldPostForm = (e) => {
+        setFormErrorMessage('')
+        setFieldPostInfo({
+            ...fieldPostInfo,
+            [e.target.name] : e.target.value
+        })
+    }
+
+    const fieldPostFormValidator = () => {
+        if (!fieldPostInfo.post_capacity) {
+            setFormErrorMessage('Enter Capacity')
+            return false
+        }
+        else if (!fieldPostInfo.expiry_date) {
+            setFormErrorMessage('Select Expiry Date')
+            return false
+        }
+        else {
+            setFormErrorMessage('')
+            return true
+        }
+    }
+
+    const sendFieldPost = async (e) => {
+        e.preventDefault()
+        const isPostFormValid = fieldPostFormValidator()
+
+        if (isPostFormValid) {
+            setIsSendingPost(true)
+            const randomNumber = Math.floor((Math.random() * 1000) + 1);
+            const year = new Date().getFullYear()
+            const refNo = `FIP/${year}/F${randomNumber}`
+            const payload = {
+                ...fieldPostInfo,
+                organization: user.userId,
+                reference_number: refNo
+            }
+
+            try {
+                const response = await pushFieldPost(payload, config)
+                setFieldPosts([...fieldPosts, response])
+                setFieldPostInfo(initialFieldPost)
+                setPostMode('')
+                setPostOptionId(0)
+                setIsSendingPost(false)
+                setModalShow(false)
+            } catch (error) {
+                //Check If Reference Number Exists
+                console.log('Creating Field Post')
+                setIsSendingPost(false)
+                setFormErrorMessage('Oops...!, Some Error Occured. Please Try Again.')
+            }
+        }
+        else {
+            console.log('Field Post Form Is Not Valid')
+        }
+    }
+    const postOptions =  <><ul>
+                            {options.map((choice) => (
+                            <li key={choice.id} style={{marginTop: '3px'}}>
+                                 <Form.Check
+                                    type="radio"
+                                    id={choice.id}
+                                    name="selectedChoice"
+                                    label={choice.text}
+                                    value={choice.id}
+                                  onChange={e => { setPostOptionId(choice.id)}}
+                                />
+                            </li> ))}
+  </ul>
+    <Button onClick={callPostForm} disabled={postOptionId === 0 ? true : false}>Next</Button>
+  </>;
+
     const modalTitle = 'Fill Post Informations'
     const modalContent = 
-    <Form onSubmit="">
-      <Form.Row>
+    <Form onSubmit={sendFieldPost}>
+      <Form.Row hidden={postMode !== 'all'}>
+        <Form.Group as={Col} controlId="InternshipPostInput2">
+          <Form.Label>Free Chances</Form.Label>
+          <FormControl
+            placeholder="Enter Free Chances"
+            type="number"
+            aria-label="Message Content"
+            name="post_capacity"
+            value={fieldPostInfo.post_capacity}
+            aria-describedby="basic-addon2"
+            onChange={handleFieldPostForm}
+            />
+        </Form.Group>
+        <Form.Group as={Col} controlId="InternshipPostInput4">
+        </Form.Group>
+      </Form.Row>
+            <Form.Row hidden={postMode !== 'skills'}>
         <Form.Group as={Col} controlId="InternshipPostInput1">
-          <Form.Label>Job Title</Form.Label>
+          <Form.Label>Skills</Form.Label>
           <Form.Control as="select"
               size="md"
               disabled={editingMode}
             //   value={newPost.profession}
             //   onChange={onPostFormChange}
               name="profession">
-              <option>---Select Job Title---</option>
+              <option>---Select Skill---</option>
               {allSkills.map(skill => (
                 <option value={skill.id}>{skill.profession_name} </option>
               ))}
@@ -175,25 +311,41 @@ const FieldChances = () => {
             type="number"
             aria-label="Message Content"
             name="post_capacity"
-            // value={newPost.post_capacity}
+            value={fieldPostInfo.post_capacity}
             aria-describedby="basic-addon2"
-            // onChange={onPostFormChange}
+            onChange={handleFieldPostForm}
+            />
+          </Form.Group>
+      </Form.Row>
+      <Form.Row hidden={postMode !== 'program'}>
+        <Form.Group as={Col} controlId="InternshipPostInput1">
+          <Form.Label>Program</Form.Label>
+          <Form.Control as="select"
+              size="md"
+              disabled={editingMode}
+            //   value={newPost.profession}
+            //   onChange={onPostFormChange}
+              name="profession">
+              <option>---Select Program---</option>
+              {allPrograms.map(program => (
+                <option value={program.id}>{program.program_name} </option>
+              ))}
+          </Form.Control>
+        </Form.Group>
+        <Form.Group as={Col} controlId="InternshipPostInput2">
+          <Form.Label>Free Chances</Form.Label>
+          <FormControl
+            placeholder="Enter Free Chances"
+            type="number"
+            aria-label="Message Content"
+            name="post_capacity"
+            value={fieldPostInfo.post_capacity}
+            aria-describedby="basic-addon2"
+            onChange={handleFieldPostForm}
             />
           </Form.Group>
       </Form.Row>
       <Form.Row>
-        <Form.Group as={Col} controlId="InternshipPostInput3">
-          <Form.Label>Post Description</Form.Label>
-          <FormControl
-            placeholder="post description"
-            type="text"
-            aria-label="Message Content"
-            name="post_description"
-            // value={newPost.post_description}
-            aria-describedby="basic-addon2"
-            // onChange={onPostFormChange}
-            />
-          </Form.Group>
         <Form.Group as={Col} controlId="InternshipPostInput4">
           <Form.Label>Expiry Date</Form.Label>
           <FormControl
@@ -201,25 +353,22 @@ const FieldChances = () => {
             type="date"
             aria-label="Message Content"
             name="expiry_date"
-            // value={newPost.expiry_date}
+            value={fieldPostInfo.expiry_date}
             aria-describedby="basic-addon2"
-            // onChange={onPostFormChange}
+            onChange={handleFieldPostForm}
             />
         </Form.Group>
       </Form.Row>
       <Button
-                type="submit"
-                disabled
-        // variant={editingMode ? 'success' : 'primary'}
-                // style={{ float: 'right' }}>{postError !== '' ? 'try again' : editingMode ? 'Save' : 'Send'}
-                > send</Button>
-      <Button
-                variant="danger"
-                hidden
-        // hidden={postError === '' ? true : false}
-            >
-                {/* {postError} */}
-            </Button>
+        hidden={!formErrorMessage}
+        variant='danger'
+        // style={{ float: 'right' }}
+        > {formErrorMessage}</Button>
+      <Button 
+        type="submit" 
+        // disabled
+        style={{ float: 'right' }}
+        >{isSendingPost ? <Loader message='Sending...' /> : 'Send'}</Button>
     </Form> 
 
     return (
@@ -304,8 +453,8 @@ const FieldChances = () => {
         <ContentModal
         show={modalShow}
         isTable={false}
-        title={modalTitle}
-        content={modalContent}
+        title={postMode === '' ? 'Select Post Category' : modalTitle}
+        content={postMode === '' ? postOptions : modalContent}
         onHide={closeModal}
       />
             </Card>
