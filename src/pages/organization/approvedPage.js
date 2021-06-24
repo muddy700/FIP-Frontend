@@ -109,6 +109,7 @@ const ApprovedAlumni = () => {
   },
     
   ];
+  
   const columns = [
   {
     title: 'S/No',

@@ -59,6 +59,15 @@ Done
     22/6/2021
 1. Allowed Organization To Send Field Post For Anyone Option
 
+    23/6/2021
+1. Validate Alumni Profile Image if It Is Picture.
+2. Validate Alumni Project Report If It Is A Pdf File
+3. Allowed Organization To Delete Field Post
+4. Allowed Organization To Send Field Post For Skill Or Program Based Options
+
+    24/6/2021
+1. Allowed Students To View Available Posts(With Program Based Posts) And Apply(Vs Cancel Applications)
+
 Planned
 1. Validate All Forms And Provide A Fixed Error Display Area.
 2. Allow Organizations To Upload Results(ie Practical or Oral Interview Results) From A File(ie. Excel).

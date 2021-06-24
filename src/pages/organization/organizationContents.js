@@ -32,7 +32,7 @@ const OrganizationContents = () => {
             <Route exact path="/alumni/:id/details">
                 <AlumniDetailsPage />
               </Route>
-            <Route exact path="/field_applications">
+            <Route exact path="/field_post/:id/applications">
                 <FieldApplications />
               </Route>
             <Route exact path="/field_chances">

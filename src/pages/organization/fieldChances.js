@@ -8,7 +8,7 @@ import { Button, Row, Col, Card, InputGroup, FormControl, Form } from 'react-boo
 import Message from '../../components/message'
 import { Link } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
-import { getOrganizationFieldPosts, getProfessions, getPrograms, getFieldPostProfessions, getFieldPostPrograms, pushFieldPost } from '../../app/api';
+import { getOrganizationFieldPosts, getProfessions, getPrograms, getFieldPostProfessions, getFieldPostPrograms, pushFieldPost, deleteFieldPost, SendFieldPostProfession, SendFieldPostProgram } from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 import Loader from '../../components/loader'
@@ -32,11 +32,15 @@ const FieldChances = () => {
   ]
 
     const initialFieldPost = {
-        reference_number: "FIP/2021/F000",
+        reference_number: "",
         organization: '',
         // post_description: '',
         post_capacity: '',
-        expiry_date: ''
+        expiry_date: '',
+        profession: '',
+        profession_capacity: '',
+        program: '',
+        program_capacity: ''
     }
 
 
@@ -56,6 +60,8 @@ const FieldChances = () => {
     const [fieldPostInfo, setFieldPostInfo] = useState(initialFieldPost)
     const [formErrorMessage, setFormErrorMessage] = useState('')
     const [isSendingPost, setIsSendingPost] = useState(false)
+    const [selectedPost, setSelectedPost] = useState({})
+    const [isDeletingPost, setIsDeletingPost] = useState(false)
 
 
     const closeModal = () => {
@@ -70,9 +76,7 @@ const FieldChances = () => {
         try {
           const response = await getOrganizationFieldPosts(user.userId, config)
           const arrangedByDate = response.slice().sort((a, b) => b.date_updated.localeCompare(a.date_updated))
-        //   const newPosts = arrangedByDate.filter(post => post.status === 'test')
-            setFieldPosts(arrangedByDate)
-            // console.log(response)
+          setFieldPosts(arrangedByDate)
         } catch (error) {
             console.log({
                 'request': 'Fetch Organization Field Posts Request',
@@ -84,7 +88,8 @@ const FieldChances = () => {
 
     const fetchProfessions = async () => {
         try {
-          const response = await getProfessions(config)
+            const response = await getProfessions(config)
+            // console.log('all prof')
             setAllSkills(response)
             // console.log(response)
         } catch (error) {
@@ -98,6 +103,7 @@ const FieldChances = () => {
     const fetchallPrograms = async () => {
         try {
           const response = await getPrograms(config)
+            // console.log('all prog')
             setAllPrograms(response)
             // console.log(response)
         } catch (error) {
@@ -112,7 +118,8 @@ const FieldChances = () => {
         try {
           const response = await getFieldPostProfessions(config)
             setPostSkills(response)
-            mergeFieldPostInfo()
+            // console.log('field-prof')
+            // mergeFieldPostInfo()
             // console.log(response)
         } catch (error) {
             console.log({
@@ -126,7 +133,8 @@ const FieldChances = () => {
         try {
           const response = await getFieldPostPrograms(config)
             setPostPrograms(response)
-            mergeFieldPostInfo()
+            // console.log('field-prog')
+            // mergeFieldPostInfo()
             // console.log(response)
         } catch (error) {
             console.log({
@@ -137,30 +145,30 @@ const FieldChances = () => {
     }
 
     const mergeFieldPostInfo = () => {
+        // console.log('merge-enter')
         let merged_posts = [];
-
+        
         for (let i = 0; i < fieldPosts.length; i++) {
+            // console.log('for-loop')
             let obj = fieldPosts[i];
 
             let post_programs = postPrograms.filter(item => item.post === obj.id)
-
+            let post_skills = postSkills.filter(item => item.post === obj.id)
+            
             if (post_programs && post_programs.length) {
+                // console.log('-program')
                 obj = {...obj, programs: [...post_programs]}
             }
-
-            let post_skills = postSkills.filter(item => item.post === obj.id)
-
+            
             if (post_skills && post_skills.length) {
+                // console.log('-profession')
                 obj = {...obj, skills: [...post_skills]}
             }
-
+            
             merged_posts.push(obj)
         }
-
-            setFilteredArray(merged_posts)
-        // if (merged_posts.length > 0) setFilteredArray(merged_posts)
-        // else setFilteredArray(fieldPosts)
-        // console.log(merged_posts)
+        
+        setFilteredArray(merged_posts)
     }
 
     useEffect(() => {
@@ -169,12 +177,18 @@ const FieldChances = () => {
         fetchallPrograms();
         fetchFieldPostProfessions();
         fetchFieldPostPrograms();
-        mergeFieldPostInfo()
     }, [])
 
     useEffect(() => {
         mergeFieldPostInfo()
+    // }, [])
     }, [postPrograms.length && postSkills.length])
+
+
+    const arrangePostsByDate = (posts) => {
+        const arrangedPosts = posts.slice().sort((a, b) => b.date_updated.localeCompare(a.date_updated))
+        return arrangedPosts;
+    }
 
     const calculateTotalChances = (chances) => {
         let sum = 0;
@@ -190,6 +204,7 @@ const FieldChances = () => {
             setPostMode('skills')
         }
         else if (postOptionId === 2) {
+
             setPostMode('program')
         }
         else {
@@ -206,7 +221,7 @@ const FieldChances = () => {
     }
 
     const fieldPostFormValidator = () => {
-        if (!fieldPostInfo.post_capacity) {
+        if (postMode === 'all' && !fieldPostInfo.post_capacity) {
             setFormErrorMessage('Enter Capacity')
             return false
         }
@@ -214,9 +229,71 @@ const FieldChances = () => {
             setFormErrorMessage('Select Expiry Date')
             return false
         }
+        else if (postMode === 'skills' && !fieldPostInfo.profession) {
+            setFormErrorMessage('Select skill')
+            return false
+        }
+        else if (postMode === 'skills' && !fieldPostInfo.profession_capacity) {
+            setFormErrorMessage('Enter Capacity')
+            return false
+        }
+        else if (postMode === 'program' && !fieldPostInfo.program) {
+            setFormErrorMessage('Select program')
+            return false
+        }
+        else if (postMode === 'program' && !fieldPostInfo.program_capacity) {
+            setFormErrorMessage('Enter Capacity')
+            return false
+        }
         else {
             setFormErrorMessage('')
             return true
+        }
+    }
+
+
+    const addFieldPostProgram = async (postData) => {
+        const payload = {
+            post: postData.id,
+            program: fieldPostInfo.program,
+            program_capacity: fieldPostInfo.program_capacity
+        }
+
+        try {
+            let response = await SendFieldPostProgram(payload, config)
+            let new_post = { ...postData, programs: [response] }
+            setFilteredArray([...filteredArray, new_post])
+            setFieldPostInfo(initialFieldPost)
+            setPostMode('')
+            setPostOptionId(0)
+            setIsSendingPost(false)
+            setModalShow(false)
+        } catch (error) {
+            console.log('Adding Field Post Program ', error.response.data)
+            setIsSendingPost(false)
+        }
+
+    }
+
+    const addFieldPostSkill = async (postData) => {
+        const payload = {
+            post: postData.id,
+            profession: fieldPostInfo.profession,
+            profession_capacity: fieldPostInfo.profession_capacity
+        }
+
+        try {
+            let response = await SendFieldPostProfession(payload, config)
+            let new_post = { ...postData, skills: [response] }
+            setFilteredArray([...filteredArray, new_post])
+            setFieldPostInfo(initialFieldPost)
+            setPostMode('')
+            setPostOptionId(0)
+            setIsSendingPost(false)
+            setModalShow(false)
+        } catch (error) {
+            console.log('Adding Field Post Profession ', error.response.data)
+            setIsSendingPost(false)
         }
     }
 
@@ -232,28 +309,53 @@ const FieldChances = () => {
             const payload = {
                 ...fieldPostInfo,
                 organization: user.userId,
-                reference_number: refNo
+                reference_number: refNo,
+                post_capacity: postMode === 'all' ? fieldPostInfo.post_capacity : null
             }
 
             try {
                 const response = await pushFieldPost(payload, config)
-                setFieldPosts([...fieldPosts, response])
-                setFieldPostInfo(initialFieldPost)
-                setPostMode('')
-                setPostOptionId(0)
-                setIsSendingPost(false)
-                setModalShow(false)
+                if (postMode === 'skills') addFieldPostSkill(response)
+                else if (postMode === 'program') addFieldPostProgram(response)
+                else {
+                    setFilteredArray([...filteredArray, response])
+                    setFieldPostInfo(initialFieldPost)
+                    setPostMode('')
+                    setPostOptionId(0)
+                    setIsSendingPost(false)
+                    setModalShow(false)
+                }
             } catch (error) {
+                console.log('Creating Field Post', error.response.data)
+                setFormErrorMessage('Ooops...!, Some Error Occured. Please Try Again.')
                 //Check If Reference Number Exists
-                console.log('Creating Field Post')
+                if (error.response.data.reference_number) {
+                    console.log('ref repeated')
+                    // sendFieldPost(e)
+                        }
                 setIsSendingPost(false)
-                setFormErrorMessage('Oops...!, Some Error Occured. Please Try Again.')
             }
         }
         else {
             console.log('Field Post Form Is Not Valid')
         }
     }
+
+    const deleteSinglePost = async (data) => {
+        setIsDeletingPost(true)
+        try {
+            const response = await deleteFieldPost(data.id, config)
+            const remainingPosts = filteredArray.filter(item => item.id !== data.id)
+            setFilteredArray(remainingPosts)
+            setFieldPosts(remainingPosts)
+            setIsDeletingPost(false)
+            setSelectedPost({})
+        } catch (error) {
+            console.log('Deleting Field Post ', error.response.data)
+            setIsDeletingPost(false)
+        }
+    }
+
     const postOptions =  <><ul>
                             {options.map((choice) => (
                             <li key={choice.id} style={{marginTop: '3px'}}>
@@ -296,7 +398,7 @@ const FieldChances = () => {
               size="md"
               disabled={editingMode}
             //   value={newPost.profession}
-            //   onChange={onPostFormChange}
+              onChange={handleFieldPostForm}
               name="profession">
               <option>---Select Skill---</option>
               {allSkills.map(skill => (
@@ -310,8 +412,8 @@ const FieldChances = () => {
             placeholder="Enter Free Chances"
             type="number"
             aria-label="Message Content"
-            name="post_capacity"
-            value={fieldPostInfo.post_capacity}
+            name="profession_capacity"
+            value={fieldPostInfo.profession_capacity}
             aria-describedby="basic-addon2"
             onChange={handleFieldPostForm}
             />
@@ -324,8 +426,8 @@ const FieldChances = () => {
               size="md"
               disabled={editingMode}
             //   value={newPost.profession}
-            //   onChange={onPostFormChange}
-              name="profession">
+              onChange={handleFieldPostForm}
+              name="program">
               <option>---Select Program---</option>
               {allPrograms.map(program => (
                 <option value={program.id}>{program.program_name} </option>
@@ -338,8 +440,8 @@ const FieldChances = () => {
             placeholder="Enter Free Chances"
             type="number"
             aria-label="Message Content"
-            name="post_capacity"
-            value={fieldPostInfo.post_capacity}
+            name="program_capacity"
+            value={fieldPostInfo.program_capacity}
             aria-describedby="basic-addon2"
             onChange={handleFieldPostForm}
             />
@@ -391,7 +493,7 @@ const FieldChances = () => {
                             style={{width: '100%'}}
                             size="small"
                             pagination={{ pageSize: 5, }}
-                            dataSource={filteredArray}
+                            dataSource={arrangePostsByDate(filteredArray)}
                             renderItem={post => (
                                 <List.Item
                                     key={post.id}
@@ -440,10 +542,15 @@ const FieldChances = () => {
                                                     : 'no programs selected'}</span>
                                             </span>
                                         </Col>
-                                        {/* <Link style={{marginLeft: '85%'}} to={{pathname: `/alumni/${post.id}/details` }}> */}
-                                            <Button variant="link" >Edit</Button>
-                                            <Button variant="link" style={{color:  'red'}}>Delete</Button>
-                                        {/* </Link> */}
+                                        <Row style={{display: 'flex', width: '100%'}}>
+                                            <Button
+                                                variant="link"
+                                                onClick={e => { e.preventDefault(); setSelectedPost(post); deleteSinglePost(post)}}
+                                                style={{ color: 'red',  }}>{isDeletingPost && (selectedPost.id === post.id) ? <Loader message='Wait...!' /> : 'Delete'}</Button>
+                                            <Link to={{pathname: `/field_post/${post.id}/applications` }}>
+                                                <Button variant="link" >View Applications</Button>
+                                            </Link>
+                                        </Row>
                                     </Row>
                                 </List.Item>
                             )}

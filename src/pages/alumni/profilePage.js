@@ -29,6 +29,7 @@ const ProfilePage = () => {
     const [showProfileForm, setShowProfileForm] = useState(false)
     const [profileChanges, setProfileChanges] = useState(initialProfile)
     const [isPublishing, setIsPublishing] = useState(false)
+    const [imageError, setImageError] = useState('')
 
     const getProfile = async () => {
         try {
@@ -52,40 +53,59 @@ const ProfilePage = () => {
         setProfileImage(e.target.files[0])
         setIsLoading(false)
         setSuccessMessage('')
+        setImageError('')
     }
+
+  const validateImageForm = () => {
+    const allowedExtensions = /(\.jpg|\.jpeg|\.png)$/i;
+
+    if (!allowedExtensions.exec(profileImage.name)) {
+      setImageError('Unsupported File!')
+      return false;
+    }
+    else {
+        setImageError('')
+      return true;
+    }
+
+  }
 
     const changeProfileImage = async (e) => {
         e.preventDefault()
-        setIsLoading(true)
+        const isImageValid = validateImageForm()
         
-        const payload = new FormData();
-        payload.append('profile_image', profileImage)
-        payload.append('user', user.userId)
-        payload.append('designation', user.designation_id)
-        payload.append('phone', user.phone)
-        payload.append('gender', user.gender)
+        if (isImageValid) {
+            setIsLoading(true)
+            const payload = new FormData();
+            payload.append('profile_image', profileImage)
+            payload.append('user', user.userId)
+            payload.append('designation', user.designation_id)
+            payload.append('phone', user.phone)
+            payload.append('gender', user.gender)
 
-        try {
-            const config2 = {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Token ${localStorage.getItem('token')}`    }
-            }
-            const response = await editUserProfile(profileId, payload, config2)
-            dispatch(saveUser({
-                ...user,
-                profile_image: response.profile_image
-            }))
-            setIsLoading(false)
-            setProfileImage(null)
-            setSuccessMessage('Profile image changed successful.')
-        } catch (error) {
-            console.log({
-                'Request': 'Edit Profile-Image Request',
-                'Error => ' : error.response.data,
-            })
-            setIsLoading(false)
+            try {
+                const config2 = {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': `Token ${localStorage.getItem('token')}`    }
+                }
+                const response = await editUserProfile(profileId, payload, config2)
+                dispatch(saveUser({
+                    ...user,
+                    profile_image: response.profile_image
+                }))
+                setIsLoading(false)
+                setProfileImage(null)
+                setSuccessMessage('Profile image changed successful.')
+            } catch (error) {
+                    console.log({
+                        'Request': 'Edit Profile-Image Request',
+                        'Error => ' : error.response.data,
+                    })
+                    setIsLoading(false)
+                }
         }
+        else console.log('Invalid Image File') 
     }
 
     const prepareForm = (e) => {
@@ -322,10 +342,11 @@ const ProfilePage = () => {
                                         <Form.File.Input onChange={handleProfileImage} name="profile_image" accept="image/*" />
                                     </Form.File>
                                     <Button
+                                        variant={imageError ? 'danger' : 'primary'}
                                         style={{ width: '100%', marginTop: '5%' }}
-                                        hidden={profileImage ? false : true}
+                                        disabled={profileImage ? false : true}
                                         onClick={changeProfileImage}
-                                    >{isLoading ? <Loader message="Saving Image..." /> : 'Save'}</Button>
+                                    >{isLoading ? <Loader message="Saving Image..." /> : imageError ? imageError : 'Save'}</Button>
                                 </Col>
                             </Row>
                         </Card.Footer>

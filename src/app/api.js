@@ -364,7 +364,67 @@ export async function fetchAlumniInvitations(alumniId, config) {
     return response.data
 }
 
+export async function getAllFieldPosts(config) {
+    const response = await baseLink.get("field_posts/", config)
+    return response.data
+}
+
 export async function pushFieldPost(payload, config) {
     const response = await baseLink.post("field_posts/", payload, config)
+    return response.data
+}
+
+export async function deleteFieldPost(postId, config) {
+    const response = await baseLink.delete(`field_posts/${postId}/`, config)
+    return response.data
+}
+
+export async function editFieldPost(payload, config) {
+    const response = await baseLink.put(`field_posts/${payload.id}/`, payload, config)
+    return response.data
+}
+
+export async function SendFieldPostProgram(payload, config) {
+    const response = await baseLink.post("field_post_programs/", payload, config)
+    return response.data
+}
+
+export async function SendFieldPostProfession(payload, config) {
+    const response = await baseLink.post("field_post_professions/", payload, config)
+    return response.data
+}
+
+export async function getStudentProfileInfo(config) {
+    const response = await baseLink.get("filter/single_student_profile/", config)
+    return response.data
+}
+
+export async function SendFieldApplication(payload, config) {
+    const response = await baseLink.post("field_applications/", payload, config)
+    return response.data
+}
+
+export async function editFieldApplication(payload, config) {
+    const response = await baseLink.put(`field_applications/${payload.id}/`, payload, config)
+    return response.data
+}
+
+export async function deleteFieldApplication(applicationId, config) {
+    const response = await baseLink.delete(`field_applications/${applicationId}/`, config)
+    return response.data
+}
+
+export async function getFieldApplicationsByStudentId(studentId, config) {
+    const response = await baseLink.get(`filter/student/${studentId}/field_applications/`, config)
+    return response.data
+}
+
+export async function getFieldApplicationsByPostId(postId, config) {
+    const response = await baseLink.get(`filter/field_post/${postId}/applications/`, config)
+    return response.data
+}
+
+export async function getAllReportedStudents(config) {
+    const response = await baseLink.get(`filter/reported_students/`, config)
     return response.data
 }

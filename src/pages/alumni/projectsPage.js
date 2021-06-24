@@ -119,6 +119,8 @@ const ProjectsPage = () => {
   }
 
   const formValidator = () => {
+    const allowedDocFormats = /(\.pdf)$/i;
+
     if (projectInfo.title === '') {
       setErrorMessage('Project Title Cannot Be Blank!')
       return false;
@@ -131,6 +133,10 @@ const ProjectsPage = () => {
       setErrorMessage('Project report Cannot Be Blank!')
       return false
     }
+    else if (!allowedDocFormats.exec(projectInfo.report.name)) {
+      setErrorMessage('Unsurpoted File Format. Only pdf file is allowed')
+      return false
+    }
     else {
       setErrorMessage('')
       return true;
@@ -139,7 +145,7 @@ const ProjectsPage = () => {
 
   const submitProject = async (e) => {
     e.preventDefault()
-    const allowedDocFormats = /(\.pdf)$/i;
+    // const allowedDocFormats = /(\.pdf)$/i;
 
     const isFormValid = formValidator()
 
@@ -174,13 +180,16 @@ const ProjectsPage = () => {
         console.log({
                 'Request': 'Add project Member Request',
                 'Error => ' : error.response.data,
-            })
+        })
+        setIsLoading(false)
       } 
     } catch (error) {
-            console.log({
-                'Request': 'Send alumni project Request',
+      console.log({
+        'Request': 'Send alumni project Request',
                 'Error => ' : error.response.data,
-            })
+              })
+              setIsLoading(false)
+              setErrorMessage('Ooops...!, Some error occured. Check your network and try again.')
       }
 
        } //End Of If Block
@@ -275,7 +284,7 @@ useEffect(() => {
           isTable={false}
           title={modalTitle}
           content={modalContent}
-          onHide={() => setModalShow(false)}
+          onHide={() => { setModalShow(false); setIsLoading(false) }}
         />
     </Card>
     )
