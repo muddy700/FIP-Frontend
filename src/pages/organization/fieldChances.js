@@ -305,7 +305,7 @@ const FieldChances = () => {
             setIsSendingPost(true)
             const randomNumber = Math.floor((Math.random() * 1000) + 1);
             const year = new Date().getFullYear()
-            const refNo = `FIP/${year}/F${randomNumber}`
+            const refNo = `FIPMS/${year}/F${randomNumber}`
             const payload = {
                 ...fieldPostInfo,
                 organization: user.userId,
@@ -473,6 +473,14 @@ const FieldChances = () => {
         >{isSendingPost ? <Loader message='Sending...' /> : 'Send'}</Button>
     </Form> 
 
+    
+    const checkExpiryDate = (postdate) => {
+        const currentDate = new Date()
+        const closingDate = new Date(postdate)
+        if (currentDate > closingDate) return true
+        else return false
+    }
+    
     return (
     <Card >
         <Card.Header >
@@ -542,14 +550,19 @@ const FieldChances = () => {
                                                     : 'no programs selected'}</span>
                                             </span>
                                         </Col>
-                                        <Row style={{display: 'flex', width: '100%'}}>
-                                            <Button
-                                                variant="link"
-                                                onClick={e => { e.preventDefault(); setSelectedPost(post); deleteSinglePost(post)}}
-                                                style={{ color: 'red',  }}>{isDeletingPost && (selectedPost.id === post.id) ? <Loader message='Wait...!' /> : 'Delete'}</Button>
-                                            <Link to={{pathname: `/field_post/${post.id}/applications` }}>
+                                        <Row style={{ display: 'flex', width: '100%', marginTop: '10px'  }}>
+                                            <Col md={4} >
+                                                <span style={{paddingLeft: '5%'}}><b>Expiry date: </b> {checkExpiryDate(post.expiry_date) ? <b style={{color: 'red'}}><i>Closed</i></b>: post.expiry_date}</span>
+                                            </Col>
+                                            <Col md={{span: 4, offset: 8}}>
+                                                <Button
+                                                    variant="link"
+                                                    onClick={e => { e.preventDefault(); setSelectedPost(post); deleteSinglePost(post)}}
+                                                    style={{ color: 'red',  }}>{isDeletingPost && (selectedPost.id === post.id) ? <Loader message='Wait...!' /> : 'Delete'}</Button>
+                                                <Link to={{pathname: `/field_post/${post.id}/applications` }}>
                                                 <Button variant="link" >View Applications</Button>
-                                            </Link>
+                                                </Link>
+                                            </Col>
                                         </Row>
                                     </Row>
                                 </List.Item>
@@ -564,7 +577,7 @@ const FieldChances = () => {
         content={postMode === '' ? postOptions : modalContent}
         onHide={closeModal}
       />
-            </Card>
+            </Card> 
     )
 }
 

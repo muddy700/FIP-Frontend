@@ -6,7 +6,7 @@ import { Button, Row, Col, Card, InputGroup, FormControl, Form , Modal} from 're
 import Message from '../../components/message'
 import { useLocation, useHistory, useParams } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
-import { editFieldApplication, editFieldPost, getAllReportedStudents, getFieldApplicationsByPostId } from '../../app/api';
+import { editFieldApplication, editFieldPost, editStudentProfileInfo, getAllReportedStudents, getFieldApplicationsByPostId, getStudentProfileInfo } from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 import Loader from '../../components/loader'
@@ -49,15 +49,17 @@ const FieldReports = () => {
     title: 'Action',
     key: 'action',
     render: (text, record) => (
-      <Space size="middle">
-        <Button variant="link" size="sm"
-            onClick={e => {
-              e.preventDefault();
-                // setSelectedApplication(record);
-                // confirmReporting(record)
-                }}>Release
-                {/* {isConfirming && selectedApplication.id === record.id ? <Loader message='wait...!' /> : 'Confirm Reporting'} */}
-            </Button>
+        <Space size="middle">
+            {record.has_released ?
+                <span style={{color: 'red'}}>Released</span> :
+                <Button variant="link" size="sm"
+                    onClick={e => {
+                        e.preventDefault();
+                        setSelectedApplication(record);
+                        releaseStudent(record)
+                    }}>{isReleasing && selectedApplication.id === record.id ? <Loader message='wait...!' /> : 'Release'}
+                </Button>
+            }
       </Space>
     ),
   },
@@ -69,6 +71,7 @@ const FieldReports = () => {
     // const [fieldApplications, setFieldApplications] = useState([])
     const [reportedStudents, setReportedStudents] = useState([])
     const [selectedApplication, setSelectedApplication] = useState({})
+    const [isReleasing, setIsReleasing] = useState(false)
 
     const fetchAllReportedStudents = async () => {
         try {
@@ -83,6 +86,46 @@ const FieldReports = () => {
     useEffect(() => {
         fetchAllReportedStudents();
     }, [])
+
+    const editArrivalNote = async (studentId) => {
+      let profile = '';
+      try {
+        profile = await getStudentProfileInfo(studentId, config)
+        const payload = {
+          ...profile[0], has_reported: false, organization: 38, date_reported: null, field_report: null
+        }
+
+        try {
+          const resopnse = await editStudentProfileInfo(payload, config)
+          setIsReleasing(false)
+        } catch (error) {
+          console.log('Editing Arrival Note ', error.response.data)
+          setIsReleasing(false)
+        }
+
+      } catch (error) {
+        console.log('Getting Student Profile ', error.response.data)
+        setIsReleasing(false)
+      }
+    }
+
+    const releaseStudent = async (record) => {
+      setIsReleasing(true)
+      const payload = {
+          ...record, has_released: true
+      }
+
+        try {
+            const response = await editFieldApplication(payload, config)
+            const newApplicationsList = reportedStudents.map(item => item.id === response.id ? response : item)
+            setReportedStudents(newApplicationsList)
+            editArrivalNote(response.student)
+        } catch (error) {
+            console.log('Releasing Student ', error.response.data)
+            setIsReleasing(false)
+        }
+
+    }
 
     return (
     <Card >

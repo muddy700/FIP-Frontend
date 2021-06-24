@@ -7,7 +7,12 @@ import { Button, Row, Col, Card, InputGroup, FormControl, Form } from 'react-boo
 import Message from '../../components/message'
 import { Link } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
-import { getFieldPostProfessions, getFieldPostPrograms, getAllFieldPosts, getStudentProfileInfo, SendFieldApplication, getFieldApplicationsByStudentId, deleteFieldApplication, editFieldPost } from '../../app/api';
+import {
+    getFieldPostProfessions, getFieldPostPrograms,
+    getAllFieldPosts, getStudentProfileInfo,
+    SendFieldApplication, getFieldApplicationsByStudentId
+    , deleteFieldApplication, editFieldPost
+} from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 import Loader from '../../components/loader'
@@ -92,9 +97,8 @@ const AvailablePostsPage = () => {
 
     const getStudentProfile = async () => {
         try {
-            const response = await getStudentProfileInfo(config)
+            const response = await getStudentProfileInfo(user.userId, config)
             setStudentInfo(response[0])
-        // fetchFieldPostPrograms(response[0].program);
         } catch (error) {
             console.log('Getting Student Profile Info ', error.response.data)
         }
@@ -210,6 +214,13 @@ const AvailablePostsPage = () => {
         }
     }
 
+    const checkExpiryDate = (postdate) => {
+        const currentDate = new Date()
+        const closingDate = new Date(postdate)
+        if (currentDate > closingDate) return true
+        else return false
+    }
+
     return (
     <Card >
         <Card.Header >
@@ -270,26 +281,31 @@ const AvailablePostsPage = () => {
                                                     : 'All programs'}</span>
                                             </span>
                                         </Col>
-                                        <Row style={{display: 'flex', width: '100%'}}>
-                                            <Button
-                                                variant={checkApplicationStatus(post.id) ? 'success' : 'primary'}
-                                                disabled={checkApplicationStatus(post.id) || studentApplications.length ? true : false}
-                                                hidden={(countAllPostChances(post) === post.applied_chances) && !checkApplicationStatus(post.id)}
-                                                onClick={e => {
-                                                    e.preventDefault();
-                                                    setSelectedPost(post); submitApplication(post)
-                                                }}
-                                                >{isSendingAppplication && (selectedPost.id === post.id) ? <Loader message='Wait...!' /> : checkApplicationStatus(post.id) ? 'Applied' : 'Apply'}
-                                            </Button> &nbsp; &nbsp; &nbsp;
-                                            <Button
-                                                variant="danger"
-                                                hidden={!checkApplicationStatus(post.id)}
-                                                onClick={e => {
-                                                    e.preventDefault();
-                                                    setSelectedPost(post); cancelApplication(post)
-                                                }}
+                                        <Row style={{ display: 'flex', width: '100%', marginTop: '10px' }}>
+                                            <Col md={4} >
+                                                <span style={{paddingLeft: '5%'}}><b>Expiry date: </b> {checkExpiryDate(post.expiry_date) ? <b style={{color: 'red'}}><i>Closed</i></b>: post.expiry_date}</span>
+                                            </Col>
+                                            <Col md={{span: 3, offset:9}}>
+                                                <Button
+                                                    variant={checkApplicationStatus(post.id) ? 'success' : 'primary'}
+                                                    disabled={checkApplicationStatus(post.id) || studentApplications.length ? true : false}
+                                                    hidden={((countAllPostChances(post) === post.applied_chances) && !checkApplicationStatus(post.id)) || checkExpiryDate(post.expiry_date)}
+                                                    onClick={e => {
+                                                        e.preventDefault();
+                                                        setSelectedPost(post); submitApplication(post)
+                                                    }}
+                                                    >{isSendingAppplication && (selectedPost.id === post.id) ? <Loader message='Wait...!' /> : checkApplicationStatus(post.id) ? 'Applied' : 'Apply'}
+                                                </Button> &nbsp; &nbsp;
+                                                <Button
+                                                    variant="danger"
+                                                    hidden={!checkApplicationStatus(post.id)}
+                                                    onClick={e => {
+                                                        e.preventDefault();
+                                                        setSelectedPost(post); cancelApplication(post)
+                                                    }}
                                                 >{isDeletingApplication && (selectedPost.id === post.id) ? <Loader message='Wait...!' /> : 'Cancel'}
-                                            </Button>
+                                                </Button>
+                                            </Col>
                                         </Row>
                                     </Row>
                                 </List.Item>

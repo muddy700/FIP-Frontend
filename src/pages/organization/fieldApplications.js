@@ -6,7 +6,7 @@ import { Button, Row, Col, Card, InputGroup, FormControl, Form , Modal} from 're
 import Message from '../../components/message'
 import { useLocation, useHistory, useParams } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
-import { editFieldApplication, editFieldPost, getFieldApplicationsByPostId } from '../../app/api';
+import { editFieldApplication, editFieldPost, editStudentProfileInfo, getFieldApplicationsByPostId, getStudentProfileInfo } from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 import Loader from '../../components/loader'
@@ -78,19 +78,42 @@ const FieldApplications = () => {
             console.log('Getting All Field Applications', error.response.data)
         }
     }
+    
+    const createArrivalNote = async (studentId) => {
+    const currentDate = new Date().toISOString()
+    let profile = '';
+    try {
+      profile = await getStudentProfileInfo(studentId, config)
+      const payload = {
+        ...profile[0], has_reported: true, organization: user.userId, date_reported: currentDate, field_report: null
+      }
 
+      try {
+        const resopnse = await editStudentProfileInfo(payload, config)
+        setIsConfirming(false)
+      } catch (error) {
+        console.log('creating Arrival Note ', error.response.data)
+        setIsConfirming(false)
+      }
+
+    } catch (error) {
+      console.log('Getting Student Profile ', error.response.data)
+      setIsConfirming(false)
+    }
+
+  }
     const confirmReporting = async (record) => {
         setIsConfirming(true)
       const payload = {
-          ...record,
-            record, has_reported: true
+          ...record, has_reported: true
       }
 
         try {
             const response = await editFieldApplication(payload, config)
             const newApplicationsList = fieldApplications.filter(item => item.id !== response.id)
             setFieldApplications(newApplicationsList)
-            setIsConfirming(false)
+            createArrivalNote(response.student)
+            // setIsConfirming(false)
         } catch (error) {
             console.log('Confirming Reporting ', error.response.data)
             setIsConfirming(false)
@@ -104,16 +127,18 @@ const FieldApplications = () => {
     return (
     <Card >
         <Card.Header >
-                <Message variant='info' >Applications of the selected field post</Message>
+                <Message variant='info' >{fieldApplications.length > 0 ? 'Applications of the selected field post' : 'No any application yet.'}</Message>
         </Card.Header>
         <Card.Body style={{ overflowX: 'scroll' }}  >
-            <Row style={{width: '100%'}}>
-                <Table 
-                    columns={columns}
-                    dataSource={fieldApplications}
-                    pagination={{ onChange(current) {setPage(current)}, pageSize: 5 }}
-                        // column={{ ellipsis: true }}
-            />
+          <Row style={{ width: '100%' }}>
+            {fieldApplications.length > 0 ?
+              <Table
+                columns={columns}
+                dataSource={fieldApplications}
+                pagination={{ onChange(current) { setPage(current) }, pageSize: 5 }}
+              // column={{ ellipsis: true }}
+              /> :
+              '' }
             </Row>
              <Button
                 variant="secondary"

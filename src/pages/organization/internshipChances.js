@@ -158,7 +158,7 @@ const InternshipChances = () => {
       }
       else {
         // const refNo = `FIP/${year}/P331`
-        const refNo = `FIP/${year}/P${randomNumber}`
+        const refNo = `FIPMS/${year}/P${randomNumber}`
         payload = {...payload, reference_number: refNo}
         response = await pushInternshipPost(payload, config)
         setInternshipPosts([

@@ -394,8 +394,18 @@ export async function SendFieldPostProfession(payload, config) {
     return response.data
 }
 
-export async function getStudentProfileInfo(config) {
-    const response = await baseLink.get("filter/single_student_profile/", config)
+export async function getStudentProfileInfo(studentId, config) {
+    const response = await baseLink.get(`filter/student/${studentId}/profile_info/`, config)
+    return response.data
+}
+
+export async function editStudentProfileInfo(payload, config) {
+    const response = await baseLink.put(`students_profiles/${payload.id}/`, payload, config)
+    return response.data
+}
+
+export async function sendFieldReport(profileId, payload, config) {
+    const response = await baseLink.put(`students_profiles/${profileId}/`, payload, config)
     return response.data
 }
 
