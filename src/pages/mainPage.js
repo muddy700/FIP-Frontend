@@ -84,7 +84,8 @@ export const HomePage = () => {
       // transitions: this.state.transitions,
         onSetOpen: onSetSidebarOpen,
       rootClassName: "root-card"
-    };
+  };
+  
   return (
     <Router>
       <div className="main-page-container" style={{height: '100vh', overflowY: 'hidden'}}>
@@ -95,7 +96,7 @@ export const HomePage = () => {
               {activeContents}
             </Card.Body>
             <div style={{ backgroundColor: '#2F4050', textAlign: 'center', color: 'white', paddingBottom: '7px', paddingTop: '2px' }}>
-              <i>CIVE-FIP@2021</i>
+              <i>CIVE-FIPMS@2021</i>
             </div>
           </div>
         </Sidebar>

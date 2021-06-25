@@ -44,13 +44,11 @@ const FieldApplications = () => {
     key: 'action',
     render: (text, record) => (
       <Space size="middle">
-        <Button variant="link" size="sm"
+        {/* <Button variant="link" size="sm"
             onClick={e => {
               e.preventDefault();
-                setSelectedApplication(record);
-                confirmReporting(record)
-            }}>{isConfirming && selectedApplication.id === record.id ? <Loader message='wait...!' /> : 'Confirm Reporting'}
-            </Button>
+            }}>N/Y
+        </Button> */}
       </Space>
     ),
   },

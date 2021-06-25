@@ -250,7 +250,7 @@ const AvailablePostsPage = () => {
                                             margin: '1% 1%',
                                         }}>
                                         <span style={{ width: '100%' }}>
-                                            <h4 style={{color: 'blue'}}>{post.organization_name}</h4>
+                                            <h4 >{post.organization_name}</h4>
                                         </span>
                                         <Col md={3}>
                                             <span><b>Free Chances: </b>

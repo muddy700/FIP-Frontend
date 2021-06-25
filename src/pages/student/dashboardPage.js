@@ -1,9 +1,21 @@
 import React from 'react'
+import '../../styles/alumni.css'
+import { Card, Row, Col } from 'react-bootstrap'
+import { useSelector}  from 'react-redux'
+import { selectUserData } from '../../slices/userSlice'
 
 export const DashboardPage = () => {
+    const user = useSelector(selectUserData)
+    const currentDate = new Date().toLocaleDateString()
+
     return (
-        <div >
-            <h1 >Student Dashboard</h1>
-        </div>
+        <Card className="dashboard-container">
+            <Card.Header>
+                <Row>
+                    <Col md={4}>Logged In As: {user.first_name} {user.last_name} </Col>
+                    <Col md={{span: 2, offset:6}} xs={{span: 6}}>{ currentDate }</Col>
+                </Row>
+            </Card.Header>
+        </Card>
     )
 }

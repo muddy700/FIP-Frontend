@@ -10,6 +10,9 @@ import ProfilePage from './profilePage';
 import AnnouncementsPage from './announcementsPage';
 import PasswordPage from './passwordPage';
 import AlumniProjectsPage from './alumniProjectsPage';
+import FieldPostsPage from './fieldPostsPage';
+import FieldApplications from './fieldApplications';
+import ReportedStudentsPage from './reportedStudentsPage';
 
 const CoordinatorContents = () => {
 
@@ -24,6 +27,15 @@ const CoordinatorContents = () => {
               </Route>
             <Route exact path={["/alumni_projects"]}>
                 <AlumniProjectsPage />
+              </Route>
+            <Route exact path={["/field_posts"]}>
+                <FieldPostsPage />
+            </Route>
+            <Route exact path={["/reported_students"]}>
+                <ReportedStudentsPage />
+            </Route>
+            <Route exact path="/field_post/:id/applicants">
+                <FieldApplications />
               </Route>
             <Route exact path={["/announcements"]}>
                 <AnnouncementsPage />

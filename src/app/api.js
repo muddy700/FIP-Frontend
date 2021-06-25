@@ -438,3 +438,18 @@ export async function getAllReportedStudents(config) {
     const response = await baseLink.get(`filter/reported_students/`, config)
     return response.data
 }
+
+export async function getAllReportedStudentsProfiles(config) {
+    const response = await baseLink.get(`filter/reported_students_profiles/`, config)
+    return response.data
+}
+
+export async function getProgramsByDepartmentId(departmentId, config) {
+    const response = await baseLink.get(`filter/department/${departmentId}/programs/`, config)
+    return response.data
+}
+
+export async function getUsersProfilesByDesignationId(designationId, config) {
+    const response = await baseLink.get(`filter/designation/${designationId}/users_profiles/`, config)
+    return response.data
+}

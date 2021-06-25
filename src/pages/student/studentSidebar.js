@@ -33,11 +33,11 @@ const StudentSidebar = () => {
                     <Icon glyph="person" size={24} /> <span>My Profile</span>
                 </Link>
             </li>
-            <li className="inner-list-item">
+            {/* <li className="inner-list-item">
                 <Link to = "/my_projects" className="aside-link">
                     <Icon glyph="docs-fill" size={24} /> <span>My Projects</span>
                 </Link>
-            </li>
+            </li> */}
             <li className="list-item">
                 <Link to = "/password" className="aside-link">
                      <Icon glyph="settings" size={32} /> <span>Change Password</span>

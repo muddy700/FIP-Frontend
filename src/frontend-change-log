@@ -71,6 +71,13 @@ Done
 3. Allowed Organization To Create Arrival Note(In Background)
 4. Allowed Students To Upload Field Report
 
+    25/6/2021
+1. Allowed Coordinator To See Field Posts(General, Department And All Posts)
+2. Allowed Coordinator To Assign Academic Supervisor To Single Student At A Time
+3. Allowed Student To See His/Her Assigned  Academic Supervisor
+4. Allowed Coordinator To View Students Under A Certain Supervisor
+
+
 Planned
 1. Validate All Forms And Provide A Fixed Error Display Area.
 2. Allow Organizations To Upload Results(ie Practical or Oral Interview Results) From A File(ie. Excel).
@@ -96,8 +103,14 @@ Planned
 21. Handle Profile Error For New Organizations Which Doesnt Have Profiles Yet.
 22. Handle Alumni Skills In Cv Page When Saving Selected SKills(The Remaining Checks Auto)
 23. Reference Part In CV Can Be Replaced By UDOM??
-24.  Validate Selected File If Its An Image Or Pdf
+24.  Validate Selected File If Its An Image Or Pdf(Done For Alumni Project)
 //25. Add Organization box address when creating Account
 26. When Release Alumni go And Change Finish Date In Contract
 27. Put Organization Profile In Available Post (in Alumi Page)
 28. Change Fonts
+29. Handle Error If User Does Not Have Profile
+
+===>>> Note When Adding New User Make Sure
+    1. You Add A Profile For The User(User Profile Table)
+    2. If Its A Student, Then Add Student Profile Or Alumni Profile For Alumni
+    3. If Its Staff Then, Add Staff Profile Or Field Supervisor Profile
