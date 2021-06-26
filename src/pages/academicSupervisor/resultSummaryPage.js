@@ -11,6 +11,7 @@ import { editselectedStudentInfo, editStudentProfileInfo, getAllReportedStudents
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 import Loader from '../../components/loader'
+import SummaryExport from './summaryExport';
 
 function ResultSummaryPage() {
   const [page, setPage] = useState(1)
@@ -93,6 +94,7 @@ function ResultSummaryPage() {
     const config = useSelector(apiConfigurations)
     const [studentsProfiles, setStudentsProfiles] = useState([])
     const [displayArray, setDisplayArray] = useState([])
+    const [exportData, setExportData] = useState([])
 
     const fetchStudentsProfiles = async () => {
         try {
@@ -100,6 +102,7 @@ function ResultSummaryPage() {
             const processed_students = response.filter(item => item.average_marks)
             setStudentsProfiles(processed_students)
             setDisplayArray(processed_students)
+            prepareData(processed_students)
         } catch (error) {
             console.log(
                 'Fetching Students By Academic Supervisor ', error.response.data ) }
@@ -110,6 +113,17 @@ function ResultSummaryPage() {
     }, [])
 
 
+  const prepareData = (data) => {
+    const freshData = data.map(item => {
+      return {
+        'regNo': item.registration_number,
+        'avg': item.average_marks,
+        'grade': item.marks_grade
+      }
+    })
+    setExportData(freshData)
+  }
+
     return (
     <Card >
         <Card.Header >
@@ -117,8 +131,8 @@ function ResultSummaryPage() {
         </Card.Header>
             <Card.Body style={{ overflowX: 'scroll' }}  >
                 <Row style={{marginBottom: '16px'}}>
-                    <Button onClick={e => { e.preventDefault(); }}>Export as Excel </Button> &nbsp; &nbsp;
-                    <Button onClick={e => { e.preventDefault(); }}>Export as Pdf </Button> &nbsp; &nbsp;
+                  <SummaryExport studentsList={exportData}/> &nbsp; &nbsp;
+                  {/* <Button onClick={e => { e.preventDefault(); }}>Export as Pdf </Button> &nbsp; &nbsp; */}
                 </Row>
                 <hr/>
           <Table

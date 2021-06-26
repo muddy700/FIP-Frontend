@@ -105,7 +105,8 @@ function MyStudentsPage() {
     key: 'id',
     // ellipsis: 'true',
     dataIndex: 'average_marks',
-    render: text => <>{text ? Math.round(text) : 'Not'}</>,
+    render: text => <>{text ? text : 'Not'}</>,
+    // render: text => <>{text ? Math.round(text) : 'Not'}</>,
   },
   {
     title: 'Grade',
@@ -226,7 +227,7 @@ function MyStudentsPage() {
     const calculateAverageMarks = () => {
         const {report_marks} = selectedStudent
         const average = (report_marks + parseFloat(academicScore) + parseFloat(fieldScore)) / 3
-        return average
+        return average.toFixed(2)
     }
 
     const calculateGrade = (avg) => {

@@ -11,6 +11,13 @@ import { editselectedStudentInfo, editStudentProfileInfo, getAllReportedStudents
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 import Loader from '../../components/loader'
+import SummaryExport from './summaryExport';
+
+import ExportExcel from "react-export-excel";
+
+const ExcelFile = ExportExcel.ExcelFile;
+const ExcelSheet = ExportExcel.ExcelFile.ExcelSheet;
+const ExcelColumn = ExportExcel.ExcelFile.ExcelColumn;
 
 function ResultSummaryPage() {
   const [page, setPage] = useState(1)
@@ -89,6 +96,12 @@ function ResultSummaryPage() {
 //   },
     ];
 
+      const years = [
+        {id:1, value:1, name: 'First Year'},
+        {id:2, value:2, name: 'Second year'},
+        {id:3, value:3, name: 'Third year'},
+      ]
+      
     const user = useSelector(selectUserData)
     const config = useSelector(apiConfigurations)
     const [studentsProfiles, setStudentsProfiles] = useState([])
@@ -96,6 +109,7 @@ function ResultSummaryPage() {
     const [academicSupervisors, setAcademicSupervisors] = useState([])
     const [staffProfile, setStaffProfile] = useState({})
     const [departmentPrograms, setDepartmentPrograms] = useState([])
+    const [exportData, setExportData] = useState([])
     
     const getPrograms = async (departmentId) => {
         try {
@@ -131,6 +145,7 @@ function ResultSummaryPage() {
           const department_students = processed_students.filter(item => item.department === staff.department)
           setStudentsProfiles(department_students)
           setDisplayArray(department_students)
+          prepareData(department_students)
       } catch (error) {
           console.log(
               'Fetching Students By Academic Supervisor ', error.response.data ) }
@@ -152,28 +167,56 @@ function ResultSummaryPage() {
     }, [])
 
     const showAllStudents = () => {
-        setDisplayArray(studentsProfiles)
+      setDisplayArray(studentsProfiles)
+      prepareData(studentsProfiles)
     }
 
   const showBySupervisor = (id) => {
     if (id === 'all') {
         setDisplayArray(studentsProfiles)
+        prepareData(studentsProfiles)
       }
     else {
       const matched_students = studentsProfiles.filter(item => item.academic_supervisor === parseInt(id))
       setDisplayArray(matched_students)
+      prepareData(matched_students)
       }
   }
   
   const showByProgram = (id) => {
     if (id === 'all') {
       setDisplayArray(studentsProfiles)
+      prepareData(studentsProfiles)
     }
     else {
       const matched_students = studentsProfiles.filter(item => item.program === parseInt(id))
       setDisplayArray(matched_students)
+      prepareData(matched_students)
     }
+  }
+  
+  const showByYearOfStudy = (year) => {
+    if (year === 'all') {
+      setDisplayArray(studentsProfiles)
+      prepareData(studentsProfiles)
     }
+    else {
+      const matched_students = studentsProfiles.filter(item => item.year_of_study === year)
+      setDisplayArray(matched_students)
+      prepareData(matched_students)
+     }
+  }
+
+  const prepareData = (data) => {
+    const freshData = data.map(item => {
+      return {
+        'regNo': item.registration_number,
+        'avg': item.average_marks,
+        'grade': item.marks_grade
+      }
+    })
+    setExportData(freshData)
+  }
 
     return (
     <Card >
@@ -205,8 +248,20 @@ function ResultSummaryPage() {
                           ))}
                         </Form.Control>
                   </Col>
-                  <Button onClick={e => { e.preventDefault(); }}>Export as Excel </Button> &nbsp; &nbsp;
-                  <Button onClick={e => { e.preventDefault(); }}>Export as Pdf </Button> &nbsp; &nbsp;
+                  <Col md={{ span: 3 }}>
+                        <Form.Control as="select"
+                          size="md"
+                          onChange={e => { showByYearOfStudy(e.target.value)}}
+                          name="academic_supervisor">
+                          <option value='all'>---by year of stydy---</option>
+                          {years.map(item => (
+                              <option value={item.value}>{item.name} </option>
+                          ))}
+                        </Form.Control>
+                  </Col>
+                  <SummaryExport studentsList={exportData}/> &nbsp; &nbsp;
+                  {/* <Button onClick={e => { e.preventDefault(); prepareData()}}>Export as Excel </Button> &nbsp; &nbsp; */}
+                  {/* <Button onClick={e => { e.preventDefault(); }}>Export as Pdf </Button> &nbsp; &nbsp; */}
                 </Row>
                 <hr/>
           <Table
@@ -229,3 +284,5 @@ function ResultSummaryPage() {
 }
 
 export default ResultSummaryPage
+
+
