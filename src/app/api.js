@@ -453,3 +453,8 @@ export async function getUsersProfilesByDesignationId(designationId, config) {
     const response = await baseLink.get(`filter/designation/${designationId}/users_profiles/`, config)
     return response.data
 }
+
+export async function getStudentsByAcademicSupervisor(supervisorId, config) {
+    const response = await baseLink.get(`filter/academic_supervisor/${supervisorId}/students/`, config)
+    return response.data
+}

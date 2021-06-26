@@ -16,6 +16,8 @@ import RankerContents from './ranker/rankerContents';
 import RankerSidebar from './ranker/rankerSidebar';
 import CoordinatorSidebar from './coordinator/coordinatorSidebar';
 import CoordinatorContent from './coordinator/coordinatorContents'
+import AcademicSupervisorContents from './academicSupervisor/academicSupervisorContents';
+import AcademicSupervisorSidebar from './academicSupervisor/academicSupervisorSidebar';
 
 const mql = window.matchMedia(`(min-width: 800px)`);
 
@@ -67,6 +69,10 @@ export const HomePage = () => {
   else if (userRole === 'coordinator') {
     activeContents =  <CoordinatorContent />
     activeSidebar = <CoordinatorSidebar />
+  }
+  else if (userRole === 'academic supervisor') {
+    activeContents =  <AcademicSupervisorContents />
+    activeSidebar = <AcademicSupervisorSidebar />
   }
 
     const sidebarProps = {
