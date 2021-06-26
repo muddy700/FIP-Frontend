@@ -50,6 +50,11 @@ const CoordinatorSidebar = () => {
                 </Link>
             </li>
             <li className="list-item">
+                <Link to = "/result_summary" className="aside-link">
+                     <Icon glyph="pin" size={32} /> <span>Field Result Summary</span>
+                </Link>
+            </li>
+            <li className="list-item">
                 <Link to = "/announcements" className="aside-link">
                      <Icon glyph="pin" size={32} /> <span>My Announcements</span>
                 </Link>

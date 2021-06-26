@@ -13,6 +13,7 @@ import AlumniProjectsPage from './alumniProjectsPage';
 import FieldPostsPage from './fieldPostsPage';
 import FieldApplications from './fieldApplications';
 import ReportedStudentsPage from './reportedStudentsPage';
+import ResultSummaryPage from './resultSummaryPage';
 
 const CoordinatorContents = () => {
 
@@ -33,6 +34,9 @@ const CoordinatorContents = () => {
             </Route>
             <Route exact path={["/reported_students"]}>
                 <ReportedStudentsPage />
+            </Route>
+            <Route exact path={["/result_summary"]}>
+                <ResultSummaryPage />
             </Route>
             <Route exact path="/field_post/:id/applicants">
                 <FieldApplications />

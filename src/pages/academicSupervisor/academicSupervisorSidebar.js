@@ -59,6 +59,11 @@ const AcademicSupervisorSidebar = () => {
                      <Icon glyph="pin" size={32} /> <span>My Students</span>
                 </Link>
             </li> 
+            <li className="list-item">
+                <Link to = "/result_summary" className="aside-link">
+                     <Icon glyph="pin" size={32} /> <span>Result Summary</span>
+                </Link>
+            </li> 
             <li className="inner-list-item">
                 <Link to = "/my_profile" className="aside-link">
                     <Icon glyph="person" size={24} /> <span>My Profile</span>

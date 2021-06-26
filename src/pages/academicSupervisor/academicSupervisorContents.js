@@ -10,6 +10,7 @@ import ProfilePage from './profilePage';
 // import AnnouncementsPage from './announcementsPage';
 import PasswordPage from './passwordPage';
 import MyStudentsPage from './myStudentsPage';
+import ResultSummaryPage from './resultSummaryPage';
 // import AlumniProjectsPage from './alumniProjectsPage';
 // import FieldPostsPage from './fieldPostsPage';
 // import FieldApplications from './fieldApplications';
@@ -28,6 +29,9 @@ const AcademicSupervisorContents = () => {
               </Route>
             <Route exact path={["/my_students"]}>
                 <MyStudentsPage />
+              </Route>
+            <Route exact path={["/result_summary"]}>
+                <ResultSummaryPage />
               </Route>
             <Route exact path={["/password"]}>
                 <PasswordPage />

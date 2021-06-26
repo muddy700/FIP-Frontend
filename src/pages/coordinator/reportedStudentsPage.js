@@ -7,7 +7,7 @@ import { Button, Row, Col, Card, InputGroup, FormControl, Form } from 'react-boo
 import Message from '../../components/message'
 import { Link } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
-import { editStudentProfileInfo, getAllReportedStudentsProfiles, getUsersProfilesByDesignationId} from '../../app/api';
+import { editStudentProfileInfo, getAllReportedStudentsProfiles, getStaffProfile, getUsersProfilesByDesignationId} from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 import Loader from '../../components/loader'
@@ -98,14 +98,28 @@ function ReportedStudentsPage() {
     const [selectedSupervisor, setSelectedSupervisor] = useState(38)
     const [selectedStudent, setSelectedStudent] = useState({})
     const [isSendingData, setIsSendingData] = useState(false)
+    const [staffProfile, setStaffProfile] = useState({})
 
+      const getProfile = async () => {
+        try {
+            const profile = await getStaffProfile(user.userId, config)
+          setStaffProfile(profile[0])
+          fetchStudentsProfiles(profile[0]);
+        } catch (error) {
+            console.log({
+                'Request': 'Getting Staff Profile Request',
+                'Error => ' : error,
+            })
+        }
+    }
     
-    const fetchStudentsProfiles = async () => {
+    const fetchStudentsProfiles = async (staff) => {
         try {
             const response = await getAllReportedStudentsProfiles(config)
             const arrangedArray = response.slice().sort((a, b) => b.date_reported.localeCompare(a.date_reported))
-            setStudentsProfiles(arrangedArray)
-            setDisplayArray(arrangedArray)
+            const department_students = arrangedArray.filter(item => item.department === staff.department)
+            setStudentsProfiles(department_students)
+            setDisplayArray(department_students)
         } catch (error) {
             console.log(
                 'Fetching All Students Profiles', error.response.data ) }
@@ -121,7 +135,7 @@ function ReportedStudentsPage() {
     }
 
     useEffect(() => {
-        fetchStudentsProfiles();
+        getProfile();
         fetchAcademicSupervisor();
     }, [])
 
@@ -215,7 +229,7 @@ function ReportedStudentsPage() {
         <ContentModal
         show={modalShow}
         isTable={false}
-        title={modalTitle}
+        title={modalTitle}  
         content={modalContent}
         onHide={() => setModalShow(false)}
       />
