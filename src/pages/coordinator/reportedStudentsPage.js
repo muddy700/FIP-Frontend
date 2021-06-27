@@ -7,10 +7,11 @@ import { Button, Row, Col, Card, InputGroup, FormControl, Form } from 'react-boo
 import Message from '../../components/message'
 import { Link } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
-import { editStudentProfileInfo, getAllReportedStudentsProfiles, getStaffProfile, getUsersProfilesByDesignationId} from '../../app/api';
+import { editMultipleStudentsProfiles, editStudentProfileInfo, getAllReportedStudentsProfiles, getStaffProfile, getUsersProfilesByDesignationId} from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 import Loader from '../../components/loader'
+import XLSX from 'xlsx';
 
 function ReportedStudentsPage() {
   const [page, setPage] = useState(1)
@@ -41,6 +42,13 @@ function ReportedStudentsPage() {
     // ellipsis: 'true',
     dataIndex: 'date_reported',
     render: text => <>{text.substr(0,10)}</>,
+  },
+  {
+    title: 'Status',
+    key: 'id',
+    // ellipsis: 'true',
+    dataIndex: 'student_status',
+    render: text => <Tag color={text ? 'green' : 'red'}>{text ? 'Inprogress' : 'Discontinue'}</Tag>,
   },
   {
     title: 'Academic Supervisor',
@@ -92,6 +100,7 @@ function ReportedStudentsPage() {
     const user = useSelector(selectUserData)
     const config = useSelector(apiConfigurations)
     const [modalShow, setModalShow] = useState(false);
+    const [modalShow2, setModalShow2] = useState(false);
     const [studentsProfiles, setStudentsProfiles] = useState([])
     const [displayArray, setDisplayArray] = useState([])
     const [academicSupervisors, setAcademicSupervisors] = useState([])
@@ -99,6 +108,10 @@ function ReportedStudentsPage() {
     const [selectedStudent, setSelectedStudent] = useState({})
     const [isSendingData, setIsSendingData] = useState(false)
     const [staffProfile, setStaffProfile] = useState({})
+    const [excelFile, setExcelFile] = useState(null)
+    const [excelData, setExcelData] = useState([])
+    const [excelError, setExcelError] = useState('')
+    const [isSendingExcelData, setIsSendingExcelData] = useState(false)
 
       const getProfile = async () => {
         try {
@@ -195,8 +208,130 @@ function ReportedStudentsPage() {
     const showBySupervisor = (id) => {
         const matched_students = studentsProfiles.filter(item => item.academic_supervisor === parseInt(id))
         setDisplayArray(matched_students)
-    }
+  }
+  
+  const mergeStudentInfo = (data) => {
+    let merged_students = [];
 
+    for (let i = 0; i < studentsProfiles.length; i++){
+      let obj = studentsProfiles[i]
+
+      let isObjIncluded = data.find(item => item.registration_number === obj.registration_number)
+      if (isObjIncluded) {
+        merged_students.push(obj)
+      }
+      else {
+        console.log('data not found')
+      }
+    }
+    return merged_students
+  }
+
+  const sendDiscontinuedStudents = async () => {
+    if (!excelData[0].registration_number) {
+      setExcelError('Invalid data format. Follow the instruction above.')
+      setExcelFile(null)
+    }
+    else {
+      setIsSendingExcelData(true)
+      const validData = excelData.filter(item => item.registration_number)
+      let payloads = mergeStudentInfo(validData)
+      payloads = payloads.map(item => { return { ...item, student_status: false } })
+
+      try {
+        const responses = await editMultipleStudentsProfiles(payloads, config)
+        fetchStudentsProfiles(staffProfile)
+        setIsSendingExcelData(false)
+        setModalShow2(false)
+      } catch (error) {
+        console.log('Sending Discontinued Students ', error.response.data)
+        setIsSendingExcelData(false)
+      }
+    }
+  }
+
+  const fileValidator = (e) => {
+      const allowedDocFormats = /(\.xlsx)$/i;
+      const uploadedFile = e.target.files[0]
+      
+      if (!allowedDocFormats.exec(uploadedFile.name)) {
+        setExcelError('Unsurpoted File Format. Only excel file is allowed')
+        setExcelFile(null)
+          return false
+      }
+      else {
+        setExcelError('')
+        setExcelFile(uploadedFile)
+        return true
+      }
+  }
+    
+  const handleExcel = (e) => {
+    const isFileValid = fileValidator(e)
+
+    if (isFileValid) {
+      const { files } = e.target;
+      const fileReader = new FileReader();
+
+      fileReader.onload = e => {
+      try {
+        const { result } = e.target;
+        //  the entire excel spreadsheet object is read as a binary stream 
+        const workbook = XLSX.read(result, { type: 'binary' });
+        //  stores the retrieved data 
+        let data = [];
+        //  walk through each sheet to read （ by default, only the first table is read ）
+        for (const sheet in workbook.Sheets) {
+          if (workbook.Sheets.hasOwnProperty(sheet)) {
+            //  using sheet_to_json  method will be excel  into json  data 
+            data = data.concat(XLSX.utils.sheet_to_json(workbook.Sheets[sheet]));
+            break; //  if you only take the first table, uncomment the row 
+          }
+        }
+        //  finally obtained and formatted json  data 
+        // console.log(data);
+        setExcelData(data)
+        
+      } catch (e) {
+        //  here you can throw a hint that the file type error is incorrect 
+        console.log(' incorrect file type ！');
+      }
+    };
+    //  open the file in binary mode 
+    fileReader.readAsBinaryString(files[0]);
+    }
+    else {
+      console.log('Invalid File Selected')
+    }
+  }
+
+  const modalTitle2 = 'Instructions'
+  const modalContent2 = <>
+    <Row style={{paddingLeft: '2%'}}>
+      <span>Upload an excel file with only one column named <b>registration_number</b></span>
+    </Row> <br />
+    <Row >
+            <Col >
+              <Button variant='danger' hidden={!excelError}>{excelError}</Button>
+              {/* <Message variant='danger' hidden={!excelError}>{excelError}</Message> */}
+            </Col>
+            <Col >
+              <label style={{backgroundColor: 'lightgray', height: '100%', borderRadius: '5px', display: 'inline-block', padding: '8px 12px 0px 12px', cursor: 'pointer' }}>
+                {excelFile ? excelFile.name : 'Select File'}
+                <input type="file" onChange={handleExcel}
+                  accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                  style={{ display: 'none' }} />
+              </label>
+          </Col>
+          <Col md={2}>
+            <Button 
+              disabled={!excelFile}
+          onClick={e => { e.preventDefault(); sendDiscontinuedStudents()}}
+        >{isSendingExcelData ? <Loader message='Uploading...' /> : 'Send'}</Button>
+          </Col>
+
+          </Row></>
+  
     return (
     <Card >
         <Card.Header >
@@ -218,7 +353,9 @@ function ReportedStudentsPage() {
                         ))}
                         </Form.Control>
                     </Col>
-                </Row>
+                    <Button onClick={e => { e.preventDefault(); setModalShow2(true) }}>Upload discontinued </Button> &nbsp; &nbsp;
+          </Row>
+          
                 <hr/>
           <Table
             columns={columns}
@@ -232,6 +369,13 @@ function ReportedStudentsPage() {
         title={modalTitle}  
         content={modalContent}
         onHide={() => setModalShow(false)}
+      />
+        <ContentModal
+        show={modalShow2}
+        isTable={false}
+        title={modalTitle2}  
+        content={modalContent2}
+          onHide={() => { setModalShow2(false); setExcelFile(null)}}
       />
         </Card>
     )

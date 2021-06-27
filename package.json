@@ -23,7 +23,8 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
     "react-sidebar": "^3.0.2",
-    "supercons": "^0.0.1"
+    "supercons": "^0.0.1",
+    "xlsx": "npm:tempa-xlsx@^0.8.20"
   },
   "scripts": {
     "start": "react-scripts start",

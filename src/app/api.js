@@ -458,3 +458,9 @@ export async function getStudentsByAcademicSupervisor(supervisorId, config) {
     const response = await baseLink.get(`filter/academic_supervisor/${supervisorId}/students/`, config)
     return response.data
 }
+
+export async function editMultipleStudentsProfiles(payloads, config){
+    const requests = payloads.map((item) => baseLink.put(`students_profiles/${item.id}/`, item, config))
+   const  responseArray = await axios.all([...requests])
+   return responseArray
+}

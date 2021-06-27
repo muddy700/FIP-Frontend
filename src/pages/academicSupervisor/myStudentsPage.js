@@ -3,7 +3,7 @@ import '../../App.css'
 import { List, Avatar, Space, Tag, Table, Popconfirm } from 'antd';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import Icon from 'supercons'
-import { Button, Row, Col, Card, Modal, Form, FormControl } from 'react-bootstrap'
+import { Button, Row, Col, Card, Modal, Form, FormControl, } from 'react-bootstrap'
 import Message from '../../components/message'
 import { Link } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
@@ -11,6 +11,8 @@ import { editselectedStudentInfo, editStudentProfileInfo, getAllReportedStudents
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 import Loader from '../../components/loader'
+import XLSX from 'xlsx';
+
 
 function MyStudentsPage() {
   const [page, setPage] = useState(1)
@@ -54,7 +56,7 @@ function MyStudentsPage() {
     key: 'id',
     // ellipsis: 'true',
     dataIndex: 'student_status',
-    render: text => <Tag color={text ? 'green' : 'red'}>{text ? 'Passed' : 'Failed'}</Tag>,
+    render: text => <Tag color={text ? 'green' : 'red'}>{text ? 'Inprogress' : 'Discontinue'}</Tag>,
   },
   {
       title: 'Report',
@@ -150,6 +152,7 @@ function MyStudentsPage() {
     const [fieldScore, setFieldScore] = useState(null)
     const [modalTitle, setModalTitle] = useState('')
     const [modalContent, setModalContent] = useState('')
+    const [uploadedData, setUploadedData] = useState([])
 
         
     const fetchStudentsProfiles = async () => {
@@ -354,28 +357,58 @@ function MyStudentsPage() {
             </Button>
         </Col>
     </Row>
+    
+const handleExcel = (e) => {
+const { files } = e.target;
+const fileReader = new FileReader();
 
+fileReader.onload = e => {
+  try {
+    const { result } = e.target;
+    //  the entire excel spreadsheet object is read as a binary stream 
+    const workbook = XLSX.read(result, { type: 'binary' });
+    //  stores the retrieved data 
+    let data = [];
+    //  walk through each sheet to read （ by default, only the first table is read ）
+    for (const sheet in workbook.Sheets) {
+      if (workbook.Sheets.hasOwnProperty(sheet)) {
+        //  using sheet_to_json  method will be excel  into json  data 
+        data = data.concat(XLSX.utils.sheet_to_json(workbook.Sheets[sheet]));
+        break; //  if you only take the first table, uncomment the row 
+      }
+    }
+    //  finally obtained and formatted json  data 
+    console.log(data);
+
+  } catch (e) {
+    //  here you can throw a hint that the file type error is incorrect 
+    console.log(' incorrect file type ！');
+  }
+};
+//  open the file in binary mode 
+fileReader.readAsBinaryString(files[0]);
+
+    }
+    
+
+    
     return (
     <Card >
         <Card.Header >
           <Message variant='info' >List of students assigned to you</Message>
         </Card.Header>
             <Card.Body style={{ overflowX: 'scroll' }}  >
-                <Row style={{marginBottom: '16px'}}>
+                <Row style={{marginBottom: '16px', }}>
                     <Button onClick={e => { e.preventDefault(); showAllStudents()}}>All </Button> &nbsp; &nbsp;
                     <Button onClick={e => { e.preventDefault(); showPassedStudents()}}>Passed</Button> &nbsp; &nbsp;
                     <Button onClick={e => { e.preventDefault(); showFailedStudents()}}>Discontinued </Button> &nbsp; &nbsp;
-                    {/* <Col md={{ span: 4 }}>
-                        <Form.Control as="select"
-                        size="md"
-                        onChange={e => { showBySupervisor(e.target.value)}}
-                        name="academic_supervisor">
-                        <option value={38}>---Filter by supervisor---</option>
-                        {academicSupervisors.map(person => (
-                            <option value={person.user}>{person.username} </option>
-                        ))}
-                        </Form.Control>
-                    </Col> */}
+                    <Button onClick={e => { e.preventDefault(); showFailedStudents()}}>Get Format </Button> &nbsp; &nbsp;
+                    <Col md={{span:3}}>
+                        <label style={{backgroundColor: 'lightblue', height: '100%', borderRadius: '5px', display: 'inline-block', padding: '8px 12px 0px 12px', cursor: 'pointer' }}>
+                            Upload Excel
+                            <input type="file" onChange={handleExcel} accept="*" style={{ display: 'none' }}/>
+                        </label>
+                    </Col>
                 </Row>
                 <hr/>
           <Table
