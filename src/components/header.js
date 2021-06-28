@@ -61,7 +61,7 @@ const Header = ({ changeCollapse, value }) => {
         <div className="header-card">
             <Navbar className="header-card" sticky="top" fixed="top" >
                 <Link to = "/home" className="link" style={{color: 'white'}}>
-                    <Navbar.Brand href="#home" style={{ color: 'white' }}>CIVE-FIPMS</Navbar.Brand>
+                    <Navbar.Brand href="#home" style={{ color: 'white' }}>FIPMS</Navbar.Brand>
                 </Link>
                 <Nav className="mr-auto">
                 <Icon glyph="list" size={32} onClick={changeCollapse} />

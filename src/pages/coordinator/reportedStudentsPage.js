@@ -254,7 +254,10 @@ function ReportedStudentsPage() {
       const allowedDocFormats = /(\.xlsx)$/i;
       const uploadedFile = e.target.files[0]
       
-      if (!allowedDocFormats.exec(uploadedFile.name)) {
+      if (!uploadedFile) {
+          return false
+      }
+      else if (!allowedDocFormats.exec(uploadedFile.name)) {
         setExcelError('Unsurpoted File Format. Only excel file is allowed')
         setExcelFile(null)
           return false
@@ -375,7 +378,7 @@ function ReportedStudentsPage() {
         isTable={false}
         title={modalTitle2}  
         content={modalContent2}
-          onHide={() => { setModalShow2(false); setExcelFile(null)}}
+          onHide={() => { setModalShow2(false); setExcelFile(null); setExcelError('')}}
       />
         </Card>
     )

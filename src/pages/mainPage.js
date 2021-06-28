@@ -102,7 +102,7 @@ export const HomePage = () => {
               {activeContents}
             </Card.Body>
             <div style={{ backgroundColor: '#2F4050', textAlign: 'center', color: 'white', paddingBottom: '7px', paddingTop: '2px' }}>
-              <i>CIVE-FIPMS@2021</i>
+              <i>FIPMS@2021</i>
             </div>
           </div>
         </Sidebar>
