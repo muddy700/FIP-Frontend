@@ -86,6 +86,10 @@ Done
     27/6/2021
 1. Allowed Coordinator To Upload Discontinued Students
 
+    28/6/2021
+1. Allowed Academic Supervisor To Fill Students Marks In Any Order ie.. By Starting Academic Marks Or Report Marks
+2. Validated Result Excel File Uploaded By Academic Supervisor And Threw Error Messages
+
 Planned
 1. Validate All Forms And Provide A Fixed Error Display Area.
 2. Allow Organizations To Upload Results(ie Practical or Oral Interview Results) From A File(ie. Excel).
@@ -117,6 +121,15 @@ Planned
 27. Put Organization Profile In Available Post (in Alumi Page)
 28. Change Fonts
 29. Handle Error If User Does Not Have Profile
+
+allow admin to upload a list of students and Alumni
+Check if we can add user with registration numbers
+replace all username with fname and lname
+in username place designation
+set username to email for staff and organization
+set time interval in alumni test
+set time out in main.js
+
 
 ===>>> Note When Adding New User Make Sure
     1. You Add A Profile For The User(User Profile Table)

@@ -435,18 +435,142 @@ function MyStudentsPage() {
         </Col>
     </Row>
     
-  const checkUploadedData = () => {
-    if (!excelData[0].registration_number) {
-      setExcelError('Invalid data format. Follow the instruction above.')
-      setExcelFile(null)
+  const convertDataIntoFloat = (data) => {
+       const convertedData = data.map(item => {
+          return {
+            ...item,  report_marks: parseFloat(item.report_marks),
+              field_supervisor_marks: parseFloat(item.field_supervisor_marks),
+              academic_supervisor_marks: parseFloat(item.academic_supervisor_marks)
+          }
+       })
+      return convertedData;
+    }
+    
+  const checkRegNo = (dataList) => {
+    let invalidData = [];
+
+    for (let i = 0; i < dataList.length; i++) {
+      let obj = dataList[i];
+
+      let hasMatched = studentsProfiles.find(item => item.registration_number === obj.registration_number)
+
+      if (hasMatched) { }
+      else {
+        invalidData.push(obj)
+      }
+    }
+    return invalidData.find(item => (!item.undefined && item.registration_number))
+  }
+
+  const checkDataTypes = (dataList) => {
+      const reportMarksIsNaN = excelData.find(item => isNaN(item.report_marks) )
+      const academicMarksIsNaN = excelData.find(item => isNaN(item.academic_supervisor_marks) )
+      const fieldMarksIsNaN = excelData.find(item => isNaN(item.field_supervisor_marks))
+      
+      if (!reportMarksIsNaN.undefined && reportMarksIsNaN) {
+        setExcelError(`"${reportMarksIsNaN.registration_number}" has invalid "report_marks" => "${reportMarksIsNaN.report_marks}"`)
+        setExcelFile(null)
+        return false
+      }
+      else if (!academicMarksIsNaN.undefined && academicMarksIsNaN) {
+        setExcelError(`"${academicMarksIsNaN.registration_number}" has invalid "academic_marks" => "${academicMarksIsNaN.academic_supervisor_marks}"`)
+        setExcelFile(null)
+        return false
+      }
+      else if (!fieldMarksIsNaN.undefined && fieldMarksIsNaN) {
+        setExcelError(`"${fieldMarksIsNaN.registration_number}" has invalid "field_marks" => "${fieldMarksIsNaN.field_supervisor_marks}"`)
+        setExcelFile(null)
+        return false
+      }
+      else if (checkRegNo(excelData)) {
+        setExcelError(`Registration number "${checkRegNo(excelData).registration_number}" is incorrect.`)
+        setExcelFile(null)
+        return false
+      }
+      else {
+        setExcelError('')
+        setExcelFile(null)
+        return true
     }
   }
 
+    const checkDataColumns = () => {
+      const regNoIsMissing = excelData.find(item => !item.registration_number)
+      const reportMarksIsMissing = excelData.find(item => !item.report_marks )
+      const academicMarksIsMissing = excelData.find(item => !item.academic_supervisor_marks )
+      const fieldMarksIsMissing = excelData.find(item => !item.field_supervisor_marks)
+      
+      if (!(excelData[0].hasOwnProperty('registration_number'))) {
+        setExcelError('"registration_number" column is missing.')
+        setExcelFile(null)
+        return false
+      }
+      else if (!(excelData[0].hasOwnProperty('report_marks'))) {
+        setExcelError('"report_marks" column is missing.')
+        setExcelFile(null)
+        return false
+      }
+      else if (!(excelData[0].hasOwnProperty('academic_supervisor_marks'))) {
+        setExcelError('"academic_supervisor_marks" column is missing.')
+        setExcelFile(null)
+        return false
+      }
+      else if (!(excelData[0].hasOwnProperty('field_supervisor_marks'))) {
+        setExcelError('"field_supervisor_marks" column is missing')
+        setExcelFile(null)
+        return false
+      }
+      else if (!regNoIsMissing.undefined && (regNoIsMissing && !regNoIsMissing.registration_number)) {
+        setExcelError('Some data are missing registration number.')
+        setExcelFile(null)
+        return false
+      }
+      else if (!reportMarksIsMissing.undefined && (reportMarksIsMissing && !reportMarksIsMissing.report_marks)) {
+        setExcelError(`"${reportMarksIsMissing.registration_number}" is missing "report_marks".`)
+        setExcelFile(null)
+        return false
+      }
+      else if (!academicMarksIsMissing.undefined && (academicMarksIsMissing && !academicMarksIsMissing.academic_supervisor_marks)) {
+        setExcelError(`"${academicMarksIsMissing.registration_number}" is missing "academic_supervisor_marks".`)
+        setExcelFile(null)
+        return false
+      }
+      else if (!fieldMarksIsMissing.undefined && (fieldMarksIsMissing && !fieldMarksIsMissing.field_supervisor_marks)) {
+        setExcelError(`"${fieldMarksIsMissing.registration_number}" is missing "field_supervisor_marks".`)
+        setExcelFile(null)
+        return false
+      }
+      else {
+        return checkDataTypes(convertDataIntoFloat(excelData))
+      }
+  }
+  
+  const mergeResultArray = (data) => {
+    let merged_array = [];
+    
+    for (let i = 0; i < studentsProfiles.length; i++){
+      let obj = studentsProfiles[i];
+
+      const hasOccured = excelData.find(item => item.registration_number === obj.registration_number)
+      if (hasOccured) {
+        obj = {
+          ...obj, report_marks: parseFloat(hasOccured.report_marks),
+          field_supervisor_marks: parseFloat(hasOccured.field_supervisor_marks),
+          academic_supervisor_marks: parseFloat(hasOccured.academic_supervisor_marks)
+        }
+        merged_array.push(obj)
+      }
+    }
+    return merged_array;
+  }
+
   const sendUploadedResults = async () => {
-    const isDataCorrectFetched = checkUploadedData()
+    const isDataCorrectFetched = checkDataColumns()
 
     if(isDataCorrectFetched) {
-      console.log(excelData)
+      // console.log(excelData)
+      const payloads = mergeResultArray(excelData)
+      // console.log(payloads)
       // setIsSendingExcelData(true)
       // const validData = excelData.filter(item => item.registration_number)
       // let payloads = mergeStudentInfo(validData)
@@ -462,17 +586,22 @@ function MyStudentsPage() {
         // setIsSendingExcelData(false)
       }
     }
-
+    
   }
-
+  
   const fileValidator = (e) => {
     const allowedDocFormats = /(\.xlsx)$/i;
     const uploadedFile = e.target.files[0]
     
-    if (!allowedDocFormats.exec(uploadedFile.name)) {
-      setExcelError('Unsurpoted File Format. Only excel file is allowed')
+    if (!uploadedFile) {
+      setExcelError('No file selected')
       setExcelFile(null)
-        return false
+      return false
+    }
+    else if (!allowedDocFormats.exec(uploadedFile.name)) {
+      setExcelError('Unsurpoted File Type. Only excel file is allowed')
+      setExcelFile(null)
+      return false
     }
     else {
       setExcelError('')
@@ -505,6 +634,7 @@ const handleExcel = (e) => {
         }
         //  finally obtained and formatted json  data 
         // console.log(data);
+      
         setExcelData(data)
       } catch (e) {
         //  here you can throw a hint that the file type error is incorrect 
