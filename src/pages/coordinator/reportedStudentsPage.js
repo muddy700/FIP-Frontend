@@ -118,6 +118,7 @@ function ReportedStudentsPage() {
             const profile = await getStaffProfile(user.userId, config)
           setStaffProfile(profile[0])
           fetchStudentsProfiles(profile[0]);
+          fetchAcademicSupervisor(profile[0])
         } catch (error) {
             console.log({
                 'Request': 'Getting Staff Profile Request',
@@ -138,9 +139,13 @@ function ReportedStudentsPage() {
                 'Fetching All Students Profiles', error.response.data ) }
     }
 
-    const fetchAcademicSupervisor = async () => {
+    const fetchAcademicSupervisor = async (staff) => {
         try {
-            const response = await getUsersProfilesByDesignationId(5, config)
+          const response = await getUsersProfilesByDesignationId(5, config)
+          // console.log(response)
+          // console.log(staff.department)
+          // const department_supervisors = response.filter(item => item.department === staff.department)
+          // const department_supervisors = response.filter(item => item.department === staff.department)
             setAcademicSupervisors(response)
         } catch (error) {
             console.log(
@@ -149,7 +154,7 @@ function ReportedStudentsPage() {
 
     useEffect(() => {
         getProfile();
-        fetchAcademicSupervisor();
+        // fetchAcademicSupervisor();
     }, [])
 
     const assignAcademicSupervisor = async () => {

@@ -152,7 +152,7 @@ export const LoginPage = () => {
             <Row style={{ width: '100%'}}>
                 <Col md={{span: 4, offset: 4}}>
                     <Card >
-                        <Card.Header style={{backgroundColor: '#2F4050', color: 'white'}}>CIVE FIP</Card.Header>
+                        <Card.Header style={{backgroundColor: '#2F4050', color: 'white'}}>FIPMS</Card.Header>
                         <Card.Body>
                             <Form  onSubmit={(e) => onFinish(e)}>
                                 <Form.Group controlId="formGroupEmail">

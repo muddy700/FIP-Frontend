@@ -92,6 +92,7 @@ Done
  
     29/6/2021
 1. Allowed Academic Supervisor To Send Uploaded Field Marks
+2. Added More Validations In Uploaded Excel File
 
 
 
@@ -126,6 +127,7 @@ Planned
 27. Put Organization Profile In Available Post (in Alumi Page)
 28. Change Fonts
 29. Handle Error If User Does Not Have Profile
+30. Allow Organization To Add GPA Limit In Alumni Posts. Or Filter Alumni By GPA In The Stage Of Processing
 
 allow admin to upload a list of students and Alumni
 Check if we can add user with registration numbers

@@ -205,44 +205,26 @@ function MyStudentsPage() {
         setDisplayArray(failed)
     }
 
-  const convertLinkToFile = async (fileUrl) => {
-        const blob = await (await fetch(fileUrl)).blob();
-        const report_file = new File([blob], `${selectedStudent.registration_number}.pdf`, { type: "application/pdf", lastModified: new Date() });
-        return report_file
-  }
+  // const convertLinkToFile = async (fileUrl) => {
+  //       const blob = await (await fetch(fileUrl)).blob();
+  //       const report_file = new File([blob], `${selectedStudent.registration_number}.pdf`, { type: "application/pdf", lastModified: new Date() });
+  //       return report_file
+  // }
   
   const sendReportMarks = async () => {
         setIsSendingData(true)
+    const {
+      field_report, academic_supervisor_marks, field_supervisor_marks,
+      ...rest } = selectedStudent
+      const payload = {
+        ...rest,
+        report_marks: reportScore,
+        average_marks: calculateAverageMarks(),
+        marks_grade:  calculateGrade(calculateAverageMarks())
+      }
         
-        const payload = new FormData()
-        payload.append('student_status', selectedStudent.student_status)
-        payload.append('phone_number', selectedStudent.phone_number)
-        payload.append('year_of_study', selectedStudent.year_of_study)
-        payload.append('program', selectedStudent.program)
-        payload.append('student', selectedStudent.student)
-        payload.append('organization', selectedStudent.organization)
-        payload.append('field_supervisor', selectedStudent.field_supervisor)
-        payload.append('department', selectedStudent.department)
-        payload.append('academic_supervisor', selectedStudent.academic_supervisor)
-        payload.append('has_reported', selectedStudent.has_reported)
-        payload.append('date_reported', selectedStudent.date_reported)
-        // payload.append('field_report', '')
-        payload.append('field_report', convertLinkToFile(selectedStudent.report_file))
-        payload.append('report_marks', reportScore)
-        payload.append('academic_supervisor_marks', getAcademicMarks())
-        payload.append('field_supervisor_marks', getFieldMarks())
-        payload.append('average_marks', calculateAverageMarks())
-        payload.append('marks_grade', calculateGrade(calculateAverageMarks()))
-        
-        const config2 = {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'Authorization': `Token ${localStorage.getItem('token')}`
-          }
-        }
-
         try {
-          const response = await sendFieldReport(selectedStudent.id, payload, config2)
+          const response = await sendFieldReport(selectedStudent.id, payload, config)
             setSelectedStudent(response)
             const new_list = studentsProfiles.map(item => item.id === response.id ? response : item)
             setStudentsProfiles(new_list)
@@ -263,7 +245,7 @@ function MyStudentsPage() {
         const getAcademicMarks = () => {
           let marks = null;
           if (reportScore) {
-            marks = selectedStudent.academic_supervisor_marks ? selectedStudent.academic_supervisor_marks : '';
+            marks = selectedStudent.academic_supervisor_marks ? selectedStudent.academic_supervisor_marks : null;
           }
           else {
             marks = academicScore ? academicScore : null;
@@ -288,7 +270,7 @@ function MyStudentsPage() {
         return average.toFixed(2)
       }
       else {
-        return reportScore ? '' : null;
+        return null;
       }
   }
 
@@ -318,53 +300,19 @@ function MyStudentsPage() {
       }
    }
 
-  const createPayload = () => {
-    if (selectedStudent.report_file) {
-      const payload = new FormData()
-      payload.append('student_status', selectedStudent.student_status)
-      payload.append('phone_number', selectedStudent.phone_number)
-      payload.append('year_of_study', selectedStudent.year_of_study)
-      payload.append('program', selectedStudent.program)
-      payload.append('student', selectedStudent.student)
-      payload.append('organization', selectedStudent.organization)
-      payload.append('field_supervisor', selectedStudent.field_supervisor)
-      payload.append('department', selectedStudent.department)
-      payload.append('academic_supervisor', selectedStudent.academic_supervisor)
-      payload.append('has_reported', selectedStudent.has_reported)
-      payload.append('date_reported', selectedStudent.date_reported)
-      payload.append('field_report', convertLinkToFile(selectedStudent.field_report))
-      payload.append('report_marks', getReportMarks())
-      payload.append('academic_supervisor_marks', getAcademicMarks())
-      payload.append('field_supervisor_marks', getFieldMarks())
-      payload.append('average_marks', calculateAverageMarks())
-      payload.append('marks_grade', calculateGrade(calculateAverageMarks()))
-
-      return payload;
-    }
-    else {
-      const payload = {
-        ...selectedStudent,
-        report_marks: getReportMarks(),
-        academic_supervisor_marks: getAcademicMarks(),
-        field_supervisor_marks: getFieldMarks(),
-        average_marks: calculateAverageMarks(),
-        marks_grade: calculateGrade(calculateAverageMarks())
-      }
-      return payload;
-    }
-  }
-
   const sendAcademicAndFieldMarks = async () => {
         setIsSendingData(true)
-        const payload = createPayload()
-        const config2 = {
-                headers: {
-                'Content-Type': 'multipart/form-data',
-                'Authorization': `Token ${localStorage.getItem('token')}`}
+        const { field_report, report_marks, ...rest } = selectedStudent
+        const payload = {
+          ...rest,
+          academic_supervisor_marks: getAcademicMarks(),
+          field_supervisor_marks: getFieldMarks(),
+          average_marks: calculateAverageMarks(),
+          marks_grade:  calculateGrade(calculateAverageMarks())
         }
 
-        try {
-            const response = await sendFieldReport(selectedStudent.id, payload, selectedStudent.report_file ? config2 : config)
+    try {
+            const response = await sendFieldReport(selectedStudent.id, payload, config)
             const new_list = studentsProfiles.map(item => item.id === response.id ? response : item)
             setStudentsProfiles(new_list)
             setDisplayArray(new_list)
@@ -466,18 +414,27 @@ function MyStudentsPage() {
       const reportMarksIsNaN = excelData.find(item => isNaN(item.report_marks) )
       const academicMarksIsNaN = excelData.find(item => isNaN(item.academic_supervisor_marks) )
       const fieldMarksIsNaN = excelData.find(item => isNaN(item.field_supervisor_marks))
-      
-      if (!reportMarksIsNaN.undefined && reportMarksIsNaN) {
+    
+      // if (!reportMarksIsNaN.report_marks && (!academicMarksIsNaN.academic_supervisor_marks && !fieldMarksIsNaN.field_supervisor_marks) ) {
+      //   setExcelError(``)
+      //   setExcelFile(null)
+      //   return true
+      // }
+      // else
+        if (reportMarksIsNaN && reportMarksIsNaN.report_marks) {
+      // else if (!reportMarksIsNaN.undefined && reportMarksIsNaN) {
         setExcelError(`"${reportMarksIsNaN.registration_number}" has invalid "report_marks" => "${reportMarksIsNaN.report_marks}"`)
         setExcelFile(null)
         return false
       }
-      else if (!academicMarksIsNaN.undefined && academicMarksIsNaN) {
+      else if (academicMarksIsNaN && academicMarksIsNaN.academic_supervisor_marks) {
+      // else if (!academicMarksIsNaN.undefined && academicMarksIsNaN) {
         setExcelError(`"${academicMarksIsNaN.registration_number}" has invalid "academic_marks" => "${academicMarksIsNaN.academic_supervisor_marks}"`)
         setExcelFile(null)
         return false
       }
-      else if (!fieldMarksIsNaN.undefined && fieldMarksIsNaN) {
+      else if (fieldMarksIsNaN && fieldMarksIsNaN.field_supervisor_marks) {
+      // else if (!fieldMarksIsNaN.undefined && fieldMarksIsNaN) {
         setExcelError(`"${fieldMarksIsNaN.registration_number}" has invalid "field_marks" => "${fieldMarksIsNaN.field_supervisor_marks}"`)
         setExcelFile(null)
         return false
@@ -500,7 +457,12 @@ function MyStudentsPage() {
       const academicMarksIsMissing = excelData.find(item => !item.academic_supervisor_marks )
       const fieldMarksIsMissing = excelData.find(item => !item.field_supervisor_marks)
       
-      if (!(excelData[0].hasOwnProperty('registration_number'))) {
+      if (!excelData.length) {
+        setExcelError('Selected file has no data.')
+        setExcelFile(null)
+        return false
+      }
+      else if (!(excelData[0].hasOwnProperty('registration_number'))) {
         setExcelError('"registration_number" column is missing.')
         setExcelFile(null)
         return false
@@ -520,7 +482,10 @@ function MyStudentsPage() {
         setExcelFile(null)
         return false
       }
-      else if (!regNoIsMissing.undefined && (regNoIsMissing && !regNoIsMissing.registration_number)) {
+      else if ((!regNoIsMissing && !reportMarksIsMissing) && (!fieldMarksIsMissing && !academicMarksIsMissing)) {
+        return checkDataTypes(convertDataIntoFloat(excelData))
+      }
+      else if (!regNoIsMissing.hasOwnProperty('undefined') && (regNoIsMissing && !regNoIsMissing.registration_number)) {
         setExcelError('Some data are missing registration number.')
         setExcelFile(null)
         return false
@@ -566,16 +531,20 @@ function MyStudentsPage() {
 
   const calculateMultipleAverageAndGrades = (dataList) => {
     let dataWithAverage = dataList.map(item => {
-      return {...item, average_marks: ((item.report_marks + item.academic_supervisor_marks + item.field_supervisor_marks) / 3)}
+      return {...item, average_marks: ((item.report_marks + item.academic_supervisor_marks + item.field_supervisor_marks) / 3).toFixed(2)}
     })
 
     let dataWithGrades = dataWithAverage.map(item => {
       return {...item, marks_grade: calculateGrade(item.average_marks)}
     })
-    return dataWithGrades
+
+    const dataWithoutFieldReport = dataWithGrades.map(item => {
+      let { field_report, ...rest } = item;
+      return rest
+    })
+    return dataWithoutFieldReport
   }
 
-  
   const sendUploadedResults = async () => {
     const isDataCorrectFetched = checkDataColumns()
 
