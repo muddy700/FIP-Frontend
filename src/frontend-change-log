@@ -89,6 +89,11 @@ Done
     28/6/2021
 1. Allowed Academic Supervisor To Fill Students Marks In Any Order ie.. By Starting Academic Marks Or Report Marks
 2. Validated Result Excel File Uploaded By Academic Supervisor And Threw Error Messages
+ 
+    29/6/2021
+1. Allowed Academic Supervisor To Send Uploaded Field Marks
+
+
 
 Planned
 1. Validate All Forms And Provide A Fixed Error Display Area.

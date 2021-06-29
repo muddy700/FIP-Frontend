@@ -7,7 +7,7 @@ import { Button, Row, Col, Card, Modal, Form, FormControl, } from 'react-bootstr
 import Message from '../../components/message'
 import { Link } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
-import { editselectedStudentInfo, editStudentProfileInfo, getAllReportedStudentsProfiles, getStudentsByAcademicSupervisor, getUsersProfilesByDesignationId, sendFieldReport} from '../../app/api';
+import { editMultipleStudentsProfiles, editselectedStudentInfo, editStudentProfileInfo, getAllReportedStudentsProfiles, getStaffProfile, getStudentsByAcademicSupervisor, getUsersProfilesByDesignationId, sendFieldReport} from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 import Loader from '../../components/loader'
@@ -161,7 +161,7 @@ function MyStudentsPage() {
     const [excelFile, setExcelFile] = useState(null)
     const [excelError, setExcelError] = useState('')
     const [excelData, setExcelData] = useState([])
-    
+  
     const fetchStudentsProfiles = async () => {
         try {
             const response = await getStudentsByAcademicSupervisor(user.userId, config)
@@ -176,7 +176,7 @@ function MyStudentsPage() {
     }
 
     useEffect(() => {
-        fetchStudentsProfiles();
+      fetchStudentsProfiles();
     }, [])
 
     const prepareData = (data) => {
@@ -551,12 +551,12 @@ function MyStudentsPage() {
     for (let i = 0; i < studentsProfiles.length; i++){
       let obj = studentsProfiles[i];
 
-      const hasOccured = excelData.find(item => item.registration_number === obj.registration_number)
+      const hasOccured = data.find(item => item.registration_number === obj.registration_number)
       if (hasOccured) {
         obj = {
-          ...obj, report_marks: parseFloat(hasOccured.report_marks),
-          field_supervisor_marks: parseFloat(hasOccured.field_supervisor_marks),
-          academic_supervisor_marks: parseFloat(hasOccured.academic_supervisor_marks)
+          ...obj, report_marks: hasOccured.report_marks,
+          field_supervisor_marks: hasOccured.field_supervisor_marks,
+          academic_supervisor_marks: hasOccured.academic_supervisor_marks
         }
         merged_array.push(obj)
       }
@@ -564,26 +564,35 @@ function MyStudentsPage() {
     return merged_array;
   }
 
+  const calculateMultipleAverageAndGrades = (dataList) => {
+    let dataWithAverage = dataList.map(item => {
+      return {...item, average_marks: ((item.report_marks + item.academic_supervisor_marks + item.field_supervisor_marks) / 3)}
+    })
+
+    let dataWithGrades = dataWithAverage.map(item => {
+      return {...item, marks_grade: calculateGrade(item.average_marks)}
+    })
+    return dataWithGrades
+  }
+
+  
   const sendUploadedResults = async () => {
     const isDataCorrectFetched = checkDataColumns()
 
     if(isDataCorrectFetched) {
-      // console.log(excelData)
-      const payloads = mergeResultArray(excelData)
-      // console.log(payloads)
-      // setIsSendingExcelData(true)
-      // const validData = excelData.filter(item => item.registration_number)
-      // let payloads = mergeStudentInfo(validData)
-      // payloads = payloads.map(item => { return { ...item, student_status: false } })
-
+      setIsSendingExcelData(true)
+      let payloads = mergeResultArray(convertDataIntoFloat(excelData))
+      payloads = calculateMultipleAverageAndGrades(payloads)
       try {
-        // const responses = await editMultipleStudentsProfiles(payloads, config)
-        // fetchStudentsProfiles(staffProfile)
-        // setIsSendingExcelData(false)
-        // setModalShow2(false)
+        const responses = await editMultipleStudentsProfiles(payloads, config)
+        fetchStudentsProfiles()
+        setExcelData([])
+        setExcelFile(null)
+        setIsSendingExcelData(false)
+        setModalShow3(false)
       } catch (error) {
-        console.log('Sending Discontinued Students ', error.response.data)
-        // setIsSendingExcelData(false)
+        console.log('Sending Uploaded Field marks ', error.response.data)
+        setIsSendingExcelData(false)
       }
     }
     
