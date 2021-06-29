@@ -485,22 +485,24 @@ function MyStudentsPage() {
       else if ((!regNoIsMissing && !reportMarksIsMissing) && (!fieldMarksIsMissing && !academicMarksIsMissing)) {
         return checkDataTypes(convertDataIntoFloat(excelData))
       }
-      else if (!regNoIsMissing.hasOwnProperty('undefined') && (regNoIsMissing && !regNoIsMissing.registration_number)) {
+      else if ((regNoIsMissing && regNoIsMissing.hasOwnProperty('registration_number'))  && !regNoIsMissing.registration_number) {
+      // else if (!regNoIsMissing.hasOwnProperty('undefined') && (regNoIsMissing && !regNoIsMissing.registration_number)) {
         setExcelError('Some data are missing registration number.')
         setExcelFile(null)
         return false
       }
-      else if (!reportMarksIsMissing.undefined && (reportMarksIsMissing && !reportMarksIsMissing.report_marks)) {
+      else if (reportMarksIsMissing && reportMarksIsMissing.hasOwnProperty('report_marks') && !reportMarksIsMissing.report_marks) {
+      // else if (!reportMarksIsMissing.undefined && (reportMarksIsMissing && !reportMarksIsMissing.report_marks)) {
         setExcelError(`"${reportMarksIsMissing.registration_number}" is missing "report_marks".`)
         setExcelFile(null)
         return false
       }
-      else if (!academicMarksIsMissing.undefined && (academicMarksIsMissing && !academicMarksIsMissing.academic_supervisor_marks)) {
+      else if ((academicMarksIsMissing && academicMarksIsMissing.hasOwnProperty('academic_supervisor_marks')) && !academicMarksIsMissing.academic_supervisor_marks) {
         setExcelError(`"${academicMarksIsMissing.registration_number}" is missing "academic_supervisor_marks".`)
         setExcelFile(null)
         return false
       }
-      else if (!fieldMarksIsMissing.undefined && (fieldMarksIsMissing && !fieldMarksIsMissing.field_supervisor_marks)) {
+      else if ((fieldMarksIsMissing && fieldMarksIsMissing.hasOwnProperty('field_supervisor_marks')) && !fieldMarksIsMissing.field_supervisor_marks) {
         setExcelError(`"${fieldMarksIsMissing.registration_number}" is missing "field_supervisor_marks".`)
         setExcelFile(null)
         return false
