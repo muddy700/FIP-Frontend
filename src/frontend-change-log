@@ -96,6 +96,7 @@ Done
 
     30/6/2021
 1. Added Contents In Student Pages
+2. Allowed Coordinator To Assign Academic Supervisors By Organization
 
 Planned
 => Validate Emails
@@ -145,3 +146,9 @@ set time out in main.js
     1. You Add A Profile For The User(User Profile Table)
     2. If Its A Student, Then Add Student Profile Or Alumni Profile For Alumni
     3. If Its Staff Then, Add Staff Profile Or Field Supervisor Profile
+
+    When fetching Data In Heroku Database Make It The Same As In Local Db For Some Reference Ids
+        Consider=> 
+            -Pending User
+            -Designation Ids(fetching User Profiles by designation Id)
+                -Designation Names In MainPage

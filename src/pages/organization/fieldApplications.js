@@ -1,14 +1,12 @@
 import React, {useState, useEffect} from 'react'
 import '../../App.css'
-import { Table, Space, Popconfirm } from 'antd';
-import Icon from 'supercons'
-import { Button, Row, Col, Card, InputGroup, FormControl, Form , Modal} from 'react-bootstrap'
+import { Table, Space } from 'antd';
+import { Button, Card} from 'react-bootstrap'
 import Message from '../../components/message'
-import { useLocation, useHistory, useParams } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
-import { editFieldApplication, editFieldPost, editStudentProfileInfo, getFieldApplicationsByPostId, getStudentProfileInfo } from '../../app/api';
+import { editFieldApplication, editStudentProfileInfo, getFieldApplicationsByPostId, getStudentProfileInfo } from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
-import ContentModal from '../../components/contentModal';
 import Loader from '../../components/loader'
 
 const FieldApplications = () => {
@@ -89,7 +87,8 @@ const FieldApplications = () => {
       }
 
       try {
-        const resopnse = await editStudentProfileInfo(payload, config)
+        const response = await editStudentProfileInfo(payload, config)
+        console.log(response.length)
         setIsConfirming(false)
       } catch (error) {
         console.log('creating Arrival Note ', error.response.data)
@@ -130,7 +129,6 @@ const FieldApplications = () => {
                 <Message variant='info' >{fieldApplications.length > 0 ? 'Applications of the selected field post' : 'No any application yet.'}</Message>
         </Card.Header>
         <Card.Body style={{ overflowX: 'scroll' }}  >
-          <Row style={{ width: '100%' }}>
             {fieldApplications.length > 0 ?
               <Table
                 columns={columns}
@@ -139,7 +137,6 @@ const FieldApplications = () => {
               // column={{ ellipsis: true }}
               /> :
               '' }
-            </Row>
              <Button
                 variant="secondary"
                 onClick={goToPreviousPage} >

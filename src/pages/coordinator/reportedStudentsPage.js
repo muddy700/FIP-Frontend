@@ -1,11 +1,8 @@
 import React, {useState, useEffect} from 'react'
 import '../../App.css'
-import { List, Avatar, Space, Tag, Table, Popconfirm } from 'antd';
-import { QuestionCircleOutlined } from '@ant-design/icons';
-import Icon from 'supercons'
-import { Button, Row, Col, Card, InputGroup, FormControl, Form } from 'react-bootstrap'
+import { Space, Tag, Table} from 'antd';
+import { Button, Row, Col, Card, Form } from 'react-bootstrap'
 import Message from '../../components/message'
-import { Link } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
 import { editMultipleStudentsProfiles, editStudentProfileInfo, getAllReportedStudentsProfiles, getStaffProfile, getUsersProfilesByDesignationId} from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
@@ -83,6 +80,11 @@ function ReportedStudentsPage() {
   },
     ];
 
+    const targetAssignmentInfo = {
+      supervisor: null,
+      organization: null
+    }
+  
     const user = useSelector(selectUserData)
     const config = useSelector(apiConfigurations)
     const [modalShow, setModalShow] = useState(false);
@@ -98,7 +100,11 @@ function ReportedStudentsPage() {
     const [excelData, setExcelData] = useState([])
     const [excelError, setExcelError] = useState('')
     const [isSendingExcelData, setIsSendingExcelData] = useState(false)
-
+    const [organizationList, setOrganizationList] = useState([])
+    const [assignByOrganization, setAssignByOrganization] = useState(false)
+    const [targetInfo, setTargetInfo] = useState(targetAssignmentInfo)
+    const [isAssigningMultiple, setIsAssigningMultiple] = useState(false)
+  
       const getProfile = async () => {
         try {
             const profile = await getStaffProfile(user.userId, config)
@@ -120,6 +126,9 @@ function ReportedStudentsPage() {
             const department_students = arrangedArray.filter(item => item.department === staff.department)
             setStudentsProfiles(department_students)
             setDisplayArray(department_students)
+            const ids = department_students.map(item => item.organization)
+            const uniqueIds = Array.from(new Set(ids))
+            fetchOrganizationList(uniqueIds)
         } catch (error) {
             console.log(
                 'Fetching All Students Profiles', error.response.data ) }
@@ -136,10 +145,21 @@ function ReportedStudentsPage() {
         } catch (error) {
             console.log(
                 'Fetching Academic Supervisors Profiles', error.response.data ) }
+  }
+  
+    const fetchOrganizationList = async (ids) => {
+        try {
+          const response = await getUsersProfilesByDesignationId(8, config)
+          const valid = response.filter(item => ids.includes(item.user))
+            setOrganizationList(valid)
+        } catch (error) {
+            console.log(
+                'Fetching User Profiles By Designation', error.response.data ) }
     }
 
     useEffect(() => {
-        getProfile();
+      getProfile();
+      // fetchOrganizationList()
         // fetchAcademicSupervisor();
     }, [])
 
@@ -197,9 +217,24 @@ function ReportedStudentsPage() {
         setDisplayArray(unassigned)
     }
 
-    const showBySupervisor = (id) => {
-        const matched_students = studentsProfiles.filter(item => item.academic_supervisor === parseInt(id))
-        setDisplayArray(matched_students)
+  const showBySupervisor = (id) => {
+    if (id === 'all') {
+      setDisplayArray(studentsProfiles)
+    }
+    else {
+      const matched_students = studentsProfiles.filter(item => item.academic_supervisor === parseInt(id))
+      setDisplayArray(matched_students)
+    }
+  }
+
+  const showByOrganization = (id) => {
+    if (id === 'all') {
+      setDisplayArray(studentsProfiles)
+    }
+    else {
+      const matched_students = studentsProfiles.filter(item => item.organization === parseInt(id))
+      setDisplayArray(matched_students)
+    }
   }
   
   const mergeStudentInfo = (data) => {
@@ -260,6 +295,7 @@ function ReportedStudentsPage() {
 
       try {
         const responses = await editMultipleStudentsProfiles(payloads, config)
+        console.log(responses.length)
         fetchStudentsProfiles(staffProfile)
         setIsSendingExcelData(false)
         setModalShow2(false)
@@ -353,7 +389,70 @@ function ReportedStudentsPage() {
         >{isSendingExcelData ? <Loader message='Uploading...' /> : 'Send'}</Button>
           </Col>
 
-          </Row></>
+    </Row></>
+  
+  const assignMultipleStudents = async () => {
+    setIsAssigningMultiple(true)
+    const targetStudents = studentsProfiles.filter(item => item.organization === targetInfo.organization)
+    const payloads = targetStudents.map(item => {
+      let { field_report, ...rest } = item;
+      return { ...rest, academic_supervisor: targetInfo.supervisor }
+    })
+
+    try {
+      let responses = await editMultipleStudentsProfiles(payloads, config)
+      fetchStudentsProfiles(staffProfile)
+      console.log(responses.length)
+      setTargetInfo(targetAssignmentInfo)
+      setAssignByOrganization(false)
+      setIsAssigningMultiple(false)
+    } catch (error) {
+      console.log('Assigning Multiple Students By Organization ', error.response.data)
+    }
+  }
+
+  const handleTargetInfo = (e) => {
+    if (e.target.value === 'all') {
+      setTargetInfo({...targetInfo, [e.target.name]: null})
+     }
+    else {
+      setTargetInfo({...targetInfo,
+        [e.target.name] : parseInt(e.target.value)
+      })
+    }
+  }
+
+  const asssignmentTitle = 'Select supervisor with target organization '
+  const assignmentForm = <Row>
+    <Col md={{ span: 4 }}>
+      <Form.Control as="select"
+        size="md"
+        onChange={handleTargetInfo}
+        name="organization">
+        <option value='all'>---select organization---</option>
+        {organizationList.map(person => (
+            <option value={person.user}>{person.first_name}</option>
+        ))}
+      </Form.Control>
+    </Col>
+    <Col md={{ span: 4 }}>
+      <Form.Control as="select"
+        size="md"
+        onChange={handleTargetInfo}
+        name="supervisor">
+        <option value='all'>---select supervisor---</option>
+        {academicSupervisors.map(person => (
+            <option value={person.user}>{person.first_name} {person.last_name} </option>
+        ))}
+      </Form.Control>
+    </Col>
+    <Col md={{ span: 3 }}>
+      <Button
+        disabled={!targetInfo.supervisor || !targetInfo.organization}
+        onClick={e => { e.preventDefault(); assignMultipleStudents()}}
+      >{isAssigningMultiple ? <Loader message='Assigning...' /> : 'Assign'}</Button>
+    </Col>
+  </Row>
   
     return (
     <Card >
@@ -365,18 +464,32 @@ function ReportedStudentsPage() {
                     <Button onClick={e => { e.preventDefault(); showAllStudents() }}>All </Button> &nbsp; &nbsp;
                     <Button onClick={e => { e.preventDefault(); showAssignedStudents() }}>Assigned</Button> &nbsp; &nbsp;
                     <Button onClick={e => { e.preventDefault(); showUnassignedStudents() }}>Unassigned </Button> &nbsp; &nbsp;
-                    <Col md={{ span: 4 }}>
+                    <Col md={{ span: 3 }}>
                         <Form.Control as="select"
                         size="md"
                         onChange={e => { showBySupervisor(e.target.value)}}
                         name="academic_supervisor">
-                        <option value={38}>---Filter by supervisor---</option>
+                        <option value='all'>---by supervisor---</option>
                         {academicSupervisors.map(person => (
                             <option value={person.user}>{person.first_name} {person.last_name} </option>
                         ))}
                         </Form.Control>
                     </Col>
+                    <Col md={{ span: 3 }}>
+                        <Form.Control as="select"
+                        size="md"
+                        onChange={e => { showByOrganization(e.target.value)}}
+                        name="academic_supervisor">
+                        <option value='all'>---by organization---</option>
+                        {organizationList.map(person => (
+                            <option value={person.user}>{person.first_name}</option>
+                        ))}
+                        </Form.Control>
+                    </Col>
                     <Button onClick={e => { e.preventDefault(); setModalShow2(true) }}>Upload discontinued </Button> &nbsp; &nbsp;
+          </Row>
+          <Row>
+              <Button onClick={e => { e.preventDefault(); setAssignByOrganization(true)}}>Assign by organization </Button> &nbsp; &nbsp;
           </Row>
           
                 <hr/>
@@ -399,6 +512,13 @@ function ReportedStudentsPage() {
         title={modalTitle2}  
         content={modalContent2}
           onHide={() => { setModalShow2(false); setExcelFile(null); setExcelError('')}}
+      />
+        <ContentModal
+        show={assignByOrganization}
+        isTable={false}
+        title={asssignmentTitle}  
+        content={assignmentForm}
+          onHide={() => { setAssignByOrganization(false); setTargetInfo(targetAssignmentInfo)}}
       />
         </Card>
     )

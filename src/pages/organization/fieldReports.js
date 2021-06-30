@@ -1,14 +1,11 @@
 import React, {useState, useEffect} from 'react'
 import '../../App.css'
-import { Table, Space, Popconfirm } from 'antd';
-import Icon from 'supercons'
-import { Button, Row, Col, Card, InputGroup, FormControl, Form , Modal} from 'react-bootstrap'
+import { Table, Space } from 'antd';
+import { Button, Card} from 'react-bootstrap'
 import Message from '../../components/message'
-import { useLocation, useHistory, useParams } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
-import { editFieldApplication, editFieldPost, editStudentProfileInfo, getAllReportedStudents, getFieldApplicationsByPostId, getStudentProfileInfo } from '../../app/api';
+import { editFieldApplication, editStudentProfileInfo, getAllReportedStudents,getStudentProfileInfo } from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
-import ContentModal from '../../components/contentModal';
 import Loader from '../../components/loader'
 
 const FieldReports = () => {
@@ -96,7 +93,8 @@ const FieldReports = () => {
         }
 
         try {
-          const resopnse = await editStudentProfileInfo(payload, config)
+          const response = await editStudentProfileInfo(payload, config)
+          console.log(response.length)
           setIsReleasing(false)
         } catch (error) {
           console.log('Editing Arrival Note ', error.response.data)
@@ -133,14 +131,12 @@ const FieldReports = () => {
                 <Message variant='info' >All reported students</Message>
         </Card.Header>
         <Card.Body style={{ overflowX: 'scroll' }}  >
-            <Row style={{width: '100%'}}>
                 <Table 
                     columns={columns}
                     dataSource={reportedStudents}
                     pagination={{ onChange(current) {setPage(current)}, pageSize: 5 }}
                         // column={{ ellipsis: true }}
             />
-            </Row>
         </Card.Body>
     </Card>
     )

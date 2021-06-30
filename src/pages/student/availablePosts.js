@@ -1,12 +1,9 @@
 import React, {useState, useEffect} from 'react'
 import '../../App.css'
-import { List, Avatar, Space, Tag, Table, Popconfirm } from 'antd';
+import { List } from 'antd';
 import { Tooltip } from 'antd';
-import { QuestionCircleOutlined } from '@ant-design/icons';
-import Icon from 'supercons'
-import { Button, Row, Col, Card, InputGroup, FormControl, Form } from 'react-bootstrap'
+import { Button, Row, Col, Card } from 'react-bootstrap'
 import Message from '../../components/message'
-import { Link } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
 import {
     getFieldPostProfessions, getFieldPostPrograms,
@@ -17,7 +14,6 @@ import {
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 import Loader from '../../components/loader'
-import FormItemInput from 'antd/lib/form/FormItemInput';
 
 const AvailablePostsPage = () => {
 
@@ -236,6 +232,7 @@ const pullOrganizationProfiles = async () => {
             const cancelledApplication = studentApplications.find(item => item.post === postData.id)
             try {
                 const response1 = await deleteFieldApplication(cancelledApplication.id, config)
+                console.log(response1.length)
                 const payload2 = { ...postData, applied_chances: (postData.applied_chances - 1) }
                 try {
                     const response2 = await editFieldPost(payload2, config)
@@ -266,15 +263,23 @@ const pullOrganizationProfiles = async () => {
     const infoTitle = 'Organization Profile'
     var infoTable =  <tbody>
         <tr>
-            <td className="post-properties">ORGANIZATION</td>
+            <td className="post-properties"> ALIAS</td>
         <td>{selectedProfile.organization_name} </td>
+        </tr>
+        <tr>
+            <td className="post-properties">FULL NAME</td>
+        <td>{selectedProfile.organization_full_name} </td>
+        </tr>
+        <tr>
+            <td className="post-properties">EMAIL</td>
+        <td>{selectedProfile.organization_email} </td>
         </tr>
         <tr>
             <td className="post-properties">ADDRESS</td>
         <td>{selectedProfile.box_address}</td>
         </tr>
         <tr>
-            <td className="post-properties">ORGANIZATION DESCRIPTION</td>
+            <td className="post-properties"> DESCRIPTION</td>
         <td>{selectedProfile.organization_description} </td>
         </tr>
     </tbody>

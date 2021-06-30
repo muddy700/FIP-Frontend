@@ -89,7 +89,7 @@ const ProfilePage = () => {
                         <Card.Header style={{textAlign: 'center'}}><b>Photo</b></Card.Header>
                         <Card.Body style={{placeItems: 'center', display: 'grid'}}>
                             <Card.Img src={user.profile_image ? user.profile_image : dp} style={{ width: '90%', height: '200px' }}></Card.Img>
-                            <Card.Title style={{ marginTop: '15px' }}>{user.first_name}  { user.last_name}</Card.Title>
+                            <Card.Title style={{ marginTop: '15px' }}>{user.first_name.toUpperCase()}  { user.last_name.toUpperCase()}</Card.Title>
                         </Card.Body>
                     </Card>
                 </Col>
