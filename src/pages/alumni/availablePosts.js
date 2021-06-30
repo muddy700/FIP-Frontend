@@ -89,6 +89,7 @@ const pullOrganizationProfiles = async () => {
         setShowOrganizationInfo(true)
         setselectedProfile(profile)
     }
+    
     useEffect(() => {
         getInternshipPosts();
         pullOrganizationProfiles();

@@ -55,7 +55,9 @@ function ReportedStudentsPage() {
     key: 'id',
     // ellipsis: 'true',
     dataIndex: 'academic_supervisor_name',
-    render: text => <>{text === 'pending' ? '-' : text}</>,
+    render: (text, record) => (
+       <>{record.academic_supervisor_name === 'pending' ? '-' : record.academic_supervisor_first_name + ' ' + record.academic_supervisor_last_name}</>
+    )
   },
 //   {
 //     title: 'Date Reported',
@@ -70,28 +72,12 @@ function ReportedStudentsPage() {
     key: 'action',
     render: (text, record) => (
       <Space size="middle">
-        {/* <Button variant="link" size="sm" >
-          <Icon glyph="view" size={32} onClick={e => { e.preventDefault(); setModalShow(true); viewPost(record.id) }} />
-        </Button>
-        <Button variant="link" size="sm" >
-          <Icon glyph="post" size={32} onClick={e => { e.preventDefault(); showPostForm(record) }} />
-        </Button> */}
-        {/* <Popconfirm
-          title="Are you sure？"
-          icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
-          onConfirm={e => { e.preventDefault(); deleteInternshipPost(record.id) }}>
-         <Button variant="link" style={{color: 'red'}} size="sm" >
-          <Icon glyph="delete" size={32} />
-          </Button>
-        </Popconfirm> */}
-            {/* <Link to={{pathname: "/post_applications", post: record }}> */}
-            {record.academic_supervisor_name === 'pending' ?
+            {!record.student_status ? '' : record.academic_supervisor_name === 'pending' ?
                 <Button
                     onClick={e => { e.preventDefault(); setSelectedStudent(record); setModalShow(true) }}
                     variant="link" >Assign Supervisor</Button> :
                 <span>Assigned </span>
             }
-        {/* </Link> */}
       </Space>
     ),
   },
@@ -158,9 +144,10 @@ function ReportedStudentsPage() {
     }, [])
 
     const assignAcademicSupervisor = async () => {
-        setIsSendingData(true)
+      setIsSendingData(true)
+      const { field_report, ...rest } = selectedStudent;
         const payload = {
-            ...selectedStudent, academic_supervisor: selectedSupervisor,
+            ...rest, academic_supervisor: selectedSupervisor,
         }
 
       try {
@@ -232,16 +219,44 @@ function ReportedStudentsPage() {
     return merged_students
   }
 
+    const checkRegNo = (dataList) => {
+    let invalidData = [];
+
+    for (let i = 0; i < dataList.length; i++) {
+      let obj = dataList[i];
+
+      let hasMatched = studentsProfiles.find(item => item.registration_number === obj.registration_number)
+
+      if (hasMatched) { }
+      else {
+        invalidData.push(obj)
+      }
+    }
+    return invalidData.find(item => (!item.undefined && item.registration_number))
+  }
+
   const sendDiscontinuedStudents = async () => {
-    if (!excelData[0].registration_number) {
-      setExcelError('Invalid data format. Follow the instruction above.')
+    if (!excelData.length) {
+      setExcelError('Selected file has no data.')
       setExcelFile(null)
     }
+    else if (!excelData[0].hasOwnProperty('registration_number')) {
+      setExcelError('"registration_number" column is missing. Follow the instruction above.')
+      setExcelFile(null)
+    }
+      else if (checkRegNo(excelData)) {
+        setExcelError(`Registration number "${checkRegNo(excelData).registration_number}" is incorrect.`)
+        setExcelFile(null)
+        return false
+      }
     else {
       setIsSendingExcelData(true)
       const validData = excelData.filter(item => item.registration_number)
       let payloads = mergeStudentInfo(validData)
-      payloads = payloads.map(item => { return { ...item, student_status: false } })
+      payloads = payloads.map(item => {
+        let { field_report, ...rest } = item;
+        return { ...rest, student_status: false }
+      })
 
       try {
         const responses = await editMultipleStudentsProfiles(payloads, config)
@@ -357,7 +372,7 @@ function ReportedStudentsPage() {
                         name="academic_supervisor">
                         <option value={38}>---Filter by supervisor---</option>
                         {academicSupervisors.map(person => (
-                            <option value={person.user}>{person.username} </option>
+                            <option value={person.user}>{person.first_name} {person.last_name} </option>
                         ))}
                         </Form.Control>
                     </Col>

@@ -1,10 +1,10 @@
 import React, {useState, useEffect} from 'react'
-import { Card, Row, Col, Button, Table, Form, Alert} from 'react-bootstrap'
+import { Card, Row, Col, Button, Table, Form, Alert, Tooltip } from 'react-bootstrap'
 import '../../styles/alumni.css'
 import Message from '../../components/message'
 import { selectUserData, saveUser, apiConfigurations } from '../../slices/userSlice'
 import { useSelector, useDispatch}  from 'react-redux'
-import { editUserProfile, getAlumniProfile, editUserInfo, editAlumniProfile } from '../../app/api'
+import { editUserProfile, getAlumniProfile, editUserInfo, getStaffProfile } from '../../app/api'
 import Loader from '../../components/loader'
 import ContentModal from '../../components/contentModal'
 
@@ -20,7 +20,6 @@ const ProfilePage = () => {
     }
 
     const dispatch = useDispatch();
-    const [alumniProfile, setAlumniProfile] = useState({})
     const config = useSelector(apiConfigurations)
     const [profileImage, setProfileImage] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
@@ -28,84 +27,45 @@ const ProfilePage = () => {
     const [successMessage, setSuccessMessage] = useState('')
     const [showProfileForm, setShowProfileForm] = useState(false)
     const [profileChanges, setProfileChanges] = useState(initialProfile)
-    const [isPublishing, setIsPublishing] = useState(false)
-    const [imageError, setImageError] = useState('')
-
-    const getProfile = async () => {
-        try {
-            const profile = await getAlumniProfile(user.userId, config)
-            setAlumniProfile(profile[0])
-            // console.log(profile)
-        } catch (error) {
-            console.log({
-                'Request': 'Getting Alumni Profile Request',
-                'Error => ' : error,
-            })
-        }
-    }
-
-
-    useEffect(() => {
-        getProfile();
-    }, [])
 
     const handleProfileImage = (e) => {
         setProfileImage(e.target.files[0])
         setIsLoading(false)
         setSuccessMessage('')
-        setImageError('')
     }
-
-  const validateImageForm = () => {
-    const allowedExtensions = /(\.jpg|\.jpeg|\.png)$/i;
-
-    if (!allowedExtensions.exec(profileImage.name)) {
-      setImageError('Unsupported File!')
-      return false;
-    }
-    else {
-        setImageError('')
-      return true;
-    }
-
-  }
 
     const changeProfileImage = async (e) => {
         e.preventDefault()
-        const isImageValid = validateImageForm()
+        setIsLoading(true)
         
-        if (isImageValid) {
-            setIsLoading(true)
-            const payload = new FormData();
-            payload.append('profile_image', profileImage)
-            payload.append('user', user.userId)
-            payload.append('designation', user.designation_id)
-            payload.append('phone', user.phone)
-            payload.append('gender', user.gender)
+        const payload = new FormData();
+        payload.append('profile_image', profileImage)
+        payload.append('user', user.userId)
+        payload.append('designation', user.designation_id)
+        payload.append('phone', user.phone)
+        payload.append('gender', user.gender)
 
-            try {
-                const config2 = {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                        'Authorization': `Token ${localStorage.getItem('token')}`    }
-                }
-                const response = await editUserProfile(profileId, payload, config2)
-                dispatch(saveUser({
-                    ...user,
-                    profile_image: response.profile_image
-                }))
-                setIsLoading(false)
-                setProfileImage(null)
-                setSuccessMessage('Profile image changed successful.')
-            } catch (error) {
-                    console.log({
-                        'Request': 'Edit Profile-Image Request',
-                        'Error => ' : error.response.data,
-                    })
-                    setIsLoading(false)
-                }
+        try {
+            const config2 = {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Token ${localStorage.getItem('token')}`    }
+            }
+            const response = await editUserProfile(profileId, payload, config2)
+            dispatch(saveUser({
+                ...user,
+                profile_image: response.profile_image
+            }))
+            setIsLoading(false)
+            setProfileImage(null)
+            setSuccessMessage('Profile image changed successful.')
+        } catch (error) {
+            console.log({
+                'Request': 'Edit Profile-Image Request',
+                'Error => ' : error.response.data,
+            })
+            setIsLoading(false)
         }
-        else console.log('Invalid Image File') 
     }
 
     const prepareForm = (e) => {
@@ -137,7 +97,7 @@ const ProfilePage = () => {
             first_name: profileChanges.first_name,
             last_name: profileChanges.last_name,
             email: profileChanges.email,
-            password: alumniProfile.pwd
+            // password: alumniProfile.pwd
         }
 
         const blob = await (await fetch(user.profile_image)).blob();
@@ -188,22 +148,6 @@ const ProfilePage = () => {
         }
     }
 
-
-    const publishAlumni = async () => {
-        setIsPublishing(true)
-        const payload = {
-            ...alumniProfile,
-            is_public: !alumniProfile.is_public
-        }
-        try {
-            const response = await editAlumniProfile(payload, config)
-            setAlumniProfile(response)
-            setIsPublishing(false)
-        } catch (error) {
-            console.log('Publishing Alumni Info ', error.response.data)
-            setIsPublishing(false)
-        }
-    }
     const formTitle = 'Edit Profile Info';
     const formContents = <Form onSubmit={sendProfileChanges}>
             <Form.Row>
@@ -280,12 +224,8 @@ const ProfilePage = () => {
                     <Table striped bordered hover>
                             <tbody>
                                 <tr>
-                                    <td className="post-properties">REG NO.</td>
-                                            <td>{alumniProfile.registration_number}</td>
-                                </tr>
-                                <tr>
                                     <td className="post-properties">FIRST NAME</td>
-                                            <td>{user.first_name} </td>
+                                    <td>{user.first_name} </td>
                                 </tr>
                                 <tr>
                                     <td className="post-properties">LAST NAME</td>
@@ -303,14 +243,6 @@ const ProfilePage = () => {
                                     <td className="post-properties">PHONE</td>
                                     <td>{user.phone}</td>
                                 </tr>
-                                <tr>
-                                    <td className="post-properties">PROGRAM</td>
-                                    <td>{alumniProfile.degree_program}</td>
-                                </tr>
-                                <tr>
-                                    <td className="post-properties">COMPLETION YEAR</td>
-                                    <td>{alumniProfile.completion_year}</td>
-                                </tr>
                             </tbody>
                         </Table>
                 </Card.Body>
@@ -319,6 +251,7 @@ const ProfilePage = () => {
                             <Row>
                                 <Col md={{span: 4, offset: 4}}>
                                     <Button
+                                        // disabled
                                         style={{ width: '100%' }}
                                         onClick={prepareForm}
                                     >Edit Info</Button>
@@ -342,27 +275,15 @@ const ProfilePage = () => {
                                         <Form.File.Input onChange={handleProfileImage} name="profile_image" accept="image/*" />
                                     </Form.File>
                                     <Button
-                                        variant={imageError ? 'danger' : 'primary'}
+                                        // disabled
                                         style={{ width: '100%', marginTop: '5%' }}
-                                        disabled={profileImage ? false : true}
+                                        hidden={profileImage ? false : true}
                                         onClick={changeProfileImage}
-                                    >{isLoading ? <Loader message="Saving Image..." /> : imageError ? imageError : 'Save'}</Button>
+                                    >{isLoading ? <Loader message="Saving Image..." /> : 'Save'}</Button>
                                 </Col>
                             </Row>
                         </Card.Footer>
                     </Card>
-                    {/* <Tooltip placement="topLeft" title="Make your profile, CV and other particulars public , so that organizations may view"> */}
-                        <Button
-                            style={{ marginTop: '20%', width: '100%' }}
-                            variant={alumniProfile.is_public ? 'danger' : 'primary'}
-                            onClick={e => { e.preventDefault(); publishAlumni()}}
-                        >
-                            {isPublishing ? <Loader message='Publishing...' /> :
-                                alumniProfile.is_public ? 'Hide Your Info' :
-                                    'Publish Your Info'}
-                        </Button>
-                    {/* </Tooltip> */}
-                    
                 </Col>
             </Row>
             <ContentModal

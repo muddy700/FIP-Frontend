@@ -12,7 +12,8 @@ export const DashboardPage = () => {
         <Card className="dashboard-container">
             <Card.Header>
                 <Row>
-                    <Col md={4}>Logged In As: {user.username} </Col>
+                    <Col md={4}>Logged In As: {user.first_name.toUpperCase()} {user.last_name.toUpperCase()}  </Col>
+                    {/* <Col md={4}>Logged In As: {user.first_name[0].toUpperCase() + user.first_name.substr(1)} {user.last_name[0].toUpperCase() + user.last_name.substr(1)}  </Col> */}
                     <Col md={{span: 2, offset:6}} xs={{span: 6}}>{ currentDate }</Col>
                 </Row>
             </Card.Header>

@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import '../../App.css'
 import { List, Avatar, Space, Tag, Table, Popconfirm } from 'antd';
+import { Tooltip } from 'antd';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import Icon from 'supercons'
 import { Button, Row, Col, Card, InputGroup, FormControl, Form } from 'react-bootstrap'
@@ -11,7 +12,7 @@ import {
     getFieldPostProfessions, getFieldPostPrograms,
     getAllFieldPosts, getStudentProfileInfo,
     SendFieldApplication, getFieldApplicationsByStudentId
-    , deleteFieldApplication, editFieldPost
+    , deleteFieldApplication, editFieldPost, getOrganizationProfiles, editStudentProfileInfo
 } from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
@@ -30,8 +31,12 @@ const AvailablePostsPage = () => {
     const [studentInfo, setStudentInfo] = useState({})
     const [isSendingAppplication, setIsSendingAppplication] = useState(false)
     const [selectedPost, setSelectedPost] = useState({})
+    const [organizationProfiles, setOrganizationProfiles] = useState([])
+    const [showOrganizationInfo, setShowOrganizationInfo] = useState(false)
+    const [selectedProfile, setselectedProfile] = useState({})
     const [studentApplications, setStudentApplications] = useState([])
     const [isDeletingApplication, setIsDeletingApplication] = useState(false)
+    const [cancellationLimitReached, setCancellationLimitReached] = useState(false)
     
     const mergeFieldPostInfo = () => {
         // console.log('merge-enter')
@@ -71,6 +76,26 @@ const AvailablePostsPage = () => {
         }
     }
 
+        
+const pullOrganizationProfiles = async () => {
+        try {
+            const response = await getOrganizationProfiles(config)
+            // console.log(response)
+            setOrganizationProfiles(response)
+        } catch (error) {
+            console.log({
+                'request': 'Fetch Organization Profiles Request',
+                'Error => ': error
+            })
+        }
+    }
+    
+    const selectOrganizationProfile = (id) => {
+        const profile = organizationProfiles.find(item => item.organization_id === id)
+        setShowOrganizationInfo(true)
+        setselectedProfile(profile)
+    }
+    
     const fetchFieldPostProfessions = async () => {
         try {
           const response = await getFieldPostProfessions(config)
@@ -115,6 +140,7 @@ const AvailablePostsPage = () => {
 
     useEffect(() => {
         getStudentProfile();
+        pullOrganizationProfiles()
         getStudentApplications();
         fetchAllFieldPosts();
         fetchFieldPostProfessions();
@@ -191,26 +217,42 @@ const AvailablePostsPage = () => {
         }
     }
 
-    const cancelApplication = async (postData) => {
-        setIsDeletingApplication(true)
-        const cancelledApplication = studentApplications.find(item => item.post === postData.id)
+    const reduceCancellationCount = async () => {
+        const { field_report, ...rest } = studentInfo;
+        const payload = { ...rest, cancellation_count: studentInfo.cancellation_count + 1 }
         try {
-            const response1 = await deleteFieldApplication(cancelledApplication.id, config)
-            const payload2 = {...postData, applied_chances: (postData.applied_chances - 1)}
-            try { 
-                const response2 = await editFieldPost(payload2, config)
-                const newPostList = filteredArray.map(item => item.id === response2.id ? { ...item, applied_chances: response2.applied_chances } : item)
-                setFilteredArray(newPostList)
-                const remainingApplications = studentApplications.filter(item => item.id !== cancelledApplication.id)
-                setStudentApplications(remainingApplications)
-                setIsDeletingApplication(false)
+            const response = await editStudentProfileInfo(payload, config)
+            setStudentInfo({...studentInfo, cancellation_count: response.cancellation_count})
+        } catch (error) {
+           console.log('Reducing Number Of Cancelling Field Application ', error.response.data) 
+        }
+    }
+    const cancelApplication = async (postData) => {
+        if (studentInfo.cancellation_count === 2) {
+            setCancellationLimitReached(true)
+        }
+        else {
+            setIsDeletingApplication(true)
+            const cancelledApplication = studentApplications.find(item => item.post === postData.id)
+            try {
+                const response1 = await deleteFieldApplication(cancelledApplication.id, config)
+                const payload2 = { ...postData, applied_chances: (postData.applied_chances - 1) }
+                try {
+                    const response2 = await editFieldPost(payload2, config)
+                    const newPostList = filteredArray.map(item => item.id === response2.id ? { ...item, applied_chances: response2.applied_chances } : item)
+                    setFilteredArray(newPostList)
+                    const remainingApplications = studentApplications.filter(item => item.id !== cancelledApplication.id)
+                    setStudentApplications(remainingApplications)
+                    reduceCancellationCount()
+                    setIsDeletingApplication(false)
+                } catch (error) {
+                    console.log('Editing Field Post ', error.response.data)
+                    setIsDeletingApplication(false)
+                }
             } catch (error) {
-                console.log('Editing Field Post ', error.response.data)
+                console.log('Deleting Field Application ', error.response.data)
                 setIsDeletingApplication(false)
             }
-        } catch (error) {
-            console.log('Deleting Field Application ', error.response.data)
-            setIsDeletingApplication(false)
         }
     }
 
@@ -221,12 +263,34 @@ const AvailablePostsPage = () => {
         else return false
     }
 
+    const infoTitle = 'Organization Profile'
+    var infoTable =  <tbody>
+        <tr>
+            <td className="post-properties">ORGANIZATION</td>
+        <td>{selectedProfile.organization_name} </td>
+        </tr>
+        <tr>
+            <td className="post-properties">ADDRESS</td>
+        <td>{selectedProfile.box_address}</td>
+        </tr>
+        <tr>
+            <td className="post-properties">ORGANIZATION DESCRIPTION</td>
+        <td>{selectedProfile.organization_description} </td>
+        </tr>
+    </tbody>
+    
+    const LimitationTitle = <span style={{color: 'red'}}>Request rejected.</span>
+    const LimitationMessage = 'You cannot cancel this aplication. Because you have reached a maximum number of cancellation.'
+
     return (
     <Card >
         <Card.Header >
                 <Message variant='info' >Currently Available Field Posts</Message>
         </Card.Header>
             <Card.Body style={{ overflowX: 'scroll' }}  >
+                <Row >
+                    <Message variant='info'><b>Cancel Chances:</b> {studentInfo.cancellation_count === 2 ? <span style={{color: 'red'}}>Limit reached</span> : 2 - studentInfo.cancellation_count} </Message>
+                </Row>
                 <Row style={{ marginBottom: '16px' }}>
                         <List
                             itemLayout="vertical"
@@ -240,6 +304,17 @@ const AvailablePostsPage = () => {
                                     className="list-items"
                                     style={{padding: 0,}}
                                 >
+                                    {/* <List.Item.Meta
+                                // avatar={<Avatar size="large" src={post.avatar} />}
+                                title={<Tooltip placement="topLeft" title="View organization profile">
+                                    <h5 >
+                                        <Button
+                                            variant="link"
+                                            onClick={e => { e.preventDefault(); selectOrganizationProfile(post.organization) }}
+                                            >{post.organization_name}
+                                            </Button></h5>
+                                             </Tooltip>}
+                            /> */}
                                     <Row
                                         style={{
                                             // border: '1px solid blue',
@@ -250,7 +325,12 @@ const AvailablePostsPage = () => {
                                             margin: '1% 1%',
                                         }}>
                                         <span style={{ width: '100%' }}>
-                                            <h4 >{post.organization_name}</h4>
+                                         <Tooltip placement="topLeft" title="View organization profile">   <h4 >
+                                        <Button
+                                            variant="link"
+                                            onClick={e => { e.preventDefault(); selectOrganizationProfile(post.organization) }}
+                                            >{post.organization_name}
+                                            </Button></h4> </Tooltip>
                                         </span>
                                         <Col md={3}>
                                             <span><b>Free Chances: </b>
@@ -313,13 +393,20 @@ const AvailablePostsPage = () => {
                         />
                     </Row>
             </Card.Body>
-        {/* <ContentModal
-        show={modalShow}
+        <ContentModal
+          show={showOrganizationInfo}
+          isTable={true}
+          title={infoTitle}
+          content={infoTable}
+          onHide={() => { setShowOrganizationInfo(false) }}
+        />
+        <ContentModal
+        show={cancellationLimitReached}
         isTable={false}
-        title={postMode === '' ? 'Select Post Category' : modalTitle}
-        content={postMode === '' ? postOptions : modalContent}
-        onHide={closeModal}
-      /> */}
+        title={LimitationTitle}
+        content={LimitationMessage}
+        onHide={() => setCancellationLimitReached(false)}
+      />
             </Card>
     )
 }

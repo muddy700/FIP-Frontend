@@ -21,7 +21,6 @@ const PasswordPage = () => {
     const user = useSelector(selectUserData)
     const config = useSelector(apiConfigurations)
 
-    
     const onFormChange = (e) => {
         e.preventDefault()
         setPasswordCredentials({
@@ -80,14 +79,14 @@ const PasswordPage = () => {
                 }
                     
                 const response = await changePassword(payload, config)
-                console.log(response.length)
+                console.log('pass changed', response)
                 setIsLoading(false)
                 setHasPasswordChanged(true)
                 setPasswordCredentials(pass)
             }
             catch (error) {
                 console.log({
-                    'request': 'Change Student-Password Request',
+                    'request': 'Change User-Password Request',
                     'Error => ': error.response.data
                 })
                 setIsLoading(false)

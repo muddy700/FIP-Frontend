@@ -39,6 +39,12 @@ const FieldApplications = () => {
     key: 'id',
     render: text => <>{text}</>,
   },
+  // {
+  //   title: 'Program',
+  //   dataIndex: 'degree_program',
+  //   key: 'id',
+  //   render: text => <>{text}</>,
+  // },
   {
     title: 'Action',
     key: 'action',
@@ -123,28 +129,50 @@ const FieldApplications = () => {
     }, [])
     
     return (
+    // <Card >
+    //     <Card.Header >
+    //             <Message variant='info' >{fieldApplications.length > 0 ? 'Applications of the selected field post' : 'No any application yet.'}</Message>
+    //     </Card.Header>
+    //     <Card.Body style={{ overflowX: 'scroll' }}  >
+    //       <Row style={{ width: '100%' }}>
+    //         {fieldApplications.length > 0 ?
+    //           <Table
+    //             columns={columns}
+    //             dataSource={fieldApplications}
+    //             pagination={{ onChange(current) { setPage(current) }, pageSize: 5 }}
+    //           // column={{ ellipsis: true }}
+    //           /> :
+    //           '' }
+    //         </Row>
+            //  <Button
+            //     variant="secondary"
+            //     onClick={goToPreviousPage} >
+            //     Back
+            // </Button>
+    //     </Card.Body>
+    // </Card>
+      
+      
     <Card >
         <Card.Header >
-                <Message variant='info' >{fieldApplications.length > 0 ? 'Applications of the selected field post' : 'No any application yet.'}</Message>
+          <Message variant='info' >{fieldApplications.length > 0 ? 'Applications of the selected field post' : 'No any application yet.'}</Message>
         </Card.Header>
-        <Card.Body style={{ overflowX: 'scroll' }}  >
-          <Row style={{ width: '100%' }}>
-            {fieldApplications.length > 0 ?
-              <Table
+            <Card.Body style={{ overflowX: 'scroll' }}  >
+           {fieldApplications.length > 0 ?
+               <Table
                 columns={columns}
-                dataSource={fieldApplications}
-                pagination={{ onChange(current) { setPage(current) }, pageSize: 5 }}
-              // column={{ ellipsis: true }}
-              /> :
+                 dataSource={fieldApplications}
+                 pagination={{ onChange(current) { setPage(current) }, pageSize: 5 }}
+               // column={{ ellipsis: true }}
+               /> :
               '' }
-            </Row>
              <Button
                 variant="secondary"
                 onClick={goToPreviousPage} >
                 Back
             </Button>
-        </Card.Body>
-    </Card>
+       </Card.Body>
+        </Card>
     )
 }
 

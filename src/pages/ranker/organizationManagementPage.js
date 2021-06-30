@@ -3,7 +3,7 @@ import { Card, Button, Col, Form, Row, Alert } from 'react-bootstrap'
 import Message from '../../components/message'
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import { useSelector, useDispatch}  from 'react-redux'
-import { createOrganizationProfile, createUser, createUserProfile } from '../../app/api';
+import { createOrganizationProfile, createUser, createUserProfile, editUserInfo } from '../../app/api';
 import Loader from '../../components/loader';
 import ContentModal from '../../components/contentModal';
 
@@ -11,6 +11,8 @@ const OrganizationManagementPage = () => {
 
     const initialOrganizationInfo = {
         username: '',
+        first_name: '',
+        last_name: '',
         email: '',
         password: '',
         password2: ''
@@ -40,6 +42,14 @@ const OrganizationManagementPage = () => {
         }
         else if (organizationInfo.email === '') {
             setOrganizationInfoErrorMessage('Email Cannot Be Blank!')
+            return false
+        }
+        else if (organizationInfo.first_name === '') {
+            setOrganizationInfoErrorMessage('Alias Cannot Be Blank!')
+            return false
+        }
+        else if (organizationInfo.last_name === '') {
+            setOrganizationInfoErrorMessage('Full Name Cannot Be Blank!')
             return false
         }
         else if (organizationInfo.password === '') {
@@ -81,16 +91,32 @@ const OrganizationManagementPage = () => {
         }
     }
 
+    const addAliasAndFullName = async (userData) => {
+        let { password, ...rest } = userData.user
+        const payload3 = {
+            ...rest, first_name: organizationInfo.first_name,
+            last_name: organizationInfo.last_name
+        }
+        try {
+            const response3 = await editUserInfo(payload3, config)
+        } catch (error) {
+            console.log('Adding Organization Alias And Full name ', error.response.data)
+            setisSendingOrganizationInfo(false)
+        }
+    }
+
     const createOrganizationAccount = async (e) => {
         e.preventDefault()
         const isOrganizationFormValid = organizationInfoValidator()
 
         if (isOrganizationFormValid) {
             setisSendingOrganizationInfo(true)
+            // console.log(organizationInfo)
             const { password2, ...payload1 } = organizationInfo
             try {
                 const response1 = await createUser(payload1)
                 // console.log(response1)
+                addAliasAndFullName(response1)
                 const payload2 = {
                     user: response1.user.id,
                     designation: 8
@@ -137,6 +163,28 @@ const OrganizationManagementPage = () => {
                         value={organizationInfo.email}
                         onChange={handleOrganizationInfoChanges}
                         placeholder="Enter email"
+                    />
+                </Form.Group>
+            </Form.Row>
+            <Form.Row>
+                <Form.Group as={Col} controlId="formGridPassword1">
+                    <Form.Label>Alias</Form.Label>
+                    <Form.Control
+                        type="text"
+                        name="first_name"
+                        value={organizationInfo.first_name}
+                        onChange={handleOrganizationInfoChanges}
+                        placeholder="Enter alias"
+                        autoFocus />
+                </Form.Group>
+                <Form.Group as={Col} controlId="formGridPassword1">
+                    <Form.Label>Full Name</Form.Label>
+                    <Form.Control
+                        type="text"
+                        name="last_name"
+                        value={organizationInfo.last_name}
+                        onChange={handleOrganizationInfoChanges}
+                        placeholder="Enter organization full name"
                     />
                 </Form.Group>
             </Form.Row>

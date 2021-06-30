@@ -18,6 +18,8 @@ import CoordinatorSidebar from './coordinator/coordinatorSidebar';
 import CoordinatorContent from './coordinator/coordinatorContents'
 import AcademicSupervisorContents from './academicSupervisor/academicSupervisorContents';
 import AcademicSupervisorSidebar from './academicSupervisor/academicSupervisorSidebar';
+import AdminContents from './admin/adminContents';
+import AdminSidebar from './admin/adminSidebar';
 
 const mql = window.matchMedia(`(min-width: 800px)`);
 
@@ -74,6 +76,10 @@ export const HomePage = () => {
     activeContents =  <AcademicSupervisorContents />
     activeSidebar = <AcademicSupervisorSidebar />
   }
+  else if (userRole === 'admin') {
+    activeContents =  <AdminContents />
+    activeSidebar = <AdminSidebar />
+  }
 
     const sidebarProps = {
       sidebar: activeSidebar,
@@ -92,6 +98,8 @@ export const HomePage = () => {
       rootClassName: "root-card"
   };
   
+  const currentDate = new Date();
+
   return (
     <Router>
       <div className="main-page-container" style={{height: '100vh', overflowY: 'hidden'}}>
@@ -102,7 +110,7 @@ export const HomePage = () => {
               {activeContents}
             </Card.Body>
             <div style={{ backgroundColor: '#2F4050', textAlign: 'center', color: 'white', paddingBottom: '7px', paddingTop: '2px' }}>
-              <i>FIPMS@2021</i>
+              <i>FIPMS&copy;{currentDate.getFullYear()}</i>
             </div>
           </div>
         </Sidebar>

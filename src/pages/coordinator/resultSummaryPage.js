@@ -253,7 +253,7 @@ function ResultSummaryPage() {
                           size="md"
                           onChange={e => { showByYearOfStudy(e.target.value)}}
                           name="academic_supervisor">
-                          <option value='all'>---by year of stydy---</option>
+                          <option value='all'>---by year of study---</option>
                           {years.map(item => (
                               <option value={item.value}>{item.name} </option>
                           ))}

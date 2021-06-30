@@ -94,8 +94,12 @@ Done
 1. Allowed Academic Supervisor To Send Uploaded Field Marks
 2. Added More Validations In Uploaded Excel File
 
+    30/6/2021
+1. Added Contents In Student Pages
 
 Planned
+=> Validate Emails
+0. Change Icons
 1. Validate All Forms And Provide A Fixed Error Display Area.
 2. Allow Organizations To Upload Results(ie Practical or Oral Interview Results) From A File(ie. Excel).
 3.Add Loaders In API Requests(ie.. After Submit A Form)

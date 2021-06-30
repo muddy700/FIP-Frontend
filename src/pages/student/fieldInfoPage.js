@@ -133,8 +133,8 @@ export const FieldInfoPage = () => {
                             <Message variant='info'>Not assigned yet.</Message>
                         </Col> :
                         <Col md={8}>
-                            <span><b>Full Name:</b> {studentProfile.academic_supervisor_name}</span> <br />
-                            {/* <span>Full Name: {studentProfile.academic_supervisor_first_name} {studentProfile.academic_supervisor_last_name}</span> <br /> */}
+                            {/* <span><b>Full Name:</b> {studentProfile.academic_supervisor_name}</span> <br /> */}
+                            <span><b>Full Name:</b> {studentProfile.academic_supervisor_first_name} {studentProfile.academic_supervisor_last_name}</span> <br />
                             <span><b>Email:</b> {studentProfile.academic_supervisor_email}</span> <br />
                         </Col>
                     }
