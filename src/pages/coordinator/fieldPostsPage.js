@@ -1,28 +1,31 @@
 import React, {useState, useEffect} from 'react'
 import '../../App.css'
-import { List, Avatar, Space, Tag, Table, Popconfirm } from 'antd';
-import { QuestionCircleOutlined } from '@ant-design/icons';
-import Icon from 'supercons'
+import { List, Tooltip } from 'antd';
 import { Button, Row, Col, Card } from 'react-bootstrap'
 import Message from '../../components/message'
 import { Link } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
-import { getFieldPostProfessions, getFieldPostPrograms,getAllFieldPosts, getStaffProfile, getProgramsByDepartmentId } from '../../app/api';
+import {
+    getFieldPostProfessions,
+    getFieldPostPrograms, getAllFieldPosts,
+    getStaffProfile, getProgramsByDepartmentId,
+    getOrganizationProfiles
+} from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
-import Loader from '../../components/loader'
 
 function FieldPostsPage() {
 
     const config = useSelector(apiConfigurations)
     const user = useSelector(selectUserData)
-    // const [modalShow, setModalShow] = useState(false);
     const [fieldPosts, setFieldPosts] = useState([])
     const [postPrograms, setPostPrograms] = useState([])
     const [postSkills, setPostSkills] = useState([])
     const [filteredArray, setFilteredArray] = useState([])
     const [displayArray, setDisplayArray] = useState([])
-    const [staffProfile, setStaffProfile] = useState({})
+    const [showOrganizationInfo, setShowOrganizationInfo] = useState(false)
+    const [organizationProfiles, setOrganizationProfiles] = useState([])
+    const [selectedProfile, setselectedProfile] = useState({})
     const [departmentPrograms, setDepartmentPrograms] = useState([])
     
     const getPrograms = async (departmentId) => {
@@ -41,7 +44,6 @@ function FieldPostsPage() {
     const getProfile = async () => {
         try {
             const profile = await getStaffProfile(user.userId, config)
-            setStaffProfile(profile[0])
             getPrograms(profile[0].department)
         } catch (error) {
             console.log({
@@ -114,9 +116,6 @@ function FieldPostsPage() {
             
             merged_posts.push(obj)
         }
-        //  const department_posts = removeUnMatchedPosts(merged_posts)
-        // setFilteredArray(department_posts)
-        // setDisplayArray(department_posts)
         setFilteredArray(merged_posts)
         setDisplayArray(merged_posts)
     }
@@ -126,6 +125,7 @@ function FieldPostsPage() {
         fetchFieldPosts();
         fetchFieldPostProfessions();
         fetchFieldPostPrograms();
+        pullOrganizationProfiles()
     }, [])
 
     useEffect(() => {
@@ -136,11 +136,6 @@ function FieldPostsPage() {
         setDisplayArray(removeUnMatchedPosts())
         setFilteredArray(removeUnMatchedPosts())
     }, [filteredArray.length && departmentPrograms.length])
-
-    const arrangePostsByDate = (posts) => {
-        const arrangedPosts = posts.slice().sort((a, b) => b.date_updated.localeCompare(a.date_updated))
-        return arrangedPosts;
-    }
 
     const calculateTotalChances = (chances) => {
         let sum = 0;
@@ -197,6 +192,51 @@ function FieldPostsPage() {
         setDisplayArray(filteredArray)
     }
 
+            
+const pullOrganizationProfiles = async () => {
+        try {
+            const response = await getOrganizationProfiles(config)
+            setOrganizationProfiles(response)
+        } catch (error) {
+            console.log({
+                'request': 'Fetch Organization Profiles Request',
+                'Error => ': error
+            })
+        }
+    }
+    
+        
+    const selectOrganizationProfile = (id) => {
+        const profile = organizationProfiles.find(item => item.organization_id === id)
+        setShowOrganizationInfo(true)
+        setselectedProfile(profile)
+    }
+    
+    
+    const infoTitle = 'Organization Profile'
+    var infoTable =  <tbody>
+        <tr>
+            <td className="post-properties"> ALIAS</td>
+        <td>{selectedProfile.organization_name} </td>
+        </tr>
+        <tr>
+            <td className="post-properties">FULL NAME</td>
+        <td>{selectedProfile.organization_full_name} </td>
+        </tr>
+        <tr>
+            <td className="post-properties">EMAIL</td>
+        <td>{selectedProfile.organization_email} </td>
+        </tr>
+        <tr>
+            <td className="post-properties">ADDRESS</td>
+        <td>{selectedProfile.box_address}</td>
+        </tr>
+        <tr>
+            <td className="post-properties"> DESCRIPTION</td>
+        <td>{selectedProfile.organization_description} </td>
+        </tr>
+    </tbody>
+
     return (
     <Card >
         <Card.Header >
@@ -240,7 +280,13 @@ function FieldPostsPage() {
                                         margin: '1% 1%',
                                     }}>
                                     <Col md={12} >
-                                        <Button variant='link' ><b>{post.organization_name}</b></Button>
+                                         <Tooltip placement="topLeft" title="View organization profile">   <h4 >
+                                        <Button
+                                            variant="link"
+                                            onClick={e => { e.preventDefault(); selectOrganizationProfile(post.organization) }}
+                                            >{post.organization_name}
+                                            </Button></h4> </Tooltip>
+                                        {/* <Button variant='link' ><b>{post.organization_name}</b></Button> */}
                                     </Col>
                                     <Col md={3}>
                                         <span>
@@ -301,13 +347,13 @@ function FieldPostsPage() {
 
                 </Row>
        </Card.Body>
-            {/* <ContentModal
-                show={modalShow}
-                isTable={false}
-                title={modalTitle}
-                content={modalContent}
-                onHide={() => { setModalShow(false); setModalContent(''); setModalTitle('') }}
-        /> */}
+        <ContentModal
+          show={showOrganizationInfo}
+          isTable={true}
+          title={infoTitle}
+          content={infoTable}
+          onHide={() => { setShowOrganizationInfo(false) }}
+        />
     </Card>
     )
 }

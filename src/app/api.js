@@ -148,6 +148,21 @@ export async function fetchDesignationAnnouncements(designationId, config) {
     return response.data
 }
 
+export async function fetchAllAnnouncements(config) {
+    const response = await baseLink.get('announcements/', config)
+    return response.data
+}
+
+export async function AddAnnouncement(payload, config) {
+    const response = await baseLink.post('announcements/', payload, config)
+    return response.data
+}
+
+export async function DeleteSingleAnnouncement(itemId, config) {
+    const response = await baseLink.delete(`announcements/${itemId}/`, config)
+    return response.data
+}
+
 export async function getAlumniProfile(alumniId, config) {
     const response = await baseLink.get(`filter/alumni/${alumniId}/profile`, config)
     return response.data
@@ -231,6 +246,11 @@ export async function sendAlumniRatings(payload, config) {
 
 export async function editAlumniProfile(payload, config) {
     const response = await baseLink.put(`alumni_profiles/${payload.id}/`, payload, config)
+    return response.data
+}
+
+export async function getAllAlumni(config) {
+    const response = await baseLink.get('alumni_profiles/', config)
     return response.data
 }
 
@@ -459,8 +479,13 @@ export async function getStudentsByAcademicSupervisor(supervisorId, config) {
     return response.data
 }
 
+export async function getAllStudents(config) {
+    const response = await baseLink.get('students_profiles/', config)
+    return response.data
+}
+
 export async function editMultipleStudentsProfiles(payloads, config){
     const requests = payloads.map((item) => baseLink.put(`students_profiles/${item.id}/`, item, config))
-   const  responseArray = await axios.all([...requests])
-   return responseArray
+    const  responseArray = await axios.all([...requests])
+    return responseArray
 }

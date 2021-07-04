@@ -46,7 +46,7 @@ const Header = ({ changeCollapse, value }) => {
                 removeLoggedAlumni()
             }
 
-            history.push("/");
+            // history.push("/");
         } catch (error) {
             console.log({
                 'request': 'Logout Request',

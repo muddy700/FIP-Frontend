@@ -1,11 +1,7 @@
 import React from 'react'
-import { BrowserRouter as Router, Switch, Route, Link, useRouteMatch } from 'react-router-dom';
-import Button from 'react-bootstrap/Button'
+import { Link } from 'react-router-dom';
 import 'react-pro-sidebar/dist/css/styles.css';
 import Icon from 'supercons'
-import { useState } from 'react';
-import Card from 'react-bootstrap/Card'
-import Accordion from 'react-bootstrap/Accordion'
 import '../../styles/sidebar.css'
 
 

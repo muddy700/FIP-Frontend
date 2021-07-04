@@ -1,16 +1,10 @@
 import React from 'react'
-import { BrowserRouter as Router, Switch, Route, Link, useRouteMatch } from 'react-router-dom';
-import Button from 'react-bootstrap/Button'
+import { Link } from 'react-router-dom';
 import 'react-pro-sidebar/dist/css/styles.css';
 import Icon from 'supercons'
-import { useState } from 'react';
-import Card from 'react-bootstrap/Card'
-import Accordion from 'react-bootstrap/Accordion'
 import '../../styles/sidebar.css'
 
-
 const AdminSidebar = () => {
-    let { path, url } = useRouteMatch();
 
     return (
         <ul className="list-wrapper">
@@ -19,24 +13,14 @@ const AdminSidebar = () => {
                      <Icon glyph="grid" size={32} /> <span>Dashboard</span>
                 </Link>
             </li>
-            {/* <li className="list-item">
-                <Link to = "/field_posts" className="aside-link">
-                     <Icon glyph="pin" size={32} /> <span>Field Posts</span>
+            <li className="list-item">
+                <Link to = "/manage_students" className="aside-link">
+                     <Icon glyph="pin" size={32} /> <span>Manage Students</span>
                 </Link>
             </li>
             <li className="list-item">
-                <Link to = "/reported_students" className="aside-link">
-                     <Icon glyph="pin" size={32} /> <span>Reported Students</span>
-                </Link>
-            </li>
-            <li className="list-item">
-                <Link to = "/result_summary" className="aside-link">
-                     <Icon glyph="pin" size={32} /> <span>Field Result Summary</span>
-                </Link>
-            </li> */}
-            <li className="list-item">
-                <Link to = "/announcements" className="aside-link">
-                     <Icon glyph="pin" size={32} /> <span>My Announcements</span>
+                <Link to = "/manage_alumni" className="aside-link">
+                     <Icon glyph="pin" size={32} /> <span>Manage Alumni</span>
                 </Link>
             </li>
             <li className="inner-list-item">

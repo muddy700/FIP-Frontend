@@ -98,7 +98,22 @@ Done
 1. Added Contents In Student Pages
 2. Allowed Coordinator To Assign Academic Supervisors By Organization
 
+    3/7/2021
+1. Allowed Coordinator To Manage Announcments(Create, List And Delete)
+2. Added React-Idle-Timer (If Idle, Log-Out Automatically).
+3. Allowed Coordinator To Respond On Projects(Recommend Or Reject).
+4. Allowed Admin To See All Students And Alumni
+
+    4/7/2021
+1. Validated And Tested All Files And Forms In All Admin Pages.
+
+
 Planned
+
+=> Key
+// => Means Completed
+** => Means Not Necessary
+
 => Validate Emails
 0. Change Icons
 1. Validate All Forms And Provide A Fixed Error Display Area.
@@ -128,18 +143,18 @@ Planned
 24.  Validate Selected File If Its An Image Or Pdf(Done For Alumni Project)
 //25. Add Organization box address when creating Account
 26. When Release Alumni go And Change Finish Date In Contract
-27. Put Organization Profile In Available Post (in Alumi Page)
+**27. Put Organization Profile In Available Post (in Alumi Page)
 28. Change Fonts
 29. Handle Error If User Does Not Have Profile
 30. Allow Organization To Add GPA Limit In Alumni Posts. Or Filter Alumni By GPA In The Stage Of Processing
 
-allow admin to upload a list of students and Alumni
+**allow admin to upload a list of students and Alumni //=> Need API For That Task
 Check if we can add user with registration numbers
-replace all username with fname and lname
-in username place designation
-set username to email for staff and organization
+//replace all username with fname and lname in dashboard and Profile Page Under The Image
+//in username place designation
+//set username to email for staff and organization
 set time interval in alumni test
-set time out in main.js
+//set time out in main.js(React-Idle-Timer)
 
 
 ===>>> Note When Adding New User Make Sure
@@ -152,3 +167,6 @@ set time out in main.js
             -Pending User
             -Designation Ids(fetching User Profiles by designation Id)
                 -Designation Names In MainPage
+                -Adding Organization Designation Id=2
+            -Field Post ID=32 With Programs And Professions
+            -In Announcments designation Ids for alumni and Coordinator

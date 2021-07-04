@@ -1,23 +1,12 @@
 import React, {useState, useEffect} from 'react'
 import '../../App.css'
-import { List, Avatar, Space, Tag, Table, Popconfirm } from 'antd';
-import { QuestionCircleOutlined } from '@ant-design/icons';
-import Icon from 'supercons'
-import { Button, Row, Col, Card, Modal, Form, FormControl } from 'react-bootstrap'
+import { Table } from 'antd';
+import { Button, Row, Col, Card, Form } from 'react-bootstrap'
 import Message from '../../components/message'
-import { Link } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
-import { editselectedStudentInfo, editStudentProfileInfo, getAllReportedStudents, getAllReportedStudentsProfiles, getProgramsByDepartmentId, getStaffProfile, getStudentsByAcademicSupervisor, getUsersProfilesByDesignationId, sendFieldReport} from '../../app/api';
+import { getAllReportedStudentsProfiles, getProgramsByDepartmentId, getStaffProfile, getUsersProfilesByDesignationId} from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
-import ContentModal from '../../components/contentModal';
-import Loader from '../../components/loader'
 import SummaryExport from './summaryExport';
-
-import ExportExcel from "react-export-excel";
-
-const ExcelFile = ExportExcel.ExcelFile;
-const ExcelSheet = ExportExcel.ExcelFile.ExcelSheet;
-const ExcelColumn = ExportExcel.ExcelFile.ExcelColumn;
 
 function ResultSummaryPage() {
   const [page, setPage] = useState(1)
@@ -107,7 +96,6 @@ function ResultSummaryPage() {
     const [studentsProfiles, setStudentsProfiles] = useState([])
     const [displayArray, setDisplayArray] = useState([])
     const [academicSupervisors, setAcademicSupervisors] = useState([])
-    const [staffProfile, setStaffProfile] = useState({})
     const [departmentPrograms, setDepartmentPrograms] = useState([])
     const [exportData, setExportData] = useState([])
     
@@ -127,7 +115,6 @@ function ResultSummaryPage() {
     const getProfile = async () => {
         try {
             const profile = await getStaffProfile(user.userId, config)
-          setStaffProfile(profile[0])
           fetchStudentsProfiles(profile[0]);
           getPrograms(profile[0].department)
         } catch (error) {
@@ -159,7 +146,6 @@ function ResultSummaryPage() {
           console.log(
               'Fetching Academic Supervisors Profiles', error.response.data ) }
   }
-
 
     useEffect(() => {
       getProfile();
@@ -233,7 +219,7 @@ function ResultSummaryPage() {
                           name="academic_supervisor">
                           <option value='all'>---by supervisor---</option>
                           {academicSupervisors.map(person => (
-                              <option value={person.user}>{person.username} </option>
+                              <option value={person.user}>{person.first_name} {person.last_name} </option>
                           ))}
                         </Form.Control>
                   </Col>
@@ -260,8 +246,6 @@ function ResultSummaryPage() {
                         </Form.Control>
                   </Col>
                   <SummaryExport studentsList={exportData}/> &nbsp; &nbsp;
-                  {/* <Button onClick={e => { e.preventDefault(); prepareData()}}>Export as Excel </Button> &nbsp; &nbsp; */}
-                  {/* <Button onClick={e => { e.preventDefault(); }}>Export as Pdf </Button> &nbsp; &nbsp; */}
                 </Row>
                 <hr/>
           <Table
@@ -270,19 +254,8 @@ function ResultSummaryPage() {
             pagination={{ onChange(current) {setPage(current)}, pageSize: 5 }}
             column={{ ellipsis: true }} />
        </Card.Body>
-       
-      
-    {/* <ContentModal
-    show={modalShow2}
-    isTable={false}
-    title={modalTitle2}
-    content={modalContent2}
-                onHide={() => { setModalShow2(false); setSelectedStudent({}); setAcademicScore(null); setFieldScore(null)}}
-    /> */}
         </Card>
     )
 }
 
 export default ResultSummaryPage
-
-

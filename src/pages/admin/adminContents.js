@@ -1,14 +1,14 @@
 import React from 'react'
-import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
-import Button from 'react-bootstrap/Button'
+import { Switch, Route } from 'react-router-dom';
 import 'react-pro-sidebar/dist/css/styles.css';
-import { useState } from 'react';
 import '../../styles/alumni.css'
 import {DashboardPage} from './dashboardPage'
 import {PageNotFound} from '../pageNotFound'
 import ProfilePage from './profilePage';
 import AnnouncementsPage from './announcementsPage';
 import PasswordPage from './passwordPage';
+import AlumniManagementPage from './alumniManagementPage';
+import StudentsManagementsPage from './studentsManagementsPage';
 
 const AdminContents = () => {
 
@@ -20,6 +20,15 @@ const AdminContents = () => {
               </Route>
             <Route exact path={["/my_profile"]}>
                 <ProfilePage />
+              </Route>
+            <Route exact path={["/announcements"]}>
+                <AnnouncementsPage />
+              </Route>
+            <Route exact path={["/manage_alumni"]}>
+                <AlumniManagementPage />
+              </Route>
+            <Route exact path={["/manage_students"]}>
+                <StudentsManagementsPage />
               </Route>
             <Route exact path={["/announcements"]}>
                 <AnnouncementsPage />

@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { BrowserRouter as Router, Switch , Route, useRouteMatch } from 'react-router-dom';
+import { BrowserRouter as Router} from 'react-router-dom';
 import Header from '../components/header';
 import Sidebar from "react-sidebar";
 import './../styles/sidebar.css'
@@ -8,8 +8,7 @@ import AlumniSidebar from './alumni/alumniSidebar';
 import { Card} from 'react-bootstrap'
 import StudentContents from './student/studentContents';
 import StudentSidebar from './student/studentSidebar';
-import { useSelector}  from 'react-redux'
-import { selectUserData } from '../slices/userSlice'
+import { useSelector, useDispatch,}  from 'react-redux'
 import OrganizationSidebar from './organization/organizationSidebar';
 import OrganizationContents from './organization/organizationContents';
 import RankerContents from './ranker/rankerContents';
@@ -20,18 +19,28 @@ import AcademicSupervisorContents from './academicSupervisor/academicSupervisorC
 import AcademicSupervisorSidebar from './academicSupervisor/academicSupervisorSidebar';
 import AdminContents from './admin/adminContents';
 import AdminSidebar from './admin/adminSidebar';
+import { selectUserData } from '../slices/userSlice'
+import { changePage, selectAppData } from '../slices/appSlice'
+import db from '../firebase';
+import IdleTimer from 'react-idle-timer';
+import { IdleTimeOutModal } from '../components/idleModal';
 
 const mql = window.matchMedia(`(min-width: 800px)`);
 
 export const HomePage = () => {
-    // let { path, url } = useRouteMatch();
+  // let { path, url } = useRouteMatch();
   const user = useSelector(selectUserData)
-  
   const userRole = user.designation;
-
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarDocked, setsidebarDocked] = useState(true)
   const [collapse, setCollapse] = useState(false)
+  
+  var idleTimer = null
+  const [isTimedOut, setIsTimedOut] = useState(false)
+  const [showModal, setShowModal] = useState(false)
+  const appData = useSelector(selectAppData)
+  const dispatch = useDispatch()
+  const usersRef = db.collection('users');
 
   const onSetSidebarOpen = (open) => {
     setSidebarOpen(open)
@@ -100,8 +109,75 @@ export const HomePage = () => {
   
   const currentDate = new Date();
 
+  const removeLoggedAlumni = () => {
+      usersRef.doc(appData.alumniDocId).delete()
+          .then(() => {
+          console.log('User Doc Deleted')
+      })
+          .catch((error) => {
+              console.error("Error Deleting Logged Alumni : ", error);
+          });
+  }
+
+    const handleLogOut = async () => {
+        try {
+            // const response = await logoutUser(config)
+            console.log('logged out')
+            dispatch(changePage({
+                        activePage: 1
+            }))
+            
+            localStorage.removeItem('token');
+
+            if (user.designation === 'alumni') {
+                removeLoggedAlumni()
+            }
+        } catch (error) {
+            console.log({
+                'request': 'Logout Request',
+                'Error => ': error
+            })
+            
+        }
+
+  }
+  
+  const handleClose = () => {
+        setShowModal(false)
+  }
+  
+   const onAction = (e) => {
+        // console.log('User Did Something ', e)
+        setIsTimedOut(false)
+    }
+
+    const onActive = (e) => {
+        // console.log('User Is Active ', e)
+        setIsTimedOut(false)
+    }
+
+    const onIdle = (e) => {
+        // console.log('User Is Idle ', e)
+        // if (isTimedOut) {
+          handleLogOut()
+        // }
+        // else {
+        //     setShowModal(true)
+        //     idleTimer.reset()
+        //     setIsTimedOut(true)
+        // }
+    }
+
   return (
     <Router>
+      <IdleTimer
+        ref={ref => {idleTimer = ref }}
+        element={document}
+        onActive={onActive}
+        onIdle={onIdle}
+        onAction={onAction}
+        debounce={250}
+        timeout={ 1000 * 60 * 3} />
       <div className="main-page-container" style={{height: '100vh', overflowY: 'hidden'}}>
         <Header changeCollapse={changeCollapse} />
         <Sidebar {...sidebarProps}>
@@ -115,6 +191,11 @@ export const HomePage = () => {
           </div>
         </Sidebar>
       </div>
+        <IdleTimeOutModal
+            showModal={showModal}
+            handleClose={handleClose}
+            handleLogout={handleLogOut}
+        />
     </Router>
     );
   }

@@ -159,8 +159,6 @@ function ReportedStudentsPage() {
 
     useEffect(() => {
       getProfile();
-      // fetchOrganizationList()
-        // fetchAcademicSupervisor();
     }, [])
 
     const assignAcademicSupervisor = async () => {

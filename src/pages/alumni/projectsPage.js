@@ -1,12 +1,10 @@
 import React, {useState, useEffect} from 'react'
 import Message from '../../components/message'
 import { Card, Row, Col, Button,Form } from 'react-bootstrap'
-import { Table, Tag, Space } from 'antd';
+import { Table, Tag } from 'antd';
 import { } from 'antd';
-import {DownloadOutlined, UploadOutlined } from '@ant-design/icons'
-import Icon from 'supercons'
 import ContentModal from '../../components/contentModal';
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector } from 'react-redux'
 import  Loader  from '../../components/loader'
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import { fetchalumniProjects, sendProject,addProjectMember} from '../../app/api';
@@ -44,32 +42,10 @@ const ProjectsPage = () => {
         key: 'status',
         // ellipsis: 'true',
         dataIndex: 'project_recommendation_status',
-        render: text => <Tag color={text ? "green" : "red"}>
-                  {text? 'accepted' : 'pending'}
+        render: text => <Tag color={text === 'accepted' ? "green" : text === 'pending' ? 'lightgray' : "red"}>
+                  {text}
                 </Tag>
       },
-      // {
-      //   title: 'Action',
-      //   // ellipsis: 'true',
-      //   key: 'action',
-      //   render: (text, record) => (
-      //     <Space size="middle">
-      //       <Button variant="link"
-      //         size="sm"
-      //         onClick={e => { e.preventDefault(); setModalShow(true) }}>
-      //         <Icon glyph="view" size={32} />
-      //       </Button>
-      //       <Button variant="link"
-      //         size="sm">
-      //         <DownloadOutlined style={{ fontSize: '20px' }} />
-      //       </Button>
-      //       <Button variant="link"
-      //         size="sm">
-      //         <UploadOutlined style={{ fontSize: '20px' }}/>
-      //       </Button>
-      //     </Space>
-      //   ),
-      // },
   ];
   
   const initialProjectInfo = {
@@ -145,8 +121,6 @@ const ProjectsPage = () => {
 
   const submitProject = async (e) => {
     e.preventDefault()
-    // const allowedDocFormats = /(\.pdf)$/i;
-
     const isFormValid = formValidator()
 
     if (isFormValid) {
@@ -171,6 +145,7 @@ const ProjectsPage = () => {
           project: response.id 
         }
         const response2 = await addProjectMember(payload2, config)
+        console.log(response2.length)
         setModalShow(false);
         setProjectInfo(initialProjectInfo)
         getAlumniProjects()
@@ -262,9 +237,9 @@ const ProjectsPage = () => {
     </Form>;
   
 
-useEffect(() => {
-  getAlumniProjects()
-}, [])
+    useEffect(() => {
+      getAlumniProjects()
+    }, [])
   
     return (
     <Card >

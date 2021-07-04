@@ -10,7 +10,7 @@ import ContentModal from '../../components/contentModal';
 const OrganizationManagementPage = () => {
 
     const initialOrganizationInfo = {
-        username: '',
+        // username: '',
         first_name: '',
         last_name: '',
         email: '',
@@ -28,7 +28,7 @@ const OrganizationManagementPage = () => {
     const handleOrganizationInfoChanges = (e) => {
         setOrganizationInfoErrorMessage('')
         setHasOrganizationCreated(false)
-        setHasOrganizationCreated(false)
+        // setHasOrganizationCreated(false)
         setOrganizationInfo({
             ...organizationInfo,
             [e.target.name] : e.target.value
@@ -36,11 +36,11 @@ const OrganizationManagementPage = () => {
     }
 
     const organizationInfoValidator = () => {
-        if (organizationInfo.username === '') {
-            setOrganizationInfoErrorMessage('Username Cannot Be Blank!')
-            return false
-        }
-        else if (organizationInfo.email === '') {
+        // if (organizationInfo.username === '') {
+        //     setOrganizationInfoErrorMessage('Username Cannot Be Blank!')
+        //     return false
+        // }
+        if (organizationInfo.email === '') {
             setOrganizationInfoErrorMessage('Email Cannot Be Blank!')
             return false
         }
@@ -112,7 +112,8 @@ const OrganizationManagementPage = () => {
         if (isOrganizationFormValid) {
             setisSendingOrganizationInfo(true)
             // console.log(organizationInfo)
-            const { password2, ...payload1 } = organizationInfo
+            const { password2, ...rest } = organizationInfo
+            let payload1 = {...rest, username: organizationInfo.email}
             try {
                 const response1 = await createUser(payload1)
                 // console.log(response1)
@@ -145,7 +146,7 @@ const OrganizationManagementPage = () => {
     const modalContent = 
         <Form onSubmit={e => createOrganizationAccount(e)}>
             <Form.Row>
-                <Form.Group as={Col} controlId="formGridPassword1">
+                {/* <Form.Group as={Col} controlId="formGridPassword1">
                     <Form.Label>Username</Form.Label>
                     <Form.Control
                         type="text"
@@ -154,7 +155,7 @@ const OrganizationManagementPage = () => {
                         onChange={handleOrganizationInfoChanges}
                         placeholder="Enter username"
                         autoFocus />
-                </Form.Group>
+                </Form.Group> */}
                 <Form.Group as={Col} controlId="formGridPassword1">
                     <Form.Label>Email</Form.Label>
                     <Form.Control
@@ -167,7 +168,7 @@ const OrganizationManagementPage = () => {
                 </Form.Group>
             </Form.Row>
             <Form.Row>
-                <Form.Group as={Col} controlId="formGridPassword1">
+                <Form.Group as={Col} controlId="formGridPassword2">
                     <Form.Label>Alias</Form.Label>
                     <Form.Control
                         type="text"
@@ -177,7 +178,7 @@ const OrganizationManagementPage = () => {
                         placeholder="Enter alias"
                         autoFocus />
                 </Form.Group>
-                <Form.Group as={Col} controlId="formGridPassword1">
+                <Form.Group as={Col} controlId="formGridPassword3">
                     <Form.Label>Full Name</Form.Label>
                     <Form.Control
                         type="text"
@@ -189,7 +190,7 @@ const OrganizationManagementPage = () => {
                 </Form.Group>
             </Form.Row>
             <Form.Row>
-                <Form.Group as={Col} controlId="formGridPassword2">
+                <Form.Group as={Col} controlId="formGridPassword4">
                     <Form.Label>Password</Form.Label>
                     <Form.Control
                         type="password"
@@ -199,7 +200,7 @@ const OrganizationManagementPage = () => {
                         placeholder="Enter Password" />
                 </Form.Group>
 
-                <Form.Group as={Col} controlId="formGridPassword3">
+                <Form.Group as={Col} controlId="formGridPassword5">
                     <Form.Label>Repeat Password</Form.Label>
                     <Form.Control
                         type="password"

@@ -1,17 +1,13 @@
 import React, {useState, useEffect} from 'react'
 import Message from '../../components/message'
-import { Card, Row, Col, Button,Form } from 'react-bootstrap'
+import { Card, Row, Button } from 'react-bootstrap'
 import { Table, Tag, Space } from 'antd';
 import { } from 'antd';
-import {DownloadOutlined, UploadOutlined } from '@ant-design/icons'
-import Icon from 'supercons'
 import ContentModal from '../../components/contentModal';
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector} from 'react-redux'
 import  Loader  from '../../components/loader'
-import { apiConfigurations, selectUserData } from '../../slices/userSlice';
+import { apiConfigurations, } from '../../slices/userSlice';
 import { PullProjectsWithoutMembers, recommendProject,} from '../../app/api';
-
-
 
 function AlumniProjectsPage() {
     
@@ -45,8 +41,8 @@ function AlumniProjectsPage() {
         key: 'status',
         // ellipsis: 'true',
         dataIndex: 'recommendation_status',
-        render: text => <Tag color={text ? "green" : "red"}>
-                  {text? 'recommended' : 'pending'}
+        render: text => <Tag color={text === 'accepted' ? "green" : text === 'pending' ? 'lightgray' : "red"}>
+                  {text}
                 </Tag>
       },
       {
@@ -55,7 +51,7 @@ function AlumniProjectsPage() {
         key: 'action',
         render: (text, record) => (
             <Space size="middle">
-                {record.recommendation_status ? '' : <>
+                {record.recommendation_status === 'accepted' || record.recommendation_status === 'rejected' ? '' : <>
                     <Button variant='link'
                         size="sm"
                         onClick={e => {
@@ -81,14 +77,25 @@ function AlumniProjectsPage() {
                         }}
                     >{isLoading && activeProject.id === record.id ? 
                     <Loader message='Loading...' /> : 'Recommend'} 
-            </Button> </>}
+                    </Button>
+                    <Button
+                        variant={activeProject.id === record.id ? 'info' : 'link'}
+                        style={{width: 'fitContent', color: 'red'}}
+                        size="sm"
+                        onClick={e => {
+                            e.preventDefault();
+                            rejectRecommendationRequest(record);
+                            setActiveProject(record)
+                        }}
+                    >{isRejecting && activeProject.id === record.id ? 
+                    <Loader message='Loading...' /> : 'Reject'} 
+                    </Button>
+                </>}
           </Space>
         ),
       },
   ];
-  
     
-    const user = useSelector(selectUserData)
     const config = useSelector(apiConfigurations)
     const [page, setPage] = useState(1)
     const [modalShow, setModalShow] = useState(false);
@@ -98,6 +105,7 @@ function AlumniProjectsPage() {
     const [modalContent, setModalContent] = useState('')
     const [activeProject, setActiveProject] = useState({})
     const [isLoading, setIsLoading] = useState(false)
+    const [isRejecting, setIsRejecting] = useState(false)
 
       
     const getAllProjects = async () => {
@@ -124,29 +132,26 @@ function AlumniProjectsPage() {
         // const sortedArray = allAlumniProjects.slice().sort((a, b) => b.date_added.localeCompare(a.date_added))
         let sortedArray = [];
         if (value === 1) {
-            sortedArray = allAlumniProjects.filter(item => item.recommendation_status)
+            sortedArray = allAlumniProjects.filter(item => item.recommendation_status === 'pending')
         }
-        else if (value === 0) {
-            sortedArray = allAlumniProjects.filter(item => !item.recommendation_status)
+        else if (value === 2) {
+            sortedArray = allAlumniProjects.filter(item => item.recommendation_status === 'rejected')
+        }
+        else if (value === 3) {
+            sortedArray = allAlumniProjects.filter(item => item.recommendation_status === 'accepted')
         }
         else {
             sortedArray = allAlumniProjects
         }
+        console.log(sortedArray)
         setFilteredProjects(sortedArray)
     }
 
     const acceptRecommendationRequest = async (record) => {
         setIsLoading(true)
-        const blob = await (await fetch(record.report)).blob();
-        const report_file = new File([blob], `${record.title}.pdf`, { type: "application/pdf", lastModified: new Date() });
 
-        const payload = new FormData()
-        payload.append('id', record.id)
-        payload.append('year', record.year)
-        payload.append('title', record.title)
-        payload.append('sponsor', record.sponsor)
-        payload.append('report', report_file)
-        payload.append('recommendation_status', true)
+        const { report, ...rest } = record;
+        const payload = {...rest, recommendation_status: 'accepted'}
 
         try {
             const response = await recommendProject(record.id, payload, config)
@@ -160,28 +165,49 @@ function AlumniProjectsPage() {
         }
     }
 
+    const rejectRecommendationRequest = async (record) => {
+        setIsRejecting(true)
+
+        const { report, ...rest } = record;
+        const payload = {...rest, recommendation_status: 'rejected'}
+
+        try {
+            const response = await recommendProject(record.id, payload, config)
+            const newProjectsList = allAlumniProjects.map(item => item.id === response.id ? response : item)
+            setAllAlumniProjects(newProjectsList)
+            setFilteredProjects(newProjectsList)
+            setIsRejecting(false)
+            setActiveProject({})
+        } catch (error) {
+            console.log('Rejecting Project Recommendation Request ', error.response.data)
+        }
+    }
+
     return (
     <Card >
         <Card.Header >
           <Message variant='info' >Projects List</Message>
         </Card.Header>
-        <Card.Body style={{ overflowX: 'scroll' }}  >
-          <Button style={{marginRight: '3%'}} onClick={e => { e.preventDefault(); sortByRecommendationStatus(1)} }>Recommended</Button>
-          <Button style={{marginRight: '3%'}} onClick={e => { e.preventDefault(); sortByRecommendationStatus(0)} }>Pending</Button>
-          <Button style={{marginRight: '3%'}} onClick={e => { e.preventDefault(); sortByRecommendationStatus('')} }>All</Button>
-          <Table
-            columns={columns}
-            dataSource={filteredProjects}
-            pagination={{ onChange(current) {setPage(current)}, pageSize: 5 }}
-            column={{ ellipsis: true }} />
-       </Card.Body>
-            <ContentModal
-                show={modalShow}
-                isTable={false}
-                title={modalTitle}
-                content={modalContent}
-                onHide={() => { setModalShow(false); setModalContent(''); setModalTitle('') }}
-        />
+            <Card.Body style={{ overflowX: 'scroll' }}  >
+                <Row style={{marginBottom: '16px'}}>
+                    <Button style={{marginRight: '3%'}} onClick={e => { e.preventDefault(); sortByRecommendationStatus(1)} }>Pending</Button>
+                    <Button style={{marginRight: '3%'}} onClick={e => { e.preventDefault(); sortByRecommendationStatus(2)} }>Rejected</Button>
+                    <Button style={{marginRight: '3%'}} onClick={e => { e.preventDefault(); sortByRecommendationStatus(3)} }>Recommended</Button>
+                    <Button style={{marginRight: '3%'}} onClick={e => { e.preventDefault(); sortByRecommendationStatus('')} }>All</Button>
+                </Row>
+                <Table
+                    columns={columns}
+                    dataSource={filteredProjects}
+                    pagination={{ onChange(current) {setPage(current)}, pageSize: 5 }}
+                    column={{ ellipsis: true }} />
+                </Card.Body>
+                <ContentModal
+                    show={modalShow}
+                    isTable={false}
+                    title={modalTitle}
+                    content={modalContent}
+                    onHide={() => { setModalShow(false); setModalContent(''); setModalTitle('') }}
+                />
     </Card>
     )
 }
