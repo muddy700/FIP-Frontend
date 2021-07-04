@@ -1,25 +1,25 @@
 import React from 'react'
-import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Navbar from 'react-bootstrap/Navbar'
 import Nav from 'react-bootstrap/Nav'
-import Button from 'react-bootstrap/Button'
 import { PoweroffOutlined } from '@ant-design/icons';
 import '../styles/header.css'
 import Icon from 'supercons'
-import { useLocation, useHistory } from 'react-router-dom';
 import { useSelector, useDispatch}  from 'react-redux'
-import { selectUserData, saveUser, apiConfigurations } from '../slices/userSlice'
+import {
+    selectUserData,
+    // apiConfigurations
+} from '../slices/userSlice'
 import { changePage, selectAppData } from '../slices/appSlice'
-import { logoutUser } from '../app/api'
+// import { logoutUser } from '../app/api'
 import db from '../firebase';
 
 const Header = ({ changeCollapse, value }) => {
     const user = useSelector(selectUserData)
     const appData = useSelector(selectAppData)
-    const config = useSelector(apiConfigurations)
+    // const config = useSelector(apiConfigurations)
     const dispatch = useDispatch()
     const usersRef = db.collection('users');
-    const history = useHistory();
 
     const removeLoggedAlumni = () => {
         usersRef.doc(appData.alumniDocId).delete()
@@ -46,7 +46,6 @@ const Header = ({ changeCollapse, value }) => {
                 removeLoggedAlumni()
             }
 
-            // history.push("/");
         } catch (error) {
             console.log({
                 'request': 'Logout Request',

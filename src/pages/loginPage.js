@@ -2,8 +2,9 @@ import React, { useState} from 'react'
 import {Col, Row, Card, Button} from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import '../styles/loginPage.css'
-import { useSelector, useDispatch}  from 'react-redux'
-import { saveUser, apiConfigurations } from '../slices/userSlice'
+import '../App.css'
+import { useDispatch}  from 'react-redux'
+import { saveUser} from '../slices/userSlice'
 import { changePage } from '../slices/appSlice'
 import { authenticateUser, getUserProfile } from '../app/api'
 import Loader from '../components/loader';
@@ -12,10 +13,8 @@ import db from '../firebase';
 
 export const LoginPage = () => {
   const dispatch = useDispatch();
-    const config = useSelector(apiConfigurations)
     const usersRef = db.collection('users');
 
-    
     const initialUser = {
         username: '',
         password: ''
@@ -146,6 +145,7 @@ export const LoginPage = () => {
             [e.target.name]: e.target.value
         })
     }
+
     return (
         
         <div className="login-form-container" style={{backgroundColor: '#F3F3F4'}}>

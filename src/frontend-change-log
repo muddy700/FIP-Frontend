@@ -170,3 +170,6 @@ set time interval in alumni test
                 -Adding Organization Designation Id=2
             -Field Post ID=32 With Programs And Professions
             -In Announcments designation Ids for alumni and Coordinator
+
+            
+        // eslint-disable-next-line react-hooks/exhaustive-deps

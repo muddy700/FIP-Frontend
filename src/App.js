@@ -6,6 +6,7 @@ import Loader from './components/loader';
 import { saveUser, apiConfigurations } from './slices/userSlice'
 import { changePage, selectAppData } from './slices/appSlice'
 import { getUserProfile } from './app/api'
+import './App.css'
 
 export const App = () => {
   const appInfo = useSelector(selectAppData)
@@ -67,7 +68,8 @@ export const App = () => {
   }
 
   useEffect(() => {
-   checkUserState()
+    checkUserState();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
     return (

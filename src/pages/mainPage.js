@@ -28,7 +28,6 @@ import { IdleTimeOutModal } from '../components/idleModal';
 const mql = window.matchMedia(`(min-width: 800px)`);
 
 export const HomePage = () => {
-  // let { path, url } = useRouteMatch();
   const user = useSelector(selectUserData)
   const userRole = user.designation;
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -54,7 +53,8 @@ export const HomePage = () => {
     setSidebarOpen(!sidebarOpen)
 }
   useEffect(() => {
-    mediaQueryChanged()
+    mediaQueryChanged();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mql])
   
   var activeContents;
@@ -159,7 +159,8 @@ export const HomePage = () => {
     const onIdle = (e) => {
         // console.log('User Is Idle ', e)
         // if (isTimedOut) {
-          handleLogOut()
+      handleLogOut()
+      console.log(isTimedOut)
         // }
         // else {
         //     setShowModal(true)
@@ -171,7 +172,7 @@ export const HomePage = () => {
   return (
     <Router>
       <IdleTimer
-        ref={ref => {idleTimer = ref }}
+        ref={ref => { idleTimer = ref }}
         element={document}
         onActive={onActive}
         onIdle={onIdle}
