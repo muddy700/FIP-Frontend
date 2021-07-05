@@ -8,7 +8,7 @@ import { useSelector } from 'react-redux'
 import  Loader  from '../../components/loader'
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import { fetchalumniProjects, sendProject,addProjectMember} from '../../app/api';
-
+import DataPlaceHolder from '../../components/dataPlaceHolder';
 
 const ProjectsPage = () => {
     
@@ -64,14 +64,17 @@ const ProjectsPage = () => {
   const [projectInfo, setProjectInfo] = useState(initialProjectInfo)
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [isFetchingData, setIsFetchingData] = useState(false)
   
   const getAlumniProjects = async () => {
-    
+      setIsFetchingData(true)
     try {
       const response = await fetchalumniProjects(user.userId, config)
       setalumniProjects(response)
+      setIsFetchingData(false)
       // console.log(response)
     } catch (error) {
+      setIsFetchingData(false)
       console.log({
         'Request': 'Getting Alumni Projects Request',
         'Error => ' : error.response.data,
@@ -248,11 +251,14 @@ const ProjectsPage = () => {
         </Card.Header>
         <Card.Body style={{ overflowX: 'scroll' }}  >
           <Button onClick={e => { e.preventDefault(); setModalShow(true)} }>Add Project</Button>
-          <Table
-            columns={columns}
-            dataSource={alumniProjects}
-            pagination={{ onChange(current) {setPage(current)}, pageSize: 5 }}
-            column={{ ellipsis: true }} />
+          {isFetchingData ?
+            <Message variant='info'> <DataPlaceHolder /> </Message> : <>
+              <Table
+                columns={columns}
+                dataSource={alumniProjects}
+                pagination={{ onChange(current) { setPage(current) }, pageSize: 5 }}
+                column={{ ellipsis: true }} /> </>
+          }
        </Card.Body>
         <ContentModal
           show={modalShow}

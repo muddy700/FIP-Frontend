@@ -7,6 +7,7 @@ import { useSelector, useDispatch}  from 'react-redux'
 import { editUserProfile, getAlumniProfile, editUserInfo, editAlumniProfile } from '../../app/api'
 import Loader from '../../components/loader'
 import ContentModal from '../../components/contentModal'
+import DataPlaceHolder from '../../components/dataPlaceHolder'
 
 const ProfilePage = () => {
     const user = useSelector(selectUserData)
@@ -30,13 +31,17 @@ const ProfilePage = () => {
     const [profileChanges, setProfileChanges] = useState(initialProfile)
     const [isPublishing, setIsPublishing] = useState(false)
     const [imageError, setImageError] = useState('')
+    const [isFetchingData, setIsFetchingData] = useState(false)
 
     const getProfile = async () => {
+        setIsFetchingData(true)
         try {
             const profile = await getAlumniProfile(user.userId, config)
             setAlumniProfile(profile[0])
+            setIsFetchingData(false)
             // console.log(profile)
         } catch (error) {
+            setIsFetchingData(false)
             console.log({
                 'Request': 'Getting Alumni Profile Request',
                 'Error => ' : error,
@@ -275,8 +280,10 @@ const ProfilePage = () => {
                         <Card.Header>
                             <Message  variant='info' >Personal Details</Message>  
                         </Card.Header>
-                         <Card style={{padding: '16px'}}>
+                <Card style={{padding: '16px'}}>
                 <Card.Body style={{ padding: 0, overflowX: 'scroll'}}>
+                {isFetchingData ? 
+                <Message variant='info'> <DataPlaceHolder /> </Message> :
                     <Table striped bordered hover>
                             <tbody>
                                 <tr>
@@ -312,19 +319,20 @@ const ProfilePage = () => {
                                     <td>{alumniProfile.completion_year}</td>
                                 </tr>
                             </tbody>
-                        </Table>
+                        </Table> }
                 </Card.Body>
                 </Card>
-                        <Card.Footer style={{backgroundColor: 'inherit'}}>
-                            <Row>
-                                <Col md={{span: 4, offset: 4}}>
-                                    <Button
-                                        style={{ width: '100%' }}
-                                        onClick={prepareForm}
-                                    >Edit Info</Button>
-                                </Col>
-                            </Row>
-                        </Card.Footer>
+                        {isFetchingData ? '' :
+                            <Card.Footer style={{ backgroundColor: 'inherit' }}>
+                                <Row>
+                                    <Col md={{ span: 4, offset: 4 }}>
+                                        <Button
+                                            style={{ width: '100%' }}
+                                            onClick={prepareForm}
+                                        >Edit Info</Button>
+                                    </Col>
+                                </Row>
+                            </Card.Footer>}
                     </Card>
                 </Col>
                 <Col md={{ span: 4, offset: 1 }} xs={12} >

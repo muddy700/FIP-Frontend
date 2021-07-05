@@ -5,7 +5,8 @@ import { Card, Row, Col, Badge, FormControl,  InputGroup, Button} from 'react-bo
 import db from '../../firebase'
 import { useSelector}  from 'react-redux'
 import { selectUserData } from '../../slices/userSlice'
-import { TimeAgo} from '../../components/timeAgo'
+import { TimeAgo } from '../../components/timeAgo'
+import DataPlaceHolder from '../../components/dataPlaceHolder';
 
 const ChatPage = () => {
 
@@ -21,6 +22,7 @@ const ChatPage = () => {
     const messagesRef = db.collection('messages');
     const usersRef = db.collection('users');
     const [hasDuplicate, sethasDuplicate] = useState(false)
+    const [isFetchingData, setIsFetchingData] = useState(false)
     
     const onMessageChange = (e) => {
         e.preventDefault()
@@ -50,17 +52,19 @@ const ChatPage = () => {
     }
 
     const fetchMessages = () => {
+        setIsFetchingData(true)
         var messageResponse = messagesRef.orderBy("date_created");
         messageResponse.onSnapshot(snapshot => (
             setMessages(  snapshot.docs.map((doc) => doc.data()  ))
             ));
-           
+        fetchUsers();
     }
 
     const fetchUsers = () => {
         usersRef.onSnapshot(snapshot => (
             setActiveAlumni(  snapshot.docs.map((doc) => doc.data() ))
         ));
+        setIsFetchingData(false)
     }
 
     const removeRepeatedAlumni = () => {
@@ -76,7 +80,7 @@ const ChatPage = () => {
 
     useEffect(() => {
         fetchMessages();
-        fetchUsers();
+        // fetchUsers();
     }, [])
     
     return (
@@ -87,6 +91,8 @@ const ChatPage = () => {
                         <Message  variant='info' >Latest Messages</Message>  
                     </Card.Header>
                     <Card className="chat-container">
+                        {isFetchingData ?
+                            <Message variant='info'> <DataPlaceHolder /> </Message> : <>
                         <Card.Body className="messages-container" style={{padding: 0}}>
                             { messages.map((message) => (
                                 <div className={message.source === user.username ? "outgoing-messages" : "incoming-messages"} key={message.date}>
@@ -114,7 +120,8 @@ const ChatPage = () => {
                                     <Icon glyph="send-fill" size={20} />
                                 </Button>
                             </InputGroup.Append>
-                        </InputGroup>
+                        </InputGroup> </>
+                        }
                     </Card>
                 </Col>
                 <Col md={{span: 3, offset: 1}} xs={12} style={{marginBottom: '10px'}}>
@@ -123,9 +130,12 @@ const ChatPage = () => {
                         <Message variant='info' >ONLINE ALUMNI<Badge variant="info" style={{ float: 'right' }}> {activeAlumni.length} </Badge></Message>
                         {/* </Card.Header> */}
                         <Card.Body className="active-alumni-list">
-                            {activeAlumni.map((item) => (<>
-                                <div key={item.id}>{item.username === user.username ? 'You' : item.username}</div> <hr /></>
-                            ))}
+                            {isFetchingData ?
+                                <Message variant='info'> <DataPlaceHolder /> </Message> : <>
+                                    {activeAlumni.map((item) => (<>
+                                        <div key={item.id}>{item.username === user.username ? 'You' : item.username}</div> <hr /></>
+                                    ))} </>
+                            }
                         </Card.Body>
                     </Card>
                 </Col>

@@ -1,2 +1,3 @@
-/api/*  https://clever-blog-app.herokuapp.com/api/:splat  200
+/admin https://fip-backend.herokuapp.com/admin  200 
+/api/*  https://fip-backend.herokuapp.com/api/:splat  200
 /*  /index.html  200

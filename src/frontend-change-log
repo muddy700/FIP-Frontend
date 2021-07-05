@@ -106,6 +106,10 @@ Done
 
     4/7/2021
 1. Validated And Tested All Files And Forms In All Admin Pages.
+2. Removed Warnings In other Pages(General Pages ie. App.js, App.css, header.js)
+
+    5/7/2021
+1. Deployed Frontend To Netlify
 
 
 Planned
@@ -165,11 +169,11 @@ set time interval in alumni test
     When fetching Data In Heroku Database Make It The Same As In Local Db For Some Reference Ids
         Consider=> 
             -Pending User
-            -Designation Ids(fetching User Profiles by designation Id)
-                -Designation Names In MainPage
-                -Adding Organization Designation Id=2
+            //-Designation Ids(fetching User Profiles by designation Id)
+                //-Designation Names In MainPage
+                //-Adding Organization Designation Id=2
             -Field Post ID=32 With Programs And Professions
-            -In Announcments designation Ids for alumni and Coordinator
+           // -In Announcments designation Ids for alumni and Coordinator
 
             
         // eslint-disable-next-line react-hooks/exhaustive-deps

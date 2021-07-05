@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import Navbar from 'react-bootstrap/Navbar'
 import Nav from 'react-bootstrap/Nav'
 import { PoweroffOutlined } from '@ant-design/icons';
@@ -20,6 +20,7 @@ const Header = ({ changeCollapse, value }) => {
     // const config = useSelector(apiConfigurations)
     const dispatch = useDispatch()
     const usersRef = db.collection('users');
+    const history = useHistory()
 
     const removeLoggedAlumni = () => {
         usersRef.doc(appData.alumniDocId).delete()
@@ -46,6 +47,7 @@ const Header = ({ changeCollapse, value }) => {
                 removeLoggedAlumni()
             }
 
+            history.replace('/')
         } catch (error) {
             console.log({
                 'request': 'Logout Request',
@@ -66,7 +68,7 @@ const Header = ({ changeCollapse, value }) => {
                 <Icon glyph="list" size={32} onClick={changeCollapse} />
                 </Nav>
                 <span href="#pricing" style={{ color: 'white', marginRight: '20px' }}> {user.designation} </span>
-                <span className="logout-span" onClick={handleLogOut}>
+                <span style={{ cursor: 'pointer' }} className="logout-span" onClick={handleLogOut}>
                     <PoweroffOutlined /> &nbsp; Log out
                 </span>
             </Navbar>

@@ -11,6 +11,7 @@ import { editInternshipPost, editJobInvitation, editSingleApplication, fetchAlum
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import { useSelector, useDispatch}  from 'react-redux'
 import Loader from '../../components/loader';
+import DataPlaceHolder from '../../components/dataPlaceHolder';
 
 const ResultsPage = () => {
 
@@ -32,6 +33,7 @@ const ResultsPage = () => {
   const [rejectedInvitation, setRejectedInvitation] = useState({})
   const [rejectionMessage, setRejectionMessage] = useState('')
   const [hasAcceptedAny, setHasAcceptedAny] = useState(false)
+  const [isFetchingData, setIsFetchingData] = useState(false)
   
   const columns2 = [
     {
@@ -164,11 +166,14 @@ const ResultsPage = () => {
   }
   
   const fetchAlumniApplications = async () => {
+    setIsFetchingData(true)
     try {
       const response = await getAlumniApplications(user.userId, config)
       // console.log(response)
       const newRes = response.slice().sort((a, b) => b.date_applied.localeCompare(a.date_applied))
       setAlumniApplications(newRes)
+      getAlumniInvitations()
+      setIsFetchingData(false)
     } catch (error) {
             console.log({
                 'request': 'Fetch Alumni Applications Request',
@@ -190,8 +195,7 @@ const ResultsPage = () => {
 
 
   useEffect(() => {
-    fetchAlumniApplications()
-    getAlumniInvitations()
+    fetchAlumniApplications();
   }, [])
 
   const confirmAttendance = async () => {
@@ -287,11 +291,14 @@ const ResultsPage = () => {
           <Message variant='info' >Dear {user.username}, You have applied the folloving companies</Message>
         </Card.Header>
         <Card.Body style={{ overflowX:'scroll'}}  >
-        <Table
-          columns={columns}
-          dataSource={alumniApplications}
-          pagination={{ onChange(current) {setPage(current)}, pageSize: 5 }}
-          column={{ ellipsis: true }} />
+          {isFetchingData ?
+            <Message variant='info'> <DataPlaceHolder /> </Message> :
+            <Table
+              columns={columns}
+              dataSource={alumniApplications}
+              pagination={{ onChange(current) { setPage(current) }, pageSize: 5 }}
+              column={{ ellipsis: true }} />
+          }
        </Card.Body>
         <ContentModal
         show={modalShow}
@@ -306,11 +313,14 @@ const ResultsPage = () => {
           <Message variant='info' >Dear {user.username}, You have been invited with the following companies</Message>
         </Card.Header>
         <Card.Body style={{ overflowX:'scroll'}}  >
-        <Table
-          columns={columns2}
-          dataSource={alumniInvitations}
-          pagination={{ onChange(current) {setPage2(current)}, pageSize: 5 }}
-          column={{ ellipsis: true }} />
+          {isFetchingData ?
+            <Message variant='info'> <DataPlaceHolder /> </Message> :
+            <Table
+              columns={columns2}
+              dataSource={alumniInvitations}
+              pagination={{ onChange(current) { setPage2(current) }, pageSize: 5 }}
+              column={{ ellipsis: true }} />
+          }
         </Card.Body>
          <Modal
                 aria-labelledby="contained-modal-title-vcenter"

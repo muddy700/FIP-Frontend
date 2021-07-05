@@ -12,6 +12,7 @@ import { fetchInternshipPosts, selectInternshipPostList } from '../../slices/int
 import WarningModal from '../../components/warningModal';
 import ContentModal from '../../components/contentModal';
 import { Tooltip } from 'antd';
+import DataPlaceHolder  from '../../components/dataPlaceHolder'
 
 const AvailablePostsPage = () => {
 
@@ -26,10 +27,12 @@ const AvailablePostsPage = () => {
     const [organizationProfiles, setOrganizationProfiles] = useState([])
     const [showOrganizationInfo, setShowOrganizationInfo] = useState(false)
     const [selectedProfile, setselectedProfile] = useState({})
+    const [isFetchingData, setIsFetchingData] = useState(false)
     const modalTitle = "Warning!"
     const modalContent = "To Apply This Post You Need To Do A Test In A Given Time Limit. And Once You Start You Cannot Abort The Process. To Continue Press 'Start', To Quit Press 'Cancel'"
 
-const getInternshipPosts = async () => {
+    const getInternshipPosts = async () => {
+    setIsFetchingData(true)
     try {
         const response1 = await getAlumniApplications(user.userId, config)
         const appliedPostsIds = response1.map(res => res.post)
@@ -39,6 +42,7 @@ const getInternshipPosts = async () => {
             const unProcessedPosts = newPosts.filter(post => post.status === 'test')
             const arrangedPosts = unProcessedPosts.slice().sort((a, b) => b.date_updated.localeCompare(a.date_updated))
             dispatch(fetchInternshipPosts(arrangedPosts))
+            setIsFetchingData(false)
 
         } catch (error) {
             console.log({
@@ -102,76 +106,61 @@ const pullOrganizationProfiles = async () => {
                 <Message  variant='info' >Latest Available Posts</Message>  
             </Card.Header>
             <Card.Body style={{padding: '0 16px 16px 16px'}}>
-                <Row style={{marginBottom: '16px'}}>
-                    <Col md={{ span: 3, offset: 9 }}>
-                                       <InputGroup>
-                            <FormControl
-                            placeholder="Type To Search"
-                            aria-label="Message Content"
-                            aria-describedby="basic-addon2"
-                            />
-                            <InputGroup.Append>
-                                <Button variant="outline-primary">
-                                    <Icon glyph="search" size={20} />
-                                </Button>
-                            </InputGroup.Append>
-                            </InputGroup>
-                    </Col>
-                </Row>
-                <hr/>
-                <List
-                    itemLayout="vertical"
-                    size="small"
-                    pagination={{ pageSize: 5, }}
-                    dataSource={internshipPosts}
-                    renderItem={post => (
-                        <List.Item
-                            key={post.id}
-                            className="list-items"
-                            style={{padding: 0}}
-                        >
-                            <List.Item.Meta
-                                // avatar={<Avatar size="large" src={post.avatar} />}
-                                title={<Tooltip placement="topLeft" title="View organization profile">
-                                    <h5 >
-                                        <Button
-                                            variant="link"
-                                            onClick={e => { e.preventDefault(); selectOrganizationProfile(post.organization) }}
+                {isFetchingData ?
+                    <Message variant='info'> <DataPlaceHolder /> </Message> :
+                    <List
+                        itemLayout="vertical"
+                        size="small"
+                        pagination={{ pageSize: 5, }}
+                        dataSource={internshipPosts}
+                        renderItem={post => (
+                            <List.Item
+                                key={post.id}
+                                className="list-items"
+                                style={{ padding: 0 }}
+                            >
+                                <List.Item.Meta
+                                    // avatar={<Avatar size="large" src={post.avatar} />}
+                                    title={<Tooltip placement="topLeft" title="View organization profile">
+                                        <h5 >
+                                            <Button
+                                                variant="link"
+                                                onClick={e => { e.preventDefault(); selectOrganizationProfile(post.organization) }}
                                             >{post.organization_name}
                                             </Button></h5>
-                                             </Tooltip>}
-                            />
-                            <Row >
-                                <Col md={{span: 3, offset: 1}} style={{ display: 'flex' }}>
-                                    Job title: &nbsp; <p>{post.profession_name} </p>
-                                </Col>
-                                <Col md={1} style={{ display: 'flex' }}>
-                                    Posts:  &nbsp; <p>{post.post_capacity} </p>
-                                </Col>
-                                <Col md={3} style={{ display: 'flex' }}>
-                                    Expire Date:  &nbsp; <p>{post.expiry_date} </p>
-                                </Col>
-                                <Col md={3} style={{ display: 'flex' }}>
-                                    <>
-                                        <Link to={{pathname: "/post_details", postId:post.id, }}>
-                                            <Button variant="link" >View Details</Button>
-                                        </Link><Link>
-                                        <Button
-                                            variant="link"
-                                            onClick={e => {
-                                                e.preventDefault();
-                                                setModalShow(true);
-                                                setSelectedPost(post.id);
-                                                setSelectedOrganization(post.organization)
-                                                setProfession(post.profession)
-                                            }}
-                                        >Apply</Button></Link>
-                                    </>
-                                </Col>
-                            </Row>
-                        </List.Item>
-                    )}
-                 />
+                                    </Tooltip>}
+                                />
+                                <Row >
+                                    <Col md={{ span: 3, offset: 1 }} style={{ display: 'flex' }}>
+                                        Job title: &nbsp; <p>{post.profession_name} </p>
+                                    </Col>
+                                    <Col md={1} style={{ display: 'flex' }}>
+                                        Posts:  &nbsp; <p>{post.post_capacity} </p>
+                                    </Col>
+                                    <Col md={3} style={{ display: 'flex' }}>
+                                        Expire Date:  &nbsp; <p>{post.expiry_date} </p>
+                                    </Col>
+                                    <Col md={3} style={{ display: 'flex' }}>
+                                        <>
+                                            <Link to={{ pathname: "/post_details", postId: post.id, }}>
+                                                <Button variant="link" >View Details</Button>
+                                            </Link><Link>
+                                                <Button
+                                                    variant="link"
+                                                    onClick={e => {
+                                                        e.preventDefault();
+                                                        setModalShow(true);
+                                                        setSelectedPost(post.id);
+                                                        setSelectedOrganization(post.organization)
+                                                        setProfession(post.profession)
+                                                    }}
+                                                >Apply</Button></Link>
+                                        </>
+                                    </Col>
+                                </Row>
+                            </List.Item>
+                        )}
+                    />}
             </Card.Body>
         <WarningModal
             show={modalShow}
