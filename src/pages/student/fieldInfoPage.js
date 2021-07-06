@@ -6,6 +6,7 @@ import Loader from '../../components/loader'
 import Message from '../../components/message'
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import { getStudentProfileInfo, sendFieldReport } from '../../app/api'
+import DataPlaceHolder  from '../../components/dataPlaceHolder'
 
 export const FieldInfoPage = () => {
 
@@ -16,11 +17,14 @@ export const FieldInfoPage = () => {
     const [studentProfile, setStudentProfile] = useState({})
     const [fileError, setFileError] = useState('')
     const [isSendingReport, setIsSendingReport] = useState(false)
+    const [isFetchingData, setIsFetchingData] = useState(false)
 
     const getStudentProfile = async () => {
+        setIsFetchingData(true)
         try {
             const response = await getStudentProfileInfo(user.userId, config)
             setStudentProfile(response[0])
+            setIsFetchingData(false)
         } catch (error) {
             console.log('Getting Student Profile Info ', error.response.data)
         }
@@ -28,6 +32,7 @@ export const FieldInfoPage = () => {
 
     useEffect(() => {
         getStudentProfile();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
     
     const handleReportFile = (e) => {
@@ -98,48 +103,51 @@ export const FieldInfoPage = () => {
                 <Message variant='info' >Your field informations</Message>
         </Card.Header>
             <Card.Body style={{ overflowX: 'scroll' }}  >
-                <Row style={{ marginBottom: '16px' }}>
-                    <Col md={2}>
-                        <span><b>Field Report: </b></span>
-                    </Col>
-                    {studentProfile.field_report !== null ?
-                        <Col md={4}>
-                            <Message variant='success'>Uploaded Successfull.</Message>
-                        </Col> :
-                        <Col md={6}>
-                            <Form.Control
-                                type="file"
-                                onChange={handleReportFile}
-                                accept="application/pdf" />
-                            <Button
-                                disabled={!studentProfile.has_reported}
-                                style={{marginTop: '16px'}}
-                                onClick={e => { e.preventDefault(); submitReport() }}
-                            >{isSendingReport ? <Loader message='Sending...' /> : 'Submit'}
-                            </Button> &nbsp; &nbsp;
-                            <Button
-                                style={{marginTop: '16px'}}
-                                hidden={!fileError}
-                                variant='danger'>{fileError}</Button>
-                        </Col>
-                    }
-                </Row>
-                <Row style={{ marginBottom: '16px' }}>
-                    <Col md={2}>
-                        <span><b>Academic Supervisor: </b></span>
-                    </Col>
-                    {studentProfile.academic_supervisor === 38 ? 
-                        <Col md={4}>
-                            <Message variant='info'>Not assigned yet.</Message>
-                        </Col> :
-                        <Col md={8}>
-                            {/* <span><b>Full Name:</b> {studentProfile.academic_supervisor_name}</span> <br /> */}
-                            <span><b>Full Name:</b> {studentProfile.academic_supervisor_first_name} {studentProfile.academic_supervisor_last_name}</span> <br />
-                            <span><b>Email:</b> {studentProfile.academic_supervisor_email}</span> <br />
-                        </Col>
-                    }
+                {isFetchingData ?
+                    <Message variant='info'> <DataPlaceHolder /> </Message> : <>
+                        <Row style={{ marginBottom: '16px' }}>
+                            <Col md={2}>
+                                <span><b>Field Report: </b></span>
+                            </Col>
+                            {studentProfile.field_report !== null ?
+                                <Col md={4}>
+                                    <Message variant='success'>Uploaded Successfull.</Message>
+                                </Col> :
+                                <Col md={6}>
+                                    <Form.Control
+                                        type="file"
+                                        onChange={handleReportFile}
+                                        accept="application/pdf" />
+                                    <Button
+                                        disabled={!studentProfile.has_reported}
+                                        style={{ marginTop: '16px' }}
+                                        onClick={e => { e.preventDefault(); submitReport() }}
+                                    >{isSendingReport ? <Loader message='Sending...' /> : 'Submit'}
+                                    </Button> &nbsp; &nbsp;
+                                    <Button
+                                        style={{ marginTop: '16px' }}
+                                        hidden={!fileError}
+                                        variant='danger'>{fileError}</Button>
+                                </Col>
+                            }
+                        </Row>
+                        <Row style={{ marginBottom: '16px' }}>
+                            <Col md={2}>
+                                <span><b>Academic Supervisor: </b></span>
+                            </Col>
+                            {studentProfile.academic_supervisor === 38 ?
+                                <Col md={4}>
+                                    <Message variant='info'>Not assigned yet.</Message>
+                                </Col> :
+                                <Col md={8}>
+                                    {/* <span><b>Full Name:</b> {studentProfile.academic_supervisor_name}</span> <br /> */}
+                                    <span><b>Full Name:</b> {studentProfile.academic_supervisor_first_name} {studentProfile.academic_supervisor_last_name}</span> <br />
+                                    <span><b>Email:</b> {studentProfile.academic_supervisor_email}</span> <br />
+                                </Col>
+                            }
                     
-                </Row>
+                        </Row> </>
+                }
                 </Card.Body>
         </Card>
     )

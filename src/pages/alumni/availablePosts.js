@@ -28,7 +28,7 @@ const AvailablePostsPage = () => {
     const [selectedProfile, setselectedProfile] = useState({})
     const [isFetchingData, setIsFetchingData] = useState(false)
     const modalTitle = "Warning!"
-    const modalContent = "To Apply This Post You Need To Do A Test In A Given Time Limit. And Once You Start You Cannot Abort The Process. To Continue Press 'Start', To Quit Press 'Cancel'"
+    const modalContent = "To apply this post you need to do a test. And once you start the test, you cannot abort the process. To continue press 'Start', to quit press 'Cancel'"
 
     const getInternshipPosts = async () => {
     setIsFetchingData(true)

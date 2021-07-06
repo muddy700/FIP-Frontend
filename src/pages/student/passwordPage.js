@@ -1,9 +1,9 @@
 import React, {useState} from 'react'
 import { Card, Button, Col, Form } from 'react-bootstrap'
 import Message from '../../components/message'
-import { apiConfigurations, selectUserData } from '../../slices/userSlice';
-import { useSelector, useDispatch}  from 'react-redux'
-import { getUserInfo, changePassword } from '../../app/api';
+import { apiConfigurations} from '../../slices/userSlice';
+import { useSelector}  from 'react-redux'
+import { changePassword } from '../../app/api';
 import Loader from '../../components/loader';
 
 const PasswordPage = () => {
@@ -18,7 +18,7 @@ const PasswordPage = () => {
     const [errorMessage, setErrorMessage] = useState('error')
     const [isLoading, setIsLoading] = useState(false)
     const [hasPasswordChanged, setHasPasswordChanged] = useState(false)
-    const user = useSelector(selectUserData)
+    // const user = useSelector(selectUserData)
     const config = useSelector(apiConfigurations)
 
     

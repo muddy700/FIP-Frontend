@@ -6,17 +6,21 @@ import { selectUserData, apiConfigurations } from '../../slices/userSlice'
 import { useSelector}  from 'react-redux'
 import { getStudentProfileInfo } from '../../app/api'
 import dp from '../../images//default-for-user.png'
-
+import DataPlaceHolder  from '../../components/dataPlaceHolder'
 
 const ProfilePage = () => {
     const user = useSelector(selectUserData)
     const [studentProfile, setStudentProfile] = useState({})
     const config = useSelector(apiConfigurations)
+    const [isFetchingData, setIsFetchingData] = useState(false)
+
 
     const getProfile = async () => {
+        setIsFetchingData(true)
         try {
             const profile = await getStudentProfileInfo(user.userId, config)
             setStudentProfile(profile[0])
+            setIsFetchingData(false)
         } catch (error) {
             console.log({
                 'Request': 'Getting Student Profile Request',
@@ -27,6 +31,7 @@ const ProfilePage = () => {
 
     useEffect(() => {
         getProfile();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     return (
@@ -39,46 +44,49 @@ const ProfilePage = () => {
                         </Card.Header>
                          <Card style={{padding: '16px'}}>
                 <Card.Body style={{ padding: 0, overflowX: 'scroll'}}>
-                    <Table striped bordered hover>
-                            <tbody>
-                                <tr>
-                                    <td className="post-properties">REG NO.</td>
-                                            <td>{studentProfile.registration_number}</td>
-                                </tr>
-                                <tr>
-                                    <td className="post-properties">FIRST NAME</td>
-                                            <td>{user.first_name} </td>
-                                </tr>
-                                <tr>
-                                    <td className="post-properties">LAST NAME</td>
-                                    <td>{user.last_name}</td>
-                                </tr>
-                                <tr>
-                                    <td className="post-properties">GENDER</td>
-                                    <td>{user.gender} </td>
-                                </tr>
-                                <tr>
-                                    <td className="post-properties">EMAIL</td>
-                                    <td>{user.email}</td>
-                                </tr>
-                                <tr>
-                                    <td className="post-properties">PHONE</td>
-                                    <td>{user.phone}</td>
-                                </tr>
-                                <tr>
-                                    <td className="post-properties">PROGRAM</td>
-                                    <td>{studentProfile.degree_program}</td>
-                                </tr>
-                                <tr>
-                                    <td className="post-properties">DEPARTMENT</td>
-                                    <td>{studentProfile.department_name}</td>
-                                </tr>
-                                <tr>
-                                    <td className="post-properties">YEAR OF STUDY</td>
-                                    <td>{studentProfile.year_of_study}</td>
-                                </tr>
-                            </tbody>
-                        </Table>
+                                {isFetchingData ?
+                                    <Message variant='info'> <DataPlaceHolder /> </Message> : <>
+                                        <Table striped bordered hover>
+                                            <tbody>
+                                                <tr>
+                                                    <td className="post-properties">REG NO.</td>
+                                                    <td>{studentProfile.registration_number}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td className="post-properties">FIRST NAME</td>
+                                                    <td>{user.first_name} </td>
+                                                </tr>
+                                                <tr>
+                                                    <td className="post-properties">LAST NAME</td>
+                                                    <td>{user.last_name}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td className="post-properties">GENDER</td>
+                                                    <td>{user.gender} </td>
+                                                </tr>
+                                                <tr>
+                                                    <td className="post-properties">EMAIL</td>
+                                                    <td>{user.email}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td className="post-properties">PHONE</td>
+                                                    <td>{user.phone}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td className="post-properties">PROGRAM</td>
+                                                    <td>{studentProfile.degree_program}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td className="post-properties">DEPARTMENT</td>
+                                                    <td>{studentProfile.department_name}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td className="post-properties">YEAR OF STUDY</td>
+                                                    <td>{studentProfile.year_of_study}</td>
+                                                </tr>
+                                            </tbody>
+                                        </Table></>
+                                }
                 </Card.Body>
                 </Card>
                     </Card>

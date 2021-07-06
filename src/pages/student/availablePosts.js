@@ -14,6 +14,7 @@ import {
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 import Loader from '../../components/loader'
+import DataPlaceHolder  from '../../components/dataPlaceHolder'
 
 const AvailablePostsPage = () => {
 
@@ -33,6 +34,7 @@ const AvailablePostsPage = () => {
     const [studentApplications, setStudentApplications] = useState([])
     const [isDeletingApplication, setIsDeletingApplication] = useState(false)
     const [cancellationLimitReached, setCancellationLimitReached] = useState(false)
+    const [isFetchingData, setIsFetchingData] = useState(false)
     
     const mergeFieldPostInfo = () => {
         // console.log('merge-enter')
@@ -117,9 +119,12 @@ const pullOrganizationProfiles = async () => {
     }
 
     const getStudentProfile = async () => {
+        setIsFetchingData(true)
         try {
             const response = await getStudentProfileInfo(user.userId, config)
             setStudentInfo(response[0])
+            getStudentApplications();
+            // setIsFetchingData(false)
         } catch (error) {
             console.log('Getting Student Profile Info ', error.response.data)
         }
@@ -137,14 +142,16 @@ const pullOrganizationProfiles = async () => {
     useEffect(() => {
         getStudentProfile();
         pullOrganizationProfiles()
-        getStudentApplications();
+        // getStudentApplications();
         fetchAllFieldPosts();
         fetchFieldPostProfessions();
         fetchFieldPostPrograms();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useEffect(() => {
-        mergeFieldPostInfo()
+        mergeFieldPostInfo();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [postPrograms.length && postSkills.length])
 
     const checkApplicationStatus = (postId) => {
@@ -156,6 +163,7 @@ const pullOrganizationProfiles = async () => {
 
     const removeUnMatchedPosts = (postsList) => {
         const qualified_posts = postsList.filter(post => post.programs ? post.programs[0].program === studentInfo.program : post)
+        setIsFetchingData(false)
         return qualified_posts;
     }
 
@@ -293,23 +301,25 @@ const pullOrganizationProfiles = async () => {
                 <Message variant='info' >Currently Available Field Posts</Message>
         </Card.Header>
             <Card.Body style={{ overflowX: 'scroll' }}  >
-                <Row >
-                    <Message variant='info'><b>Cancel Chances:</b> {studentInfo.cancellation_count === 2 ? <span style={{color: 'red'}}>Limit reached</span> : 2 - studentInfo.cancellation_count} </Message>
-                </Row>
-                <Row style={{ marginBottom: '16px' }}>
-                        <List
-                            itemLayout="vertical"
-                            style={{width: '100%'}}
-                            size="small"
-                            pagination={{ pageSize: 5, }}
-                            dataSource={filteredArray}
-                            renderItem={post => (
-                                <List.Item
-                                    key={post.id}
-                                    className="list-items"
-                                    style={{padding: 0,}}
-                                >
-                                    {/* <List.Item.Meta
+                {isFetchingData ?
+                    <Message variant='info'> <DataPlaceHolder /> </Message> : <>
+                        <Row >
+                            <Message variant='info'><b>Cancel Chances:</b> {studentInfo.cancellation_count === 2 ? <span style={{ color: 'red' }}>Limit reached</span> : 2 - studentInfo.cancellation_count} </Message>
+                        </Row>
+                        <Row style={{ marginBottom: '16px' }}>
+                            <List
+                                itemLayout="vertical"
+                                style={{ width: '100%' }}
+                                size="small"
+                                pagination={{ pageSize: 5, }}
+                                dataSource={filteredArray}
+                                renderItem={post => (
+                                    <List.Item
+                                        key={post.id}
+                                        className="list-items"
+                                        style={{ padding: 0, }}
+                                    >
+                                        {/* <List.Item.Meta
                                 // avatar={<Avatar size="large" src={post.avatar} />}
                                 title={<Tooltip placement="topLeft" title="View organization profile">
                                     <h5 >
@@ -320,83 +330,84 @@ const pullOrganizationProfiles = async () => {
                                             </Button></h5>
                                              </Tooltip>}
                             /> */}
-                                    <Row
-                                        style={{
-                                            // border: '1px solid blue',
-                                            borderRadius: '5px',
-                                            backgroundColor: 'lightgray',
-                                            width: '98%',
-                                            padding: '1% 3%',
-                                            margin: '1% 1%',
-                                        }}>
-                                        <span style={{ width: '100%' }}>
-                                         <Tooltip placement="topLeft" title="View organization profile">   <h4 >
-                                        <Button
-                                            variant="link"
-                                            onClick={e => { e.preventDefault(); selectOrganizationProfile(post.organization) }}
-                                            >{post.organization_name}
-                                            </Button></h4> </Tooltip>
-                                        </span>
-                                        <Col md={3}>
-                                            <span><b>Free Chances: </b>
-                                                {countAllPostChances(post) === post.applied_chances ? <i style={{color: 'red'}}>Post is full</i> : countAllPostChances(post) - post.applied_chances}
-                                            </span><br />
-                                        </Col>
-                                        <Col md={4}>
-                                            <span>
-                                                <b>Skills: </b>
-                                                <span>{post.skills && post.skills.length ? 
-                                                <span>
-                                                    <ol>{post.skills.map(skill => (
-                                                        <li><span>{skill.profession_name}: {skill.profession_capacity}</span></li>))}
-                                                    </ol>
-                                                </span> 
-                                                    : 'Any skills'}</span>
+                                        <Row
+                                            style={{
+                                                // border: '1px solid blue',
+                                                borderRadius: '5px',
+                                                backgroundColor: 'lightgray',
+                                                width: '98%',
+                                                padding: '1% 3%',
+                                                margin: '1% 1%',
+                                            }}>
+                                            <span style={{ width: '100%' }}>
+                                                <Tooltip placement="topLeft" title="View organization profile">   <h4 >
+                                                    <Button
+                                                        variant="link"
+                                                        onClick={e => { e.preventDefault(); selectOrganizationProfile(post.organization) }}
+                                                    >{post.organization_name}
+                                                    </Button></h4> </Tooltip>
                                             </span>
-                                        </Col>
-                                        <Col md={5}>
-                                            <span>
-                                                <b>Programs: </b>
-                                                <span>{post.programs && post.programs.length ? 
-                                                <span>
-                                                    <ol>{post.programs.map(data => (
-                                                        <li><span>{data.program_name}: {data.program_capacity}</span></li>))}
-                                                    </ol>
-                                                </span> 
-                                                    : 'All programs'}</span>
-                                            </span>
-                                        </Col>
-                                        <Row style={{ display: 'flex', width: '100%', marginTop: '10px' }}>
-                                            <Col md={4} >
-                                                <span style={{paddingLeft: '5%'}}><b>Expiry date: </b> {checkExpiryDate(post.expiry_date) ? <b style={{color: 'red'}}><i>Closed</i></b>: post.expiry_date}</span>
+                                            <Col md={3}>
+                                                <span><b>Free Chances: </b>
+                                                    {countAllPostChances(post) === post.applied_chances ? <i style={{ color: 'red' }}>Post is full</i> : countAllPostChances(post) - post.applied_chances}
+                                                </span><br />
                                             </Col>
-                                            <Col md={{span: 3, offset:9}}>
-                                                <Button
-                                                    variant={checkApplicationStatus(post.id) ? 'success' : 'primary'}
-                                                    disabled={checkApplicationStatus(post.id) || studentApplications.length ? true : false}
-                                                    hidden={((countAllPostChances(post) === post.applied_chances) && !checkApplicationStatus(post.id)) || checkExpiryDate(post.expiry_date)}
-                                                    onClick={e => {
-                                                        e.preventDefault();
-                                                        setSelectedPost(post); submitApplication(post)
-                                                    }}
+                                            <Col md={4}>
+                                                <span>
+                                                    <b>Skills: </b>
+                                                    <span>{post.skills && post.skills.length ?
+                                                        <span>
+                                                            <ol>{post.skills.map(skill => (
+                                                                <li><span>{skill.profession_name}: {skill.profession_capacity}</span></li>))}
+                                                            </ol>
+                                                        </span>
+                                                        : 'Any skills'}</span>
+                                                </span>
+                                            </Col>
+                                            <Col md={5}>
+                                                <span>
+                                                    <b>Programs: </b>
+                                                    <span>{post.programs && post.programs.length ?
+                                                        <span>
+                                                            <ol>{post.programs.map(data => (
+                                                                <li><span>{data.program_name}: {data.program_capacity}</span></li>))}
+                                                            </ol>
+                                                        </span>
+                                                        : 'All programs'}</span>
+                                                </span>
+                                            </Col>
+                                            <Row style={{ display: 'flex', width: '100%', marginTop: '10px' }}>
+                                                <Col md={4} >
+                                                    <span style={{ paddingLeft: '5%' }}><b>Expiry date: </b> {checkExpiryDate(post.expiry_date) ? <b style={{ color: 'red' }}><i>Closed</i></b> : post.expiry_date}</span>
+                                                </Col>
+                                                <Col md={{ span: 3, offset: 9 }}>
+                                                    <Button
+                                                        variant={checkApplicationStatus(post.id) ? 'success' : 'primary'}
+                                                        disabled={checkApplicationStatus(post.id) || studentApplications.length ? true : false}
+                                                        hidden={((countAllPostChances(post) === post.applied_chances) && !checkApplicationStatus(post.id)) || checkExpiryDate(post.expiry_date)}
+                                                        onClick={e => {
+                                                            e.preventDefault();
+                                                            setSelectedPost(post); submitApplication(post)
+                                                        }}
                                                     >{isSendingAppplication && (selectedPost.id === post.id) ? <Loader message='Wait...!' /> : checkApplicationStatus(post.id) ? 'Applied' : 'Apply'}
-                                                </Button> &nbsp; &nbsp;
-                                                <Button
-                                                    variant="danger"
-                                                    hidden={!checkApplicationStatus(post.id)}
-                                                    onClick={e => {
-                                                        e.preventDefault();
-                                                        setSelectedPost(post); cancelApplication(post)
-                                                    }}
-                                                >{isDeletingApplication && (selectedPost.id === post.id) ? <Loader message='Wait...!' /> : 'Cancel'}
-                                                </Button>
-                                            </Col>
+                                                    </Button> &nbsp; &nbsp;
+                                                    <Button
+                                                        variant="danger"
+                                                        hidden={!checkApplicationStatus(post.id)}
+                                                        onClick={e => {
+                                                            e.preventDefault();
+                                                            setSelectedPost(post); cancelApplication(post)
+                                                        }}
+                                                    >{isDeletingApplication && (selectedPost.id === post.id) ? <Loader message='Wait...!' /> : 'Cancel'}
+                                                    </Button>
+                                                </Col>
+                                            </Row>
                                         </Row>
-                                    </Row>
-                                </List.Item>
-                            )}
-                        />
-                    </Row>
+                                    </List.Item>
+                                )}
+                            />
+                        </Row> </>
+                }
             </Card.Body>
         <ContentModal
           show={showOrganizationInfo}

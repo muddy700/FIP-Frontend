@@ -1,8 +1,6 @@
 import React from 'react'
-import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
-import Button from 'react-bootstrap/Button'
+import { Switch, Route } from 'react-router-dom';
 import 'react-pro-sidebar/dist/css/styles.css';
-import { useState } from 'react';
 import '../../styles/alumni.css'
 import AvailablePosts from './availablePosts'
 import {DashboardPage} from './dashboardPage'
@@ -11,8 +9,6 @@ import ProfilePage from './profilePage';
 import ProjectsPage from './projectsPage';
 import PasswordPage from './passwordPage';
 import { FieldInfoPage } from './fieldInfoPage'
-
-
 
 const StudentContents = () => {
 
