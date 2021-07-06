@@ -1,10 +1,10 @@
 import React, {useState, useEffect} from 'react'
 import '../../App.css'
-import { List, Avatar, Space, Tag, Table, Popconfirm } from 'antd';
+import { Space, Table, Popconfirm } from 'antd';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 
 import Icon from 'supercons'
-import { Button, Row, Col, Card, InputGroup, FormControl, Form } from 'react-bootstrap'
+import { Button, Row, Col, Card, FormControl, Form } from 'react-bootstrap'
 import Message from '../../components/message'
 import { Link } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
@@ -15,6 +15,7 @@ import {
 } from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
+import DataPlaceHolder from '../../components/dataPlaceHolder';
 
 const InternshipChances = () => {
   const [page, setPage] = useState(1)
@@ -91,6 +92,7 @@ const InternshipChances = () => {
   const [skills, setSkills] = useState([])
   const [editingMode, setEditingMode] = useState(false)
   const [postError, setPostError] = useState('')
+    const [isFetchingData, setIsFetchingData] = useState(false)
 
   const viewPost = (id) => {
     const postInfo = internshipPosts.find(post => post.id === id)
@@ -128,6 +130,7 @@ const InternshipChances = () => {
   const deleteInternshipPost = async (id) => {
         try {
           const response = await removeInternshipPost(id, config)
+          console.log(response.length)
           const newPosts = internshipPosts.filter(item => item.id !== id)
           setInternshipPosts(newPosts)
         } catch (error) {
@@ -182,12 +185,15 @@ const InternshipChances = () => {
   }
 
   const fetchInternshipPosts = async () => {
-        try {
-          const response = await getOrganizationInternshipPosts(user.userId, config)
-          const arrangedByDate = response.slice().sort((a, b) => b.date_updated.localeCompare(a.date_updated))
-          const newPosts = arrangedByDate.filter(post => post.status === 'test')
-          setInternshipPosts(newPosts)
-        } catch (error) {
+    setIsFetchingData(true)
+    try {
+      const response = await getOrganizationInternshipPosts(user.userId, config)
+      const arrangedByDate = response.slice().sort((a, b) => b.date_updated.localeCompare(a.date_updated))
+      const newPosts = arrangedByDate.filter(post => post.status === 'test')
+      setInternshipPosts(newPosts)
+      setIsFetchingData(false)
+    } catch (error) {
+          setIsFetchingData(false)
             console.log({
                 'request': 'Fetch Organization Internship Posts Request',
                 'Error => ': error.response.data
@@ -210,6 +216,7 @@ const InternshipChances = () => {
     useEffect(() => {
       fetchInternshipPosts()
       // fetchProfessions()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
   const postDetails =  <>
@@ -308,7 +315,7 @@ const InternshipChances = () => {
     return (
     <Card >
         <Card.Header >
-          <Message variant='info' >Dear {user.username}, You have posted the following internship chances</Message>
+          <Message variant='info' >Dear {user.first_name}, You have posted the following internship chances</Message>
         </Card.Header>
             <Card.Body style={{ overflowX: 'scroll' }}  >
                 
@@ -316,7 +323,7 @@ const InternshipChances = () => {
                     <Col md={{ span: 3 }}>
               <Button onClick={e => { e.preventDefault(); showPostForm('create') }}>New Post</Button>
                     </Col>
-                    <Col md={{ span: 3, offset: 6 }}>
+                    {/* <Col md={{ span: 3, offset: 6 }}>
                                        <InputGroup>
                             <FormControl
                             placeholder="Type To Search"
@@ -329,14 +336,17 @@ const InternshipChances = () => {
                                 </Button>
                             </InputGroup.Append>
                             </InputGroup>
-                    </Col>
+                    </Col> */}
                 </Row>
                 <hr/>
-          <Table
-            columns={columns}
-            dataSource={internshipPosts.slice().sort((a, b) => b.date_updated.localeCompare(a.date_updated))}
-            pagination={{ onChange(current) {setPage(current)}, pageSize: 5 }}
-            column={{ ellipsis: true }} />
+          {isFetchingData ?
+            <Message variant='info'> <DataPlaceHolder /> </Message> : <>
+              <Table
+                columns={columns}
+                dataSource={internshipPosts.slice().sort((a, b) => b.date_updated.localeCompare(a.date_updated))}
+                pagination={{ onChange(current) { setPage(current) }, pageSize: 5 }}
+                column={{ ellipsis: true }} /> </>
+          }
        </Card.Body>
         <ContentModal
         show={modalShow}

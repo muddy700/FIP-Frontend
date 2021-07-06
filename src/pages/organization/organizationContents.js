@@ -1,6 +1,5 @@
-import React, { useState } from 'react'
-import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
-import Button from 'react-bootstrap/Button'
+import React from 'react'
+import { Switch, Route } from 'react-router-dom';
 import 'react-pro-sidebar/dist/css/styles.css';
 import '../../styles/alumni.css'
 import {DashboardPage} from './dashboardPage'

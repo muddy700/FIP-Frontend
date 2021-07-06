@@ -6,10 +6,11 @@ import { Button, Row, Col, Card, InputGroup, FormControl, Form } from 'react-boo
 import Message from '../../components/message'
 import { useLocation, useHistory } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
-import { createPostSchedule, editInternshipPost, editMultipleApplications, editPostSchedule, editSingleApplication, getInternshipApplications, getPostSchedule, getSchedules, } from '../../app/api';
-import { apiConfigurations, selectUserData } from '../../slices/userSlice';
+import { createPostSchedule, editInternshipPost, editMultipleApplications, editPostSchedule, editSingleApplication, getInternshipApplications, getPostSchedule } from '../../app/api';
+import { apiConfigurations} from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 import Loader from '../../components/loader';
+// import DataPlaceHolder from '../../components/dataPlaceHolder';
 
 const PostApplicants = () => {
 
@@ -84,7 +85,7 @@ const PostApplicants = () => {
   const history = useHistory();
   const [modalShow, setModalShow] = useState(false);
   const config = useSelector(apiConfigurations)
-  const user = useSelector(selectUserData)
+  // const user = useSelector(selectUserData)
   const [filteredArray, setFilteredArray] = useState()
   const [selectedAlumni, setSelectedAlumni] = useState([])
   const [discardedAlumni, setDiscardedAlumni] = useState([])
@@ -95,6 +96,7 @@ const PostApplicants = () => {
   const [isStageFinished, setIsStageFinished] = useState(false)
   const [modalMode, setModalMode] = useState('')
   const [latestSchedule, setlatestSchedule] = useState({})
+    // const [isFetchingData, setIsFetchingData] = useState(false)
 
   const goToPreviousPage = () => {
     history.goBack()
@@ -158,10 +160,10 @@ const PostApplicants = () => {
 
     try {
           const response1 = await editMultipleApplications(payloads, config)
-          // console.log(response1.length)
+          console.log(response1.length)
           try {
                 const response2 = await editMultipleApplications(rejectedPayloads, config)
-            // console.log(response2)
+            console.log(response2.length)
             setDiscardedAlumni([])
             setSelectedAlumni([])
             setPassMarks(0)
@@ -177,6 +179,9 @@ const PostApplicants = () => {
                 'request': 'Edit Qualified Internship Applications For Practical Request',
                 'Error => ': error
             })
+      
+        console.log(passMarks, hasCurrentSchedule, )
+  console.log(finalStage)
         }
   }
 
@@ -293,6 +298,7 @@ const PostApplicants = () => {
 
     try {
       const response = await editInternshipPost(post.id, payload, config)
+      console.log(response.length)
     } catch (error) {
           console.log({ 
               'request': 'Edit Post Reporting Instructions Request',
@@ -399,7 +405,8 @@ const PostApplicants = () => {
   }
     useEffect(() => {
       fetchPostApplicants();
-      getInterviewSchedules()
+      getInterviewSchedules();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     return (

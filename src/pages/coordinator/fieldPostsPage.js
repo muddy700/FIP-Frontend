@@ -58,7 +58,7 @@ function FieldPostsPage() {
         }
     }
 
-    const fetchFieldPosts = async () => {
+    const fetchFieldPosts = async () => { 
         try {
           const response = await getAllFieldPosts(config)
             const arrangedByDate = response.slice().sort((a, b) => b.date_updated.localeCompare(a.date_updated))

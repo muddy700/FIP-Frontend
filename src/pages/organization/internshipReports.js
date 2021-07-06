@@ -1,20 +1,22 @@
 import React, {useState, useEffect} from 'react'
 import '../../App.css'
-import { List, Avatar, Space, Tag, Table } from 'antd';
-import Icon from 'supercons'
-import { Button, Row, Col, Card, InputGroup, FormControl, Form } from 'react-bootstrap'
+import { Space, Table } from 'antd';
+import { Button, Row, Col, Card} from 'react-bootstrap'
 import Message from '../../components/message'
 import { Link } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
-import { getAlumniApplications, getOrganizationInternshipPosts, getProcessedApplications, getProfessions, pullInternshipPosts, pushInternshipPost, getSchedules } from '../../app/api';
+import {
+  getOrganizationInternshipPosts,
+  // getProcessedApplications
+} from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
-import ContentModal from '../../components/contentModal';
 // import { findAllByDisplayValue } from '@testing-library/dom';
+import DataPlaceHolder from '../../components/dataPlaceHolder';
 
 const InternshipReports = () => {
 
   const [page, setPage] = useState(1)
-  const [modalShow, setModalShow] = useState(false)
+  // const [modalShow, setModalShow] = useState(false)
 
   const columns = [
   {
@@ -65,16 +67,21 @@ const InternshipReports = () => {
 
     const config = useSelector(apiConfigurations)
     const user = useSelector(selectUserData)
-    const [applications, setApplications] = useState([])
-    const [internshipPosts, setInternshipPosts] = useState([])
-    const [post, setPost] = useState({})
+    // const [applications, setApplications] = useState([])
+  const [internshipPosts, setInternshipPosts] = useState([])
+  const [isFetchingData, setIsFetchingData] = useState(false)
+    // const [post, setPost] = useState({})
   
   const fetchInternshipPosts = async () => {
-        try {
-          const response = await getOrganizationInternshipPosts(user.userId, config)
-          const newPosts = response.filter(post => post.status !== 'test')
-          setInternshipPosts(newPosts)
-        } catch (error) {
+    setIsFetchingData(true)
+    try {
+      const response = await getOrganizationInternshipPosts(user.userId, config)
+      const newPosts = response.filter(post => post.status !== 'test')
+      setInternshipPosts(newPosts)
+      setIsFetchingData(false)
+    } catch (error) {
+          setIsFetchingData(false)
+          // console.log(applications.length)
             console.log({
                 'request': 'Fetch Processed Internship Posts Request',
                 'Error => ': error
@@ -82,28 +89,29 @@ const InternshipReports = () => {
         }
   }
 
-      const fetchApplications = async () => {
-        try {
-          const response = await getProcessedApplications(user.userId, config)
-            setApplications(response)
-        } catch (error) {
-            console.log({
-                'request': 'Fetch Processed Applications Request',
-                'Error => ': error
-            })
-        }
-    }
+    //   const fetchApplications = async () => {
+    //     try {
+    //       const response = await getProcessedApplications(user.userId, config)
+    //         setApplications(response)
+    //     } catch (error) {
+    //         console.log({
+    //             'request': 'Fetch Processed Applications Request',
+    //             'Error => ': error
+    //         })
+    //     }
+    // }
     
     useEffect(() => {
       // fetchApplications();
       fetchInternshipPosts()
-      // getInterviewSchedules()
+      // getInterviewSchedules();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
     
     return (
     <Card >
         <Card.Header >
-          <Message variant='info' >Dear {user.username}, You have The Following Applicants</Message>
+          <Message variant='info' >Dear {user.first_namae}, You have The Following Applicants</Message>
         </Card.Header>
             <Card.Body style={{ overflowX: 'scroll' }}  >
                 
@@ -111,7 +119,7 @@ const InternshipReports = () => {
                     <Col md={{ span: 3 }}>
                       {/* <Button>New Post</Button> */}
                     </Col>
-                    <Col md={{ span: 3, offset: 6 }}>
+                    {/* <Col md={{ span: 3, offset: 6 }}>
                         <InputGroup>
                             <FormControl
                             placeholder="Type To Search"
@@ -124,14 +132,17 @@ const InternshipReports = () => {
                                 </Button>
                             </InputGroup.Append>
                         </InputGroup>
-                    </Col>
+                    </Col> */}
                 </Row>
                 <hr/>
-          <Table
-            columns={columns}
-            dataSource={internshipPosts}
-            pagination={{ onChange(current) {setPage(current)}, pageSize: 5 }}
-            column={{ ellipsis: true }} />
+          {isFetchingData ?
+            <Message variant='info'> <DataPlaceHolder /> </Message> : <>
+              <Table
+                columns={columns}
+                dataSource={internshipPosts}
+                pagination={{ onChange(current) { setPage(current) }, pageSize: 5 }}
+                column={{ ellipsis: true }} /> </>
+          }
         </Card.Body>
         {/* <ContentModal
           show={modalShow}

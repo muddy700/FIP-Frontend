@@ -1,15 +1,13 @@
 import React, {useState, useEffect} from 'react'
 import '../../App.css'
-import { List, Avatar, Space, Tag, Table } from 'antd';
-import Icon from 'supercons'
-import { Button, Row, Col, Card, InputGroup, FormControl, Form, Tooltip } from 'react-bootstrap'
+import { List } from 'antd';
+import { Button, Row, Col, Card, Form } from 'react-bootstrap'
 import Message from '../../components/message'
 import { Link } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
 import { fetchAllProjects, fetchPublishedAlumni, fetchAllAlumniSkills, fetchAllRatings, fetchAllSkills } from '../../app/api';
-import { apiConfigurations, selectUserData } from '../../slices/userSlice';
-import ContentModal from '../../components/contentModal';
-import { findAllByDisplayValue } from '@testing-library/dom';
+import { apiConfigurations } from '../../slices/userSlice';
+import DataPlaceHolder from '../../components/dataPlaceHolder';
 
 function PublishedAlumniPage() {
 
@@ -18,7 +16,7 @@ function PublishedAlumniPage() {
 
 
     const config = useSelector(apiConfigurations)
-    const user = useSelector(selectUserData)
+    // const user = useSelector(selectUserData)
 
     //Original States Of Data
     const [publishedAlumni, setPublishedAlumni] = useState([])
@@ -26,17 +24,21 @@ function PublishedAlumniPage() {
     const [allAlumniSkills, setAllAlumniSkills] = useState([])
     const [allRatings, setAllRatings] = useState([])
     const [allSkills, setAllSkills] = useState([])
+    const [isFetchingData, setIsFetchingData] = useState(false)
 
     //Filter Values
     const [filteredArray, setFilteredArray] = useState([])
 
     const getPublishedAlumni = async () => {
+        setIsFetchingData(true)
         try {
             const response = await fetchPublishedAlumni(config)
             setPublishedAlumni(response)
             setFilteredArray(response)
+            setIsFetchingData(false)
         } catch (error) {
-           console.log('Get Published Alumnik ', error.reponse.data) 
+            setIsFetchingData(false)
+            console.log('Get Published Alumnik ', error.reponse.data) 
         }
     }
 
@@ -82,7 +84,8 @@ function PublishedAlumniPage() {
         getAllProjects();
         getAllAlumniSkills();
         getAllRatings();
-        getAllSkills()
+        getAllSkills();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const filterByGpa = (e) => {
@@ -187,55 +190,60 @@ function PublishedAlumniPage() {
                         </Form.Control>
                 </Row>
                 <Row style={{ marginBottom: '16px' }}>
-                    <Row style={{marginLeft: '35%'}}>{filteredArray.length === 0 ?
-                        <Message variant="info">No data matched your filter</Message> : ''}</Row>
-                <List
-                    itemLayout="vertical"
-                    style={{width: '100%'}}
-                    size="small"
-                    pagination={{ pageSize: 5, }}
-                    dataSource={filteredArray}
-                    renderItem={profile => (
-                        <List.Item
-                            key={profile.id}
-                            className="list-items"
-                            style={{padding: 0,}}
-                        >
-                            <Row
-                                style={{
-                                    // border: '1px solid blue',
-                                    borderRadius: '5px',
-                                    backgroundColor: 'lightgray',
-                                    width: '98%',
-                                    padding: '1% 3%',
-                                    margin: '1% 1%',
-                                }}>
-                                <span style={{ width: '100%' }}><b>Name :</b> &nbsp; {profile.first_name} {profile.last_name} </span>
-                                <Col md={4}>
-                                    <span><b>Program :</b> {profile.degree_program} </span><br />
-                                    <span ><b>Completion Year :</b> {profile.completion_year} </span> <br />
-                                    <span ><b>Number of projects:</b> {allProjects.filter(item => (item.member === profile.alumni)).length} </span> <br />
-                                    <span ><b>GPA: </b>{profile.gpa} </span>
-                                </Col>
-                                <Col md={4}>
-                                <span><b>Skills: </b><ol>{allAlumniSkills.filter(item => item.alumni === profile.alumni).map(skill => (
-                                    <li>{skill.profession_name}</li>))}</ol> </span>
-                                     </Col>
-                                <Col md={4}>
-                                    <span style={{ width: '100%' }}>
-                                        <b>Ratings: </b>
-                                        <span>{allRatings.filter(rate => rate.alumni === profile.alumni).length === 0 ? 'No ratings yet' : ''}</span>
-                                        <ol>{allRatings.filter(rate => rate.alumni === profile.alumni)
-                                            .map(item => (<li>{item.organization_name} : <i>{desc[item.value - 1 ]}</i></li>
-                                ))} </ol></span>
-                                 </Col>
-                                <Link style={{marginLeft: '85%'}} to={{pathname: `/alumni/${profile.alumni}/details` }}>
-                                    <Button variant="link" >More Details</Button>
-                                </Link>
-                            </Row>
-                        </List.Item>
-                    )}
-                 />
+                    <Row style={{marginLeft: '35%'}}>{filteredArray.length === 0  && !isFetchingData?
+                        <Message variant="info">No data matched your filter</Message> : ''}
+                    </Row>
+                    <span style={{ width: '100%' }}>
+                    {isFetchingData ?
+                        <Message variant='info'> <DataPlaceHolder /> </Message>  : <>
+                            <List
+                                itemLayout="vertical"
+                                style={{ width: '100%' }}
+                                size="small"
+                                pagination={{ pageSize: 5, }}
+                                dataSource={filteredArray}
+                                renderItem={profile => (
+                                    <List.Item
+                                        key={profile.id}
+                                        className="list-items"
+                                        style={{ padding: 0, }}
+                                    >
+                                        <Row
+                                            style={{
+                                                // border: '1px solid blue',
+                                                borderRadius: '5px',
+                                                backgroundColor: 'lightgray',
+                                                width: '98%',
+                                                padding: '1% 3%',
+                                                margin: '1% 1%',
+                                            }}>
+                                            <span style={{ width: '100%' }}><b>Name :</b> &nbsp; {profile.first_name} {profile.last_name} </span>
+                                            <Col md={4}>
+                                                <span><b>Program :</b> {profile.degree_program} </span><br />
+                                                <span ><b>Completion Year :</b> {profile.completion_year} </span> <br />
+                                                <span ><b>Number of projects:</b> {allProjects.filter(item => (item.member === profile.alumni)).length} </span> <br />
+                                                <span ><b>GPA: </b>{profile.gpa} </span>
+                                            </Col>
+                                            <Col md={4}>
+                                                <span><b>Skills: </b><ol>{allAlumniSkills.filter(item => item.alumni === profile.alumni).map(skill => (
+                                                    <li>{skill.profession_name}</li>))}</ol> </span>
+                                            </Col>
+                                            <Col md={4}>
+                                                <span style={{ width: '100%' }}>
+                                                    <b>Ratings: </b>
+                                                    <span>{allRatings.filter(rate => rate.alumni === profile.alumni).length === 0 ? 'No ratings yet' : ''}</span>
+                                                    <ol>{allRatings.filter(rate => rate.alumni === profile.alumni)
+                                                        .map(item => (<li>{item.organization_name} : <i>{desc[item.value - 1]}</i></li>
+                                                        ))} </ol></span>
+                                            </Col>
+                                            <Link style={{ marginLeft: '85%' }} to={{ pathname: `/alumni/${profile.alumni}/details` }}>
+                                                <Button variant="link" >More Details</Button>
+                                            </Link>
+                                        </Row>
+                                    </List.Item>
+                                )}
+                            /> </>
+                    }</span>
                 </Row>
         </Card.Body>
         {/* <ContentModal

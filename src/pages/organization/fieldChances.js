@@ -1,10 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import '../../App.css'
-import { List, Avatar, Space, Tag, Table, Popconfirm } from 'antd';
-import { QuestionCircleOutlined } from '@ant-design/icons';
-
-import Icon from 'supercons'
-import { Button, Row, Col, Card, InputGroup, FormControl, Form } from 'react-bootstrap'
+import { List } from 'antd';
+import { Button, Row, Col, Card, FormControl, Form } from 'react-bootstrap'
 import Message from '../../components/message'
 import { Link } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
@@ -12,9 +9,10 @@ import { getOrganizationFieldPosts, getProfessions, getPrograms, getFieldPostPro
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 import Loader from '../../components/loader'
+import DataPlaceHolder from '../../components/dataPlaceHolder';
 
 const FieldChances = () => {
-    const [page, setPage] = useState(1)
+    // const [page, setPage] = useState(1)
     
       const options = [
     {
@@ -47,7 +45,7 @@ const FieldChances = () => {
   const config = useSelector(apiConfigurations)
   const user = useSelector(selectUserData)
     const [modalShow, setModalShow] = useState(false);
-    const [editingMode, setEditingMode] = useState(false)
+    // const [editingMode, setEditingMode] = useState(false)
 
     const [fieldPosts, setFieldPosts] = useState([])
     const [allSkills, setAllSkills] = useState([])
@@ -62,6 +60,7 @@ const FieldChances = () => {
     const [isSendingPost, setIsSendingPost] = useState(false)
     const [selectedPost, setSelectedPost] = useState({})
     const [isDeletingPost, setIsDeletingPost] = useState(false)
+    const [isFetchingData, setIsFetchingData] = useState(false)
 
 
     const closeModal = () => {
@@ -72,12 +71,15 @@ const FieldChances = () => {
     }
     
     
-  const fetchFieldPosts = async () => {
-        try {
+    const fetchFieldPosts = async () => {
+      setIsFetchingData(true)
+      try {
           const response = await getOrganizationFieldPosts(user.userId, config)
           const arrangedByDate = response.slice().sort((a, b) => b.date_updated.localeCompare(a.date_updated))
           setFieldPosts(arrangedByDate)
+          setIsFetchingData(false)
         } catch (error) {
+            setIsFetchingData(false)
             console.log({
                 'request': 'Fetch Organization Field Posts Request',
                 'Error => ': error.response.data
@@ -177,11 +179,12 @@ const FieldChances = () => {
         fetchallPrograms();
         fetchFieldPostProfessions();
         fetchFieldPostPrograms();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useEffect(() => {
-        mergeFieldPostInfo()
-    // }, [])
+        mergeFieldPostInfo();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [postPrograms.length && postSkills.length])
 
 
@@ -345,6 +348,7 @@ const FieldChances = () => {
         setIsDeletingPost(true)
         try {
             const response = await deleteFieldPost(data.id, config)
+            console.log(response)
             const remainingPosts = filteredArray.filter(item => item.id !== data.id)
             setFilteredArray(remainingPosts)
             setFieldPosts(remainingPosts)
@@ -396,7 +400,7 @@ const FieldChances = () => {
           <Form.Label>Skills</Form.Label>
           <Form.Control as="select"
               size="md"
-              disabled={editingMode}
+            //   disabled={editingMode}
             //   value={newPost.profession}
               onChange={handleFieldPostForm}
               name="profession">
@@ -424,7 +428,7 @@ const FieldChances = () => {
           <Form.Label>Program</Form.Label>
           <Form.Control as="select"
               size="md"
-              disabled={editingMode}
+            //   disabled={editingMode}
             //   value={newPost.profession}
               onChange={handleFieldPostForm}
               name="program">
@@ -496,78 +500,81 @@ const FieldChances = () => {
                     >Add Field Post</Button>
                 </Row>
                 <Row style={{ marginBottom: '16px' }}>
-                        <List
-                            itemLayout="vertical"
-                            style={{width: '100%'}}
-                            size="small"
-                            pagination={{ pageSize: 5, }}
-                            dataSource={arrangePostsByDate(filteredArray)}
-                            renderItem={post => (
-                                <List.Item
-                                    key={post.id}
-                                    className="list-items"
-                                    style={{padding: 0,}}
-                                >
-                                    <Row
-                                        style={{
-                                            // border: '1px solid blue',
-                                            borderRadius: '5px',
-                                            backgroundColor: 'lightgray',
-                                            width: '98%',
-                                            padding: '1% 3%',
-                                            margin: '1% 1%',
-                                        }}>
-                                        <span style={{ width: '100%' }}><b>Ref No :</b> &nbsp; {post.reference_number} </span>
-                                        <Col md={3}>
-                                            <span><b>Total Chances: </b>
-                                                {post.post_capacity ? post.post_capacity :
-                                                post.programs && post.skills ? (calculateTotalChances(post.programs.map(prog => prog.program_capacity)) + calculateTotalChances(post.skills.map(skil => skil.profession_capacity))) :
-                                                post.programs ? calculateTotalChances(post.programs.map(prog => prog.program_capacity)) :
-                                                calculateTotalChances(post.skills.map(skil => skil.profession_capacity))
-                                                } </span><br />
-                                        </Col>
-                                        <Col md={4}>
-                                            <span>
-                                                <b>Skills: </b>
-                                                <span>{post.skills && post.skills.length ? 
-                                                <span>
-                                                    <ol>{post.skills.map(skill => (
-                                                        <li><span>{skill.profession_name}: {skill.profession_capacity}</span></li>))}
-                                                    </ol>
-                                                </span> 
-                                                    : 'any skills'}</span>
-                                            </span>
-                                        </Col>
-                                        <Col md={5}>
-                                            <span>
-                                                <b>Programs: </b>
-                                                <span>{post.programs && post.programs.length ? 
-                                                <span>
-                                                    <ol>{post.programs.map(data => (
-                                                        <li><span>{data.program_name}: {data.program_capacity}</span></li>))}
-                                                    </ol>
-                                                </span> 
-                                                    : 'all programs'}</span>
-                                            </span>
-                                        </Col>
-                                        <Row style={{ display: 'flex', width: '100%', marginTop: '10px'  }}>
-                                            <Col md={4} >
-                                                <span style={{paddingLeft: '5%'}}><b>Expiry date: </b> {checkExpiryDate(post.expiry_date) ? <b style={{color: 'red'}}><i>Closed</i></b>: post.expiry_date}</span>
+                    {isFetchingData ?<span style={{width: '100%'}}>
+                        <Message variant='info'> <DataPlaceHolder /> </Message> </span>: <>
+                            <List
+                                itemLayout="vertical"
+                                style={{ width: '100%' }}
+                                size="small"
+                                pagination={{ pageSize: 5, }}
+                                dataSource={arrangePostsByDate(filteredArray)}
+                                renderItem={post => (
+                                    <List.Item
+                                        key={post.id}
+                                        className="list-items"
+                                        style={{ padding: 0, }}
+                                    >
+                                        <Row
+                                            style={{
+                                                // border: '1px solid blue',
+                                                borderRadius: '5px',
+                                                backgroundColor: 'lightgray',
+                                                width: '98%',
+                                                padding: '1% 3%',
+                                                margin: '1% 1%',
+                                            }}>
+                                            <span style={{ width: '100%' }}><b>Ref No :</b> &nbsp; {post.reference_number} </span>
+                                            <Col md={3}>
+                                                <span><b>Total Chances: </b>
+                                                    {post.post_capacity ? post.post_capacity :
+                                                        post.programs && post.skills ? (calculateTotalChances(post.programs.map(prog => prog.program_capacity)) + calculateTotalChances(post.skills.map(skil => skil.profession_capacity))) :
+                                                            post.programs ? calculateTotalChances(post.programs.map(prog => prog.program_capacity)) :
+                                                                calculateTotalChances(post.skills.map(skil => skil.profession_capacity))
+                                                    } </span><br />
                                             </Col>
-                                            <Col md={{span: 4, offset: 8}}>
-                                                <Button
-                                                    variant="link"
-                                                    onClick={e => { e.preventDefault(); setSelectedPost(post); deleteSinglePost(post)}}
-                                                    style={{ color: 'red',  }}>{isDeletingPost && (selectedPost.id === post.id) ? <Loader message='Wait...!' /> : 'Delete'}</Button>
-                                                <Link to={{pathname: `/field_post/${post.id}/applications` }}>
-                                                <Button variant="link" >View Applications</Button>
-                                                </Link>
+                                            <Col md={4}>
+                                                <span>
+                                                    <b>Skills: </b>
+                                                    <span>{post.skills && post.skills.length ?
+                                                        <span>
+                                                            <ol>{post.skills.map(skill => (
+                                                                <li><span>{skill.profession_name}: {skill.profession_capacity}</span></li>))}
+                                                            </ol>
+                                                        </span>
+                                                        : 'any skills'}</span>
+                                                </span>
                                             </Col>
+                                            <Col md={5}>
+                                                <span>
+                                                    <b>Programs: </b>
+                                                    <span>{post.programs && post.programs.length ?
+                                                        <span>
+                                                            <ol>{post.programs.map(data => (
+                                                                <li><span>{data.program_name}: {data.program_capacity}</span></li>))}
+                                                            </ol>
+                                                        </span>
+                                                        : 'all programs'}</span>
+                                                </span>
+                                            </Col>
+                                            <Row style={{ display: 'flex', width: '100%', marginTop: '10px' }}>
+                                                <Col md={4} >
+                                                    <span style={{ paddingLeft: '5%' }}><b>Expiry date: </b> {checkExpiryDate(post.expiry_date) ? <b style={{ color: 'red' }}><i>Closed</i></b> : post.expiry_date}</span>
+                                                </Col>
+                                                <Col md={{ span: 4, offset: 8 }}>
+                                                    <Button
+                                                        variant="link"
+                                                        onClick={e => { e.preventDefault(); setSelectedPost(post); deleteSinglePost(post) }}
+                                                        style={{ color: 'red', }}>{isDeletingPost && (selectedPost.id === post.id) ? <Loader message='Wait...!' /> : 'Delete'}</Button>
+                                                    <Link to={{ pathname: `/field_post/${post.id}/applications` }}>
+                                                        <Button variant="link" >View Applications</Button>
+                                                    </Link>
+                                                </Col>
+                                            </Row>
                                         </Row>
-                                    </Row>
-                                </List.Item>
-                            )}
-                        />
+                                    </List.Item>
+                                )}
+                            /> </>
+                    }
                     </Row>
             </Card.Body>
         <ContentModal

@@ -35,23 +35,29 @@ const OrganizationManagementPage = () => {
     }
 
     const organizationInfoValidator = () => {
+    let re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        const emailResult = re.test(organizationInfo.email)
         // if (organizationInfo.username === '') {
         //     setOrganizationInfoErrorMessage('Username Cannot Be Blank!')
         //     return false
         // }
-        if (organizationInfo.email === '') {
+        if (!organizationInfo.email) {
             setOrganizationInfoErrorMessage('Email Cannot Be Blank!')
             return false
         }
-        else if (organizationInfo.first_name === '') {
+        else if (!emailResult) {
+            setOrganizationInfoErrorMessage('Enter a valid email')
+            return false;
+        }
+        else if (!organizationInfo.first_name) {
             setOrganizationInfoErrorMessage('Alias Cannot Be Blank!')
             return false
         }
-        else if (organizationInfo.last_name === '') {
+        else if (!organizationInfo.last_name) {
             setOrganizationInfoErrorMessage('Full Name Cannot Be Blank!')
             return false
         }
-        else if (organizationInfo.password === '') {
+        else if (!organizationInfo.password) {
             setOrganizationInfoErrorMessage('Password Cannot Be Blank!')
             return false
         }
@@ -59,7 +65,7 @@ const OrganizationManagementPage = () => {
             setOrganizationInfoErrorMessage('Enter Atleast Six Characters')
             return false
         }
-        else if (organizationInfo.password2 === '') {
+        else if (!organizationInfo.password2) {
             setOrganizationInfoErrorMessage('Re-Enter Password')
             return false
         }
@@ -161,7 +167,7 @@ const OrganizationManagementPage = () => {
                 <Form.Group as={Col} controlId="formGridPassword1">
                     <Form.Label>Email</Form.Label>
                     <Form.Control
-                        type="email"
+                        type="text"
                         name="email"
                         value={organizationInfo.email}
                         onChange={handleOrganizationInfoChanges}

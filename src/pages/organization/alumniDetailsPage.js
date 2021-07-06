@@ -6,9 +6,9 @@ import {
     fetchalumniProjects, fetchAlumniSkills, fetchCvEducationInfo,
     fetchCvExperienceInfo, fetchCvPersonalInfo, getAlumniProfile,
 } from '../../app/api'
-import { selectUserData, saveUser, apiConfigurations } from '../../slices/userSlice'
-import { useSelector, useDispatch } from 'react-redux'
-import { Card, Row, Col, Button, Accordion, Form, Alert, Modal } from 'react-bootstrap'
+import { selectUserData, apiConfigurations } from '../../slices/userSlice'
+import { useSelector} from 'react-redux'
+import { Card, Row, Col, Button, Form, Modal } from 'react-bootstrap'
 import Message from '../../components/message'
 import dpPlaceHolder from '../../images/default-for-user.png'
 import ContentModal from '../../components/contentModal'
@@ -28,7 +28,7 @@ const AlumniDetailsPage = () => {
     }
 
     const [invitationInfo, setInvitationInfo] = useState(initialInvitation)
-    const [invitationMessage, setInvitationMessage] = useState('')
+    // const [invitationMessage, setInvitationMessage] = useState('')
     const [isSendingInvitation, setIsSendingInvitation] = useState(false)
     const [organizationInvitations, setOrganizationInvitations] = useState([])
     const [hasInvited, setHasInvited] = useState(false)
@@ -56,6 +56,8 @@ const AlumniDetailsPage = () => {
             const profile = await getAlumniProfile(alumniId, config)
             setAlumniProfile(profile[0])
         } catch (error) {
+            console.log(alumniProfile.id * 5)
+            console.log(organizationInvitations.length)
             console.log({
                 'Request': 'Get Published Alumni Profile Request',
                 'Error => ' : error.response.data,
@@ -157,7 +159,7 @@ const AlumniDetailsPage = () => {
         getRatings();
         getProjects();
         getOrganizationInvitations();
-
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const closeModal = () => {
@@ -187,7 +189,7 @@ const AlumniDetailsPage = () => {
 
         try {
             const response = await addJobInvitation(payload, config)
-            // console.log(payload)
+            console.log(response)
             setIsSendingInvitation(false)
             setHasInvited(true)
             // closeModal()

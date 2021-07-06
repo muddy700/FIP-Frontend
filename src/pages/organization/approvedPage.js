@@ -1,11 +1,9 @@
 import React, {useState, useEffect} from 'react'
 import '../../App.css'
 import { Table, Space, Popconfirm } from 'antd';
-
-import Icon from 'supercons'
-import { Button, Row, Col, Card, InputGroup, FormControl, Form, Modal } from 'react-bootstrap'
+import { Button, Col, Card, Form, Modal } from 'react-bootstrap'
 import Message from '../../components/message'
-import { useLocation, useHistory } from 'react-router-dom';
+// import { useLocation, useHistory } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
 import {
   editAlumniProfile,
@@ -24,6 +22,7 @@ import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 import Loader from '../../components/loader';
 import { Rate } from 'antd';
+import DataPlaceHolder from '../../components/dataPlaceHolder';
 
 const desc = ['terrible', 'bad', 'normal', 'good', 'wonderful'];
 
@@ -183,7 +182,7 @@ const ApprovedAlumni = () => {
     value: ''
   }
 
-  const history = useHistory();
+  // const history = useHistory();
   const config = useSelector(apiConfigurations)
   const user = useSelector(selectUserData)
   const [applications, setApplications] = useState([])
@@ -207,16 +206,21 @@ const ApprovedAlumni = () => {
   const [modalShow3, setModalShow3] = useState(false) //For Rejection Reason
   const [modalShow4, setModalShow4] = useState(false) //For Contract Form Of Invited Alumni
   const [skills, setSkills] = useState([])
+  const [isFetchingData, setIsFetchingData] = useState(false)
+  const [isFetchingData2, setIsFetchingData2] = useState(false)
 
   const fetchPostApplicants = async () => {
+    setIsFetchingData(true)
     try {
       const response = await getProcessedApplications(user.userId, config)
       var newApplications = response.filter(item => item.status === 'accepted' && item.reporting_instructions === 'True' )
       // var newApplications2 = newApplications.filter(item => item.reporting_instructions === 'True')
       setApplications(newApplications)
       setFilteredArray(newApplications)
-
+      setIsFetchingData(false)
+      
     } catch (error) {
+      setIsFetchingData(false)
         console.log({ 
             'request': 'Fetch Approved Internship Applications Request',
             'Error => ': error.response.data
@@ -225,10 +229,13 @@ const ApprovedAlumni = () => {
   }
 
   const getOrganizationInvitations = async () => {
-      try {
-          const response = await fetchOrganizationInvitations(user.userId, config)
-          setOrganizationInvitations(response)
-      } catch (error) {
+    setIsFetchingData2(true)
+    try {
+      const response = await fetchOrganizationInvitations(user.userId, config)
+      setOrganizationInvitations(response)
+      setIsFetchingData2(false)
+    } catch (error) {
+        setIsFetchingData2(false)
           console.log('Get Organization Invitations', error.response.data)
       }
   }
@@ -246,6 +253,7 @@ const ApprovedAlumni = () => {
     
     try {
       const response = await sendAlumniRatings(ratingPayload, config)
+        console.log(response.length)
       setShowRateModal(false)
       setIsRating(false)
       setRateValue(0)
@@ -295,7 +303,8 @@ const ApprovedAlumni = () => {
     fetchPostApplicants();
     fetchOrganizationContracts();
     getOrganizationInvitations();
-    fetchProfessions()
+    fetchProfessions();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const releaseAlumni = async (record) => {
@@ -315,9 +324,11 @@ const ApprovedAlumni = () => {
     try {
       if (record.invitation_message) {
         const response = await editJobInvitation(payload1, config)
+        console.log(response.length)
       }
       else {
         const response1 = await editSingleApplication(payload1, config)
+        console.log(response1.length)
       }
 
       try {
@@ -326,6 +337,7 @@ const ApprovedAlumni = () => {
         
         try {
           const response2 = await editAlumniProfile(payload2, config)
+        console.log(response2.length)
           fetchPostApplicants()
           getOrganizationInvitations()
           setIsReleasing(false)
@@ -359,6 +371,7 @@ const ApprovedAlumni = () => {
       
       try {
         const response = await editAlumniProfile(payload3, config)
+        console.log(response)
         setModalShow(false)
         setContractInfo(initialContract)
         setIsLoading(false)
@@ -386,6 +399,7 @@ const ApprovedAlumni = () => {
   const editContract = async () => {
     try {
       const response = await editInternshipContract(contractInfo, config)
+      console.log(response)
       setIsLoading(false)
       setContractInfo(initialContract)
       setModalShow(false)
@@ -413,9 +427,11 @@ const ApprovedAlumni = () => {
 
     try {
       const response1 = await sendInternshipContract(payload1, config)
+      console.log(response1)
       
       try {
         const response2 = await editJobInvitation(payload2, config)
+      console.log(response2)
         getOrganizationInvitations() 
         setIsLoading(false)
         // setSelectedInvitation({})
@@ -453,8 +469,10 @@ const ApprovedAlumni = () => {
 
       try {
         const response1 = await sendInternshipContract(payload1, config)
+      console.log(response1)
         try {
           const response2 = await editSingleApplication(payload2, config)
+      console.log(response2)
           changeAlumniStatus()
         
         } catch (error) { console.log('Send Has-Reported Error => ', error.response.data) }
@@ -548,8 +566,10 @@ const ApprovedAlumni = () => {
        <Message variant='info' >{applications.length === 0 ? 'You have not approved any applicant yet' : 'You have approved the following applicants'}</Message>
         </Card.Header>
         <Card.Body style={{ overflowX: 'scroll' }}  >
+            {isFetchingData ?
+              <Message variant='info'> <DataPlaceHolder /> </Message> : <>
           {applications.length !== 0 ? <>
-                <Row style={{marginBottom: '16px'}}>
+                {/* <Row style={{marginBottom: '16px'}}>
                     <Col md={{ span: 4, offset: 8}}>
                         <InputGroup>
                             <FormControl
@@ -566,13 +586,13 @@ const ApprovedAlumni = () => {
                             </InputGroup.Append>
                         </InputGroup>
                     </Col>
-                </Row>
+                </Row> */}
                 <hr/>
-          <Table 
-            columns={columns}
-            dataSource={filteredArray}
-            pagination={{ onChange(current) {setPage(current)}, pageSize: 5 }}
-            column={{ ellipsis: true }} /> </> : '' }
+                <Table
+                  columns={columns}
+                  dataSource={filteredArray}
+                  pagination={{ onChange(current) { setPage(current) }, pageSize: 5 }}
+                  column={{ ellipsis: true }} /> </> : '' } </>}
        </Card.Body> 
         <ContentModal
           show={modalShow}
@@ -617,11 +637,14 @@ const ApprovedAlumni = () => {
           <Message variant='info' >{organizationInvitations.length === 0 ? 'You have not invited any alumni yet' : 'You have invited the following alumni'}</Message>
         </Card.Header>
         <Card.Body>
-          <Table 
-              columns={columns2}
-              dataSource={organizationInvitations}
-              pagination={{ onChange(current) {setPage2(current)}, pageSize: 5 }}
-              column={{ ellipsis: true }} />
+          {isFetchingData2 ?
+            <Message variant='info'> <DataPlaceHolder /> </Message> : <>
+              <Table
+                columns={columns2}
+                dataSource={organizationInvitations}
+                pagination={{ onChange(current) { setPage2(current) }, pageSize: 5 }}
+                column={{ ellipsis: true }} /> </>
+          }
         </Card.Body>
 
         <ContentModal 

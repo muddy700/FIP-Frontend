@@ -6,6 +6,8 @@ import Message from '../../components/message'
 import { useSelector}  from 'react-redux'
 import { editFieldApplication, editStudentProfileInfo, getAllReportedStudents,getStudentProfileInfo } from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
+import DataPlaceHolder from '../../components/dataPlaceHolder';
+
 import Loader from '../../components/loader'
 
 const FieldReports = () => {
@@ -69,19 +71,24 @@ const FieldReports = () => {
     const [reportedStudents, setReportedStudents] = useState([])
     const [selectedApplication, setSelectedApplication] = useState({})
     const [isReleasing, setIsReleasing] = useState(false)
+    const [isFetchingData, setIsFetchingData] = useState(false)
 
-    const fetchAllReportedStudents = async () => {
-        try {
-            const response = await getAllReportedStudents(config)
-            const organization_students = response.filter(item => item.organization === user.userId)
-            setReportedStudents(organization_students)
-        } catch (error) {
+  const fetchAllReportedStudents = async () => {
+      setIsFetchingData(true)
+      try {
+        const response = await getAllReportedStudents(config)
+        const organization_students = response.filter(item => item.organization === user.userId)
+        setReportedStudents(organization_students)
+        setIsFetchingData(false)
+      } catch (error) {
+          setIsFetchingData(false)
             console.log('Getting All Reported Students', error.response.data)
         }
     }
 
     useEffect(() => {
         fetchAllReportedStudents();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const editArrivalNote = async (studentId) => {
@@ -131,12 +138,15 @@ const FieldReports = () => {
                 <Message variant='info' >All reported students</Message>
         </Card.Header>
         <Card.Body style={{ overflowX: 'scroll' }}  >
-                <Table 
-                    columns={columns}
-                    dataSource={reportedStudents}
-                    pagination={{ onChange(current) {setPage(current)}, pageSize: 5 }}
-                        // column={{ ellipsis: true }}
-            />
+          {isFetchingData ?
+            <Message variant='info'> <DataPlaceHolder /> </Message> : <>
+              <Table
+                columns={columns}
+                dataSource={reportedStudents}
+                pagination={{ onChange(current) { setPage(current) }, pageSize: 5 }}
+              // column={{ ellipsis: true }}
+              /> </>
+          }
         </Card.Body>
     </Card>
     )

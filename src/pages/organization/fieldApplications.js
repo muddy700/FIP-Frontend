@@ -8,6 +8,7 @@ import { useSelector}  from 'react-redux'
 import { editFieldApplication, editStudentProfileInfo, getFieldApplicationsByPostId, getStudentProfileInfo } from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import Loader from '../../components/loader'
+import DataPlaceHolder from '../../components/dataPlaceHolder';
 
 const FieldApplications = () => {
   
@@ -62,17 +63,21 @@ const FieldApplications = () => {
     const [fieldApplications, setFieldApplications] = useState([])
     const [selectedApplication, setSelectedApplication] = useState({})
     const [isConfirming, setIsConfirming] = useState(false)
+    const [isFetchingData, setIsFetchingData] = useState(false)
     
   const goToPreviousPage = () => {
       history.goBack()
   }
 
-    const fetchFieldApplications = async () => {
-        try {
-            const response = await getFieldApplicationsByPostId(postId, config)
-            const unConfirmedApplicantions = response.filter(item => !item.has_reported)
-            setFieldApplications(unConfirmedApplicantions)
-        } catch (error) {
+  const fetchFieldApplications = async () => {
+      setIsFetchingData(true)
+      try {
+        const response = await getFieldApplicationsByPostId(postId, config)
+        const unConfirmedApplicantions = response.filter(item => !item.has_reported)
+        setFieldApplications(unConfirmedApplicantions)
+        setIsFetchingData(false)
+      } catch (error) {
+          setIsFetchingData(false)
             console.log('Getting Field Applications By PostId', error.response.data)
         }
     }
@@ -121,6 +126,7 @@ const FieldApplications = () => {
 
     useEffect(() => {
         fetchFieldApplications();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
     
     return (
@@ -129,14 +135,17 @@ const FieldApplications = () => {
                 <Message variant='info' >{fieldApplications.length > 0 ? 'Applications of the selected field post' : 'No any application yet.'}</Message>
         </Card.Header>
         <Card.Body style={{ overflowX: 'scroll' }}  >
-            {fieldApplications.length > 0 ?
-              <Table
-                columns={columns}
-                dataSource={fieldApplications}
-                pagination={{ onChange(current) { setPage(current) }, pageSize: 5 }}
-              // column={{ ellipsis: true }}
-              /> :
-              '' }
+          {isFetchingData ?
+            <Message variant='info'> <DataPlaceHolder /> </Message> : <>
+              {fieldApplications.length > 0 ?
+                <Table
+                  columns={columns}
+                  dataSource={fieldApplications}
+                  pagination={{ onChange(current) { setPage(current) }, pageSize: 5 }}
+                // column={{ ellipsis: true }}
+                /> :
+                ''} </>
+          }
              <Button
                 variant="secondary"
                 onClick={goToPreviousPage} >

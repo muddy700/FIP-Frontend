@@ -2,8 +2,8 @@ import React, {useState} from 'react'
 import { Card, Button, Col, Form } from 'react-bootstrap'
 import { changePassword } from '../../app/api'
 import Message from '../../components/message'
-import { apiConfigurations, selectUserData } from '../../slices/userSlice';
-import { useSelector, useDispatch}  from 'react-redux'
+import { apiConfigurations } from '../../slices/userSlice';
+import { useSelector}  from 'react-redux'
 import Loader from '../../components/loader';
 
 const PasswordPage = () => {
