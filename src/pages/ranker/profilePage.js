@@ -1,10 +1,10 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState} from 'react'
 import { Card, Row, Col, Button, Table, Form, Alert } from 'react-bootstrap'
 import '../../styles/alumni.css'
 import Message from '../../components/message'
 import { selectUserData, saveUser, apiConfigurations } from '../../slices/userSlice'
 import { useSelector, useDispatch}  from 'react-redux'
-import { editUserProfile, getAlumniProfile, editUserInfo } from '../../app/api'
+import { editUserProfile, editUserInfo } from '../../app/api'
 import Loader from '../../components/loader'
 import ContentModal from '../../components/contentModal'
 import dpPlaceHolder from '../../images/default-for-user.png'
@@ -24,6 +24,7 @@ const ProfilePage = () => {
     // const [alumniProfile, setAlumniProfile] = useState({})
     const config = useSelector(apiConfigurations)
     const [profileImage, setProfileImage] = useState(null)
+    const [fileError, setFileError] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const [isLoading2, setIsLoading2] = useState(false)
     const [successMessage, setSuccessMessage] = useState('')
@@ -49,56 +50,83 @@ const ProfilePage = () => {
     // }, [])
 
     const handleProfileImage = (e) => {
-        setProfileImage(e.target.files[0])
+        setFileError('')
+        setProfileImage(e.target.files[0] ? e.target.files[0] : null)
         setIsLoading(false)
         setSuccessMessage('')
     }
 
+    const validateImageForm = () => {
+    const allowedExtensions = /(\.jpg|\.jpeg|\.png)$/i;
+
+    if (!profileImage) {
+      setFileError('Image Cannot Be Blank!')
+      return false;
+    }
+    else if (!allowedExtensions.exec(profileImage.name)) {
+      setFileError('Unsupported File Type!')
+      setProfileImage(null)
+      return false;
+    }
+    else {
+        setFileError('')
+      return true;
+    }
+    }
+    
     const changeProfileImage = async (e) => {
         e.preventDefault()
-        setIsLoading(true)
-        
-        const payload = new FormData();
-        payload.append('profile_image', profileImage)
-        payload.append('user', user.userId)
-        payload.append('designation', user.designation_id)
-        payload.append('phone', user.phone)
-        payload.append('gender', user.gender)
 
-        try {
-            const config2 = {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Token ${localStorage.getItem('token')}`    }
+        const isImageValid = validateImageForm()
+        if (isImageValid) {
+            setIsLoading(true)
+        
+            const payload = new FormData();
+            payload.append('profile_image', profileImage)
+            payload.append('user', user.userId)
+            payload.append('designation', user.designation_id)
+            payload.append('phone', user.phone)
+            payload.append('gender', user.gender)
+
+            try {
+                const config2 = {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': `Token ${localStorage.getItem('token')}`
+                    }
+                }
+                const response = await editUserProfile(profileId, payload, config2)
+                dispatch(saveUser({
+                    ...user,
+                    profile_image: response.profile_image
+                }))
+                setIsLoading(false)
+                setProfileImage(null)
+                setSuccessMessage('Profile image changed successful.')
+            } catch (error) {
+                console.log({
+                    'Request': 'Edit Profile-Image Request',
+                    'Error => ': error.response.data,
+                })
+                setIsLoading(false)
             }
-            const response = await editUserProfile(profileId, payload, config2)
-            dispatch(saveUser({
-                ...user,
-                profile_image: response.profile_image
-            }))
-            setIsLoading(false)
-            setProfileImage(null)
-            setSuccessMessage('Profile image changed successful.')
-        } catch (error) {
-            console.log({
-                'Request': 'Edit Profile-Image Request',
-                'Error => ' : error.response.data,
-            })
-            setIsLoading(false)
+        }
+        else {
+        console.log('Invalid Image File')
         }
     }
 
-    const prepareForm = (e) => {
-        e.preventDefault()
-        setShowProfileForm(true)
-        setSuccessMessage('')
-        setProfileChanges({
-            first_name: user.first_name,
-            last_name: user.last_name,
-            phone: user.phone,
-            email: user.email
-        })
-    }
+    // const prepareForm = (e) => {
+    //     e.preventDefault()
+    //     setShowProfileForm(true)
+    //     setSuccessMessage('')
+    //     setProfileChanges({
+    //         first_name: user.first_name,
+    //         last_name: user.last_name,
+    //         phone: user.phone,
+    //         email: user.email
+    //     })
+    // }
 
     const handleProfileChanges = (e) => {
         setProfileChanges({
@@ -271,7 +299,7 @@ const ProfilePage = () => {
                         </Table>
                 </Card.Body>
                 </Card>
-                        <Card.Footer style={{backgroundColor: 'inherit'}}>
+                        {/* <Card.Footer style={{backgroundColor: 'inherit'}}>
                             <Row>
                                 <Col md={{span: 4, offset: 4}}>
                                     <Button
@@ -281,7 +309,7 @@ const ProfilePage = () => {
                                     >Edit Info</Button>
                                 </Col>
                             </Row>
-                        </Card.Footer>
+                        </Card.Footer> */}
                     </Card>
                 </Col>
                 <Col md={{ span: 4, offset: 1 }} xs={12} >
@@ -299,11 +327,16 @@ const ProfilePage = () => {
                                         <Form.File.Input onChange={handleProfileImage} name="profile_image" accept="image/*" />
                                     </Form.File>
                                     <Button
-                                        disabled
+                                        // disabled
                                         style={{ width: '100%', marginTop: '5%' }}
                                         hidden={profileImage ? false : true}
-                                        // onClick={changeProfileImage}
+                                        onClick={changeProfileImage}
                                     >{isLoading ? <Loader message="Saving Image..." /> : 'Save'}</Button>
+                                     <Button
+                                        style={{ width: '100%', marginTop: '5%' }}
+                                        variant='danger'
+                                        hidden={!fileError}
+                                    >{fileError}</Button>
                                 </Col>
                             </Row>
                         </Card.Footer>

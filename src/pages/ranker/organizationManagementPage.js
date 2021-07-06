@@ -1,8 +1,7 @@
 import React, {useState} from 'react'
 import { Card, Button, Col, Form, Row, Alert } from 'react-bootstrap'
-import Message from '../../components/message'
-import { apiConfigurations, selectUserData } from '../../slices/userSlice';
-import { useSelector, useDispatch}  from 'react-redux'
+import { apiConfigurations} from '../../slices/userSlice';
+import { useSelector}  from 'react-redux'
 import { createOrganizationProfile, createUser, createUserProfile, editUserInfo } from '../../app/api';
 import Loader from '../../components/loader';
 import ContentModal from '../../components/contentModal';
@@ -80,6 +79,7 @@ const OrganizationManagementPage = () => {
         }
         try {
             const response3 = await createOrganizationProfile(payload3, config)
+            console.log(response3.length)
                   setisSendingOrganizationInfo(false)
                   setOrganizationInfo(initialOrganizationInfo)
                   setHasOrganizationCreated(true)
@@ -99,6 +99,7 @@ const OrganizationManagementPage = () => {
         }
         try {
             const response3 = await editUserInfo(payload3, config)
+            console.log(response3.length)
         } catch (error) {
             console.log('Adding Organization Alias And Full name ', error.response.data)
             setisSendingOrganizationInfo(false)
@@ -125,6 +126,7 @@ const OrganizationManagementPage = () => {
 
                 try {
                     const response2 = await createUserProfile(payload2, config)
+                console.log(response2.length)
                     addOrganizationProfile(response1.user.id)
                 } catch (error) {
                     console.log('Create Organization Profile Account ', error.response.data)
