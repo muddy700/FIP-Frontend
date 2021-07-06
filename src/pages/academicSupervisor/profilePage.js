@@ -1,12 +1,13 @@
 import React, {useState, useEffect} from 'react'
-import { Card, Row, Col, Button, Table, Form, Alert, Tooltip } from 'react-bootstrap'
+import { Card, Row, Col, Button, Table, Form, Alert } from 'react-bootstrap'
 import '../../styles/alumni.css'
 import Message from '../../components/message'
 import { selectUserData, saveUser, apiConfigurations } from '../../slices/userSlice'
 import { useSelector, useDispatch}  from 'react-redux'
-import { editUserProfile, getAlumniProfile, editUserInfo, getStaffProfile } from '../../app/api'
+import { editUserProfile, editUserInfo, getStaffProfile } from '../../app/api'
 import Loader from '../../components/loader'
 import ContentModal from '../../components/contentModal'
+import DataPlaceHolder  from '../../components/dataPlaceHolder'
 
 const ProfilePage = () => {
     const user = useSelector(selectUserData)
@@ -28,11 +29,15 @@ const ProfilePage = () => {
     const [successMessage, setSuccessMessage] = useState('')
     const [showProfileForm, setShowProfileForm] = useState(false)
     const [profileChanges, setProfileChanges] = useState(initialProfile)
+    const [isFetchingData, setIsFetchingData] = useState(false)
+    const [imageError, setImageError] = useState('')
 
     const getProfile = async () => {
+        setIsFetchingData(true)
         try {
             const profile = await getStaffProfile(user.userId, config)
             setStaffProfile(profile[0])
+            setIsFetchingData(false)
         } catch (error) {
             console.log({
                 'Request': 'Getting Staff Profile Request',
@@ -41,62 +46,90 @@ const ProfilePage = () => {
         }
     }
 
-
     useEffect(() => {
         getProfile();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const handleProfileImage = (e) => {
-        setProfileImage(e.target.files[0])
+        setImageError('')
+        setProfileImage(e.target.files[0] ? e.target.files[0] : null)
         setIsLoading(false)
         setSuccessMessage('')
     }
 
+    
+  const validateImageForm = () => {
+    const allowedExtensions = /(\.jpg|\.jpeg|\.png)$/i;
+
+    if (!profileImage) {
+      setImageError('Image Cannot Be Blank!')
+      return false;
+    }
+    else if (!allowedExtensions.exec(profileImage.name)) {
+        setImageError('Unsupported File!')
+        setProfileImage(null)
+      return false;
+    }
+    else {
+        setImageError('')
+      return true;
+    }
+
+  }
     const changeProfileImage = async (e) => {
         e.preventDefault()
-        setIsLoading(true)
+        const isImageValid = validateImageForm()
         
-        const payload = new FormData();
-        payload.append('profile_image', profileImage)
-        payload.append('user', user.userId)
-        payload.append('designation', user.designation_id)
-        payload.append('phone', user.phone)
-        payload.append('gender', user.gender)
+        if (isImageValid) {
+            setIsLoading(true)
+        
+            const payload = new FormData();
+            payload.append('profile_image', profileImage)
+            payload.append('user', user.userId)
+            payload.append('designation', user.designation_id)
+            payload.append('phone', user.phone)
+            payload.append('gender', user.gender)
 
-        try {
-            const config2 = {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Token ${localStorage.getItem('token')}`    }
+            try {
+                const config2 = {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': `Token ${localStorage.getItem('token')}`
+                    }
+                }
+                const response = await editUserProfile(profileId, payload, config2)
+                dispatch(saveUser({
+                    ...user,
+                    profile_image: response.profile_image
+                }))
+                setIsLoading(false)
+                setProfileImage(null)
+                setSuccessMessage('Profile image changed successful.')
+            } catch (error) {
+                console.log({
+                    'Request': 'Edit Profile-Image Request',
+                    'Error => ': error.response.data,
+                })
+                setIsLoading(false)
             }
-            const response = await editUserProfile(profileId, payload, config2)
-            dispatch(saveUser({
-                ...user,
-                profile_image: response.profile_image
-            }))
-            setIsLoading(false)
-            setProfileImage(null)
-            setSuccessMessage('Profile image changed successful.')
-        } catch (error) {
-            console.log({
-                'Request': 'Edit Profile-Image Request',
-                'Error => ' : error.response.data,
-            })
-            setIsLoading(false)
+        }
+        else {
+            console.log('Invalid Image File')
         }
     }
 
-    const prepareForm = (e) => {
-        e.preventDefault()
-        setShowProfileForm(true)
-        setSuccessMessage('')
-        setProfileChanges({
-            first_name: user.first_name,
-            last_name: user.last_name,
-            phone: user.phone,
-            email: user.email
-        })
-    }
+    // const prepareForm = (e) => {
+    //     e.preventDefault()
+    //     setShowProfileForm(true)
+    //     setSuccessMessage('')
+    //     setProfileChanges({
+    //         first_name: user.first_name,
+    //         last_name: user.last_name,
+    //         phone: user.phone,
+    //         email: user.email
+    //     })
+    // }
 
     const handleProfileChanges = (e) => {
         setProfileChanges({
@@ -239,37 +272,40 @@ const ProfilePage = () => {
                         </Card.Header>
                          <Card style={{padding: '16px'}}>
                 <Card.Body style={{ padding: 0, overflowX: 'scroll'}}>
-                    <Table striped bordered hover>
-                            <tbody>
-                                <tr>
-                                    <td className="post-properties">FIRST NAME</td>
-                                    <td>{user.first_name} </td>
-                                </tr>
-                                <tr>
-                                    <td className="post-properties">LAST NAME</td>
-                                    <td>{user.last_name}</td>
-                                </tr>
-                                <tr>
-                                    <td className="post-properties">GENDER</td>
-                                    <td>{user.gender} </td>
-                                </tr>
-                                <tr>
-                                    <td className="post-properties">EMAIL</td>
-                                    <td>{user.email}</td>
-                                </tr>
-                                <tr>
-                                    <td className="post-properties">DEPARTMENT</td>
-                                    <td>{staffProfile.department_name}</td>
-                                </tr>
-                                <tr>
-                                    <td className="post-properties">PHONE</td>
-                                    <td>{user.phone}</td>
-                                </tr>
-                            </tbody>
-                        </Table>
+                                {isFetchingData ?
+                                    <Message variant='info'> <DataPlaceHolder /> </Message> : <>
+                                        <Table striped bordered hover>
+                                            <tbody>
+                                                <tr>
+                                                    <td className="post-properties">FIRST NAME</td>
+                                                    <td>{user.first_name} </td>
+                                                </tr>
+                                                <tr>
+                                                    <td className="post-properties">LAST NAME</td>
+                                                    <td>{user.last_name}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td className="post-properties">GENDER</td>
+                                                    <td>{user.gender} </td>
+                                                </tr>
+                                                <tr>
+                                                    <td className="post-properties">EMAIL</td>
+                                                    <td>{user.email}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td className="post-properties">DEPARTMENT</td>
+                                                    <td>{staffProfile.department_name}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td className="post-properties">PHONE</td>
+                                                    <td>{user.phone}</td>
+                                                </tr>
+                                            </tbody>
+                                        </Table> </>
+                                }
                 </Card.Body>
                 </Card>
-                        <Card.Footer style={{backgroundColor: 'inherit'}}>
+                        {/* <Card.Footer style={{backgroundColor: 'inherit'}}>
                             <Row>
                                 <Col md={{span: 4, offset: 4}}>
                                     <Button
@@ -279,7 +315,7 @@ const ProfilePage = () => {
                                     >Edit Info</Button>
                                 </Col>
                             </Row>
-                        </Card.Footer>
+                        </Card.Footer> */}
                     </Card>
                 </Col>
                 <Col md={{ span: 4, offset: 1 }} xs={12} >
@@ -288,7 +324,7 @@ const ProfilePage = () => {
                         <Card.Header style={{textAlign: 'center'}}><b>Photo</b></Card.Header>
                         <Card.Body style={{placeItems: 'center', display: 'grid'}}>
                             <Card.Img src={profileImage ? URL.createObjectURL(profileImage) : user.profile_image} style={{ width: '90%', height: '200px' }}></Card.Img>
-                            <Card.Title style={{ marginTop: '15px' }}>{user.first_name}  { user.last_name}</Card.Title>
+                            <Card.Title style={{ marginTop: '15px' }}>{user.first_name.toUpperCase()} {user.last_name.toUpperCase()}</Card.Title>
                         </Card.Body>
                         <Card.Footer style={{backgroundColor: 'inherit'}}>
                             <Row>
@@ -302,6 +338,11 @@ const ProfilePage = () => {
                                         hidden={profileImage ? false : true}
                                         onClick={changeProfileImage}
                                     >{isLoading ? <Loader message="Saving Image..." /> : 'Save'}</Button>
+                                    <Button
+                                        style={{ width: '100%', marginTop: '5%' }}
+                                        variant='danger'
+                                        hidden={!imageError}
+                                    >{imageError}</Button>
                                 </Col>
                             </Row>
                         </Card.Footer>

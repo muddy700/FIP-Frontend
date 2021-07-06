@@ -1,17 +1,13 @@
 import React, {useState, useEffect} from 'react'
 import '../../App.css'
-import { List, Avatar, Space, Tag, Table, Popconfirm } from 'antd';
-import { QuestionCircleOutlined } from '@ant-design/icons';
-import Icon from 'supercons'
-import { Button, Row, Col, Card, Modal, Form, FormControl } from 'react-bootstrap'
+import { Table } from 'antd';
+import { Row, Card } from 'react-bootstrap'
 import Message from '../../components/message'
-import { Link } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
-import { editselectedStudentInfo, editStudentProfileInfo, getAllReportedStudentsProfiles, getStudentsByAcademicSupervisor, getUsersProfilesByDesignationId, sendFieldReport} from '../../app/api';
+import { getStudentsByAcademicSupervisor} from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
-import ContentModal from '../../components/contentModal';
-import Loader from '../../components/loader'
 import SummaryExport from './summaryExport';
+import DataPlaceHolder  from '../../components/dataPlaceHolder'
 
 function ResultSummaryPage() {
   const [page, setPage] = useState(1)
@@ -95,21 +91,27 @@ function ResultSummaryPage() {
     const [studentsProfiles, setStudentsProfiles] = useState([])
     const [displayArray, setDisplayArray] = useState([])
     const [exportData, setExportData] = useState([])
+    const [isFetchingData, setIsFetchingData] = useState(false)
 
-    const fetchStudentsProfiles = async () => {
-        try {
-            const response = await getStudentsByAcademicSupervisor(user.userId, config)
-            const processed_students = response.filter(item => item.average_marks)
-            setStudentsProfiles(processed_students)
-            setDisplayArray(processed_students)
-            prepareData(processed_students)
-        } catch (error) {
+  const fetchStudentsProfiles = async () => {
+      setIsFetchingData(true)
+      try {
+        const response = await getStudentsByAcademicSupervisor(user.userId, config)
+        const processed_students = response.filter(item => item.average_marks)
+        setStudentsProfiles(processed_students)
+        setDisplayArray(processed_students)
+        prepareData(processed_students)
+        setIsFetchingData(false)
+        console.log(studentsProfiles.length)
+      } catch (error) {
+          setIsFetchingData(false)
             console.log(
                 'Fetching Students By Academic Supervisor ', error.response.data ) }
     }
 
     useEffect(() => {
         fetchStudentsProfiles();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
 
@@ -135,11 +137,15 @@ function ResultSummaryPage() {
                   {/* <Button onClick={e => { e.preventDefault(); }}>Export as Pdf </Button> &nbsp; &nbsp; */}
                 </Row>
                 <hr/>
-          <Table
-            columns={columns}
-            dataSource={displayArray}
-            pagination={{ onChange(current) {setPage(current)}, pageSize: 5 }}
-            column={{ ellipsis: true }} />
+          {isFetchingData ?
+            <Message variant='info'> <DataPlaceHolder /> </Message> : <>
+              <Table
+                columns={columns}
+                dataSource={displayArray}
+                pagination={{ onChange(current) { setPage(current) }, pageSize: 5 }}
+                column={{ ellipsis: true }} />
+            </>
+          }
        </Card.Body>
        
       

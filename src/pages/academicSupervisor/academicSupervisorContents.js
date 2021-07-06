@@ -1,9 +1,6 @@
 import React from 'react'
-import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
-import Button from 'react-bootstrap/Button'
+import {Switch, Route } from 'react-router-dom';
 import 'react-pro-sidebar/dist/css/styles.css';
-import { useState } from 'react';
-// import '../../styles/alumni.css'
 import {DashboardPage} from './dashboardPage'
 import {PageNotFound} from '../pageNotFound'
 import ProfilePage from './profilePage';
@@ -11,10 +8,6 @@ import ProfilePage from './profilePage';
 import PasswordPage from './passwordPage';
 import MyStudentsPage from './myStudentsPage';
 import ResultSummaryPage from './resultSummaryPage';
-// import AlumniProjectsPage from './alumniProjectsPage';
-// import FieldPostsPage from './fieldPostsPage';
-// import FieldApplications from './fieldApplications';
-// import ReportedStudentsPage from './reportedStudentsPage';
 
 const AcademicSupervisorContents = () => {
 

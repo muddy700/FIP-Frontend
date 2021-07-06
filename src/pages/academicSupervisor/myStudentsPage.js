@@ -1,19 +1,16 @@
 import React, {useState, useEffect} from 'react'
 import '../../App.css'
-import { List, Avatar, Space, Tag, Table, Popconfirm } from 'antd';
-import { QuestionCircleOutlined } from '@ant-design/icons';
-import Icon from 'supercons'
-import { Button, Row, Col, Card, Modal, Form, FormControl, } from 'react-bootstrap'
+import { Space, Tag, Table } from 'antd';
+import { Button, Row, Col, Card, Modal, FormControl, } from 'react-bootstrap'
 import Message from '../../components/message'
-import { Link } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
-import { editMultipleStudentsProfiles, editselectedStudentInfo, editStudentProfileInfo, getAllReportedStudentsProfiles, getStaffProfile, getStudentsByAcademicSupervisor, getUsersProfilesByDesignationId, sendFieldReport} from '../../app/api';
+import { editMultipleStudentsProfiles, getStudentsByAcademicSupervisor, sendFieldReport} from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 import Loader from '../../components/loader'
 import XLSX from 'xlsx';
 import MarksFormatExport from './marksFormatExport';
-
+import DataPlaceHolder  from '../../components/dataPlaceHolder'
 
 function MyStudentsPage() {
   const [page, setPage] = useState(1)
@@ -161,15 +158,18 @@ function MyStudentsPage() {
     const [excelFile, setExcelFile] = useState(null)
     const [excelError, setExcelError] = useState('')
     const [excelData, setExcelData] = useState([])
+    const [isFetchingData, setIsFetchingData] = useState(false)
   
-    const fetchStudentsProfiles = async () => {
-        try {
-            const response = await getStudentsByAcademicSupervisor(user.userId, config)
-            const arrangedArray = response.slice().sort((a, b) => b.date_reported.localeCompare(a.date_reported))
-            setStudentsProfiles(arrangedArray)
-            setDisplayArray(arrangedArray)
-            const inprogress_students = arrangedArray.filter(item => item.student_status)
-            prepareData(inprogress_students)
+  const fetchStudentsProfiles = async () => {
+      setIsFetchingData(true)
+      try {
+        const response = await getStudentsByAcademicSupervisor(user.userId, config)
+        const arrangedArray = response.slice().sort((a, b) => b.date_reported.localeCompare(a.date_reported))
+        setStudentsProfiles(arrangedArray)
+        setDisplayArray(arrangedArray)
+        const inprogress_students = arrangedArray.filter(item => item.student_status)
+        prepareData(inprogress_students)
+        setIsFetchingData(false)
         } catch (error) {
             console.log(
                 'Fetching Students By Academic Supervisor ', error.response.data ) }
@@ -177,6 +177,7 @@ function MyStudentsPage() {
 
     useEffect(() => {
       fetchStudentsProfiles();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const prepareData = (data) => {
@@ -556,6 +557,7 @@ function MyStudentsPage() {
       payloads = calculateMultipleAverageAndGrades(payloads)
       try {
         const responses = await editMultipleStudentsProfiles(payloads, config)
+        console.log(responses.length)
         fetchStudentsProfiles()
         setExcelData([])
         setExcelFile(null)
@@ -674,11 +676,14 @@ const handleExcel = (e) => {
                     <Button onClick={e => { e.preventDefault(); setModalShow3(true) }}>Import result </Button> &nbsp; &nbsp;
                 </Row>
                 <hr/>
-          <Table
-            columns={columns}
-            dataSource={displayArray}
-            pagination={{ onChange(current) {setPage(current)}, pageSize: 5 }}
-            column={{ ellipsis: true }} />
+          {isFetchingData ?
+            <Message variant='info'> <DataPlaceHolder /> </Message> : <>
+              <Table
+                columns={columns}
+                dataSource={displayArray}
+                pagination={{ onChange(current) { setPage(current) }, pageSize: 5 }}
+                column={{ ellipsis: true }} /> </>
+          }
        </Card.Body>
        
        <Modal  //For Report Preview
