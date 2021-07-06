@@ -32,6 +32,7 @@ const ProfilePage = () => {
     const [isPublishing, setIsPublishing] = useState(false)
     const [imageError, setImageError] = useState('')
     const [isFetchingData, setIsFetchingData] = useState(false)
+    const [infoError, setInfoError] = useState('')
 
     const getProfile = async () => {
         setIsFetchingData(true)
@@ -52,6 +53,7 @@ const ProfilePage = () => {
 
     useEffect(() => {
         getProfile();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const handleProfileImage = (e) => {
@@ -64,7 +66,11 @@ const ProfilePage = () => {
   const validateImageForm = () => {
     const allowedExtensions = /(\.jpg|\.jpeg|\.png)$/i;
 
-    if (!allowedExtensions.exec(profileImage.name)) {
+    if (!profileImage) {
+      setImageError('Image Cannot Be Blank!')
+      return false;
+    }
+    else if (!allowedExtensions.exec(profileImage.name)) {
       setImageError('Unsupported File!')
       return false;
     }
@@ -126,70 +132,109 @@ const ProfilePage = () => {
     }
 
     const handleProfileChanges = (e) => {
+        setInfoError('')
         setProfileChanges({
             ...profileChanges,
             [e.target.name] : e.target.value
         })
     }
 
+    
+    const profileFormValidator = () => {
+    let re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        const emailResult = re.test(profileChanges.email)
+        
+        if (!profileChanges.first_name) {
+            setInfoError('First name cannot be blank.')
+            return false;
+        }
+        else if (!profileChanges.last_name) {
+            setInfoError('Last name cannot be blank.')
+            return false;
+        }
+        else if (!profileChanges.phone) {
+            setInfoError('Phone number cannot be blank.')
+            return false;
+        }
+        else if (!profileChanges.email) {
+            setInfoError('Email cannot be blank.')
+            return false;
+        }
+        else if (!emailResult) {
+            setInfoError('Enter a valid email')
+            return false;
+        }
+        else {
+            setInfoError('')
+            return true
+        }
+    }
+
     const sendProfileChanges = async (e) => {
         e.preventDefault()
-        setIsLoading2(true)
+        const isDataValid = profileFormValidator()
+
+        if (isDataValid) {
+            setIsLoading2(true)
         
-        const payload1 = {
-            id: user.userId,
-            username: user.username,
-            first_name: profileChanges.first_name,
-            last_name: profileChanges.last_name,
-            email: profileChanges.email,
-            password: alumniProfile.pwd
-        }
+            const payload1 = {
+                id: user.userId,
+                username: user.username,
+                first_name: profileChanges.first_name,
+                last_name: profileChanges.last_name,
+                email: profileChanges.email,
+                password: alumniProfile.pwd
+            }
 
-        const blob = await (await fetch(user.profile_image)).blob();
-        const prof_img = new File([blob], `${user.username}.jpg`, {type:"image/jpeg", lastModified:new Date()});
+            const blob = await (await fetch(user.profile_image)).blob();
+            const prof_img = new File([blob], `${user.username}.jpg`, { type: "image/jpeg", lastModified: new Date() });
 
-        const payload2 = new FormData();
-        payload2.append('profile_image', prof_img)
-        payload2.append('user', user.userId)
-        payload2.append('designation', user.designation_id)
-        payload2.append('phone', profileChanges.phone)
-        payload2.append('gender', user.gender)
-        const config2 = {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-                'Authorization': `Token ${localStorage.getItem('token')}`    }
-        }
+            const payload2 = new FormData();
+            payload2.append('profile_image', prof_img)
+            payload2.append('user', user.userId)
+            payload2.append('designation', user.designation_id)
+            payload2.append('phone', profileChanges.phone)
+            payload2.append('gender', user.gender)
+            const config2 = {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Token ${localStorage.getItem('token')}`
+                }
+            }
 
-        try {
-            const response1 = await editUserInfo(payload1, config)
             try {
-                const response2 = await editUserProfile(profileId, payload2, config2)
-                dispatch(saveUser({
-                    ...user,
-                    first_name: response1.first_name,
-                    last_name: response1.last_name,
-                    email: response1.email,
-                    phone: response2.phone
-                }))
-                setProfileChanges(initialProfile)
-                setIsLoading2(false)
-                setShowProfileForm(false)
-                setSuccessMessage('Profile Info Updated Successful.')
-            } 
-            catch  (error) {
+                const response1 = await editUserInfo(payload1, config)
+                try {
+                    const response2 = await editUserProfile(profileId, payload2, config2)
+                    dispatch(saveUser({
+                        ...user,
+                        first_name: response1.first_name,
+                        last_name: response1.last_name,
+                        email: response1.email,
+                        phone: response2.phone
+                    }))
+                    setProfileChanges(initialProfile)
+                    setIsLoading2(false)
+                    setShowProfileForm(false)
+                    setSuccessMessage('Profile Info Updated Successful.')
+                }
+                catch (error) {
+                    console.log({
+                        'Request': 'Edit User-Profile-Info Request',
+                        'Error => ': error.response.data,
+                    })
+                    setIsLoading2(false)
+                }
+            }
+            catch (error) {
                 console.log({
-                    'Request': 'Edit User-Profile-Info Request',
-                    'Error => ' : error.response.data,
+                    'Request': 'Edit User-Info Request',
+                    'Error => ': error.response.data,
                 })
                 setIsLoading2(false)
             }
-        }
-        catch (error) {
-            console.log({
-                'Request': 'Edit User-Info Request',
-                'Error => ' : error.response.data,
-            })
-            setIsLoading2(false)
+        } else {
+            console.log('Invalid Profile Info')
         }
     }
 
@@ -255,7 +300,14 @@ const ProfilePage = () => {
                 </Form.Group>
             </Form.Row>
             <Row >
-                <Col md={{span:3, offset: 9}}>
+                <Col md={{span:6}}>
+                <Button
+                    hidden={!infoError}
+                    variant="danger"
+                    style={{ width: '100%' }}
+                > {infoError} </Button>
+                </Col>
+                <Col md={{span:3, offset: 3}}>
                 <Button
                     variant="primary"
                     type="submit"
@@ -352,7 +404,7 @@ const ProfilePage = () => {
                                     <Button
                                         variant={imageError ? 'danger' : 'primary'}
                                         style={{ width: '100%', marginTop: '5%' }}
-                                        disabled={profileImage ? false : true}
+                                        hidden={profileImage ? false : true}
                                         onClick={changeProfileImage}
                                     >{isLoading ? <Loader message="Saving Image..." /> : imageError ? imageError : 'Save'}</Button>
                                 </Col>

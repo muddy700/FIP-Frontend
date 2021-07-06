@@ -21,7 +21,7 @@ const ChatPage = () => {
     const [activeAlumni, setActiveAlumni] = useState([])
     const messagesRef = db.collection('messages');
     const usersRef = db.collection('users');
-    const [hasDuplicate, sethasDuplicate] = useState(false)
+    // const [hasDuplicate, sethasDuplicate] = useState(false)
     const [isFetchingData, setIsFetchingData] = useState(false)
     
     const onMessageChange = (e) => {
@@ -67,20 +67,21 @@ const ChatPage = () => {
         setIsFetchingData(false)
     }
 
-    const removeRepeatedAlumni = () => {
-        const newUsers1 = activeAlumni.map(item => item.username)
-        const newUsers2 = [...new Set(newUsers1)]
+    // const removeRepeatedAlumni = () => {
+    //     const newUsers1 = activeAlumni.map(item => item.username)
+    //     const newUsers2 = [...new Set(newUsers1)]
         // console.log(newUsers2)
         // setActiveAlumni(newUsers2)
         // newUsers1.length !== newUsers2.length ? setActiveAlumni(newUsers2) : <> </>
         // return newUsers
-    }
+    // }
 
     // removeRepeatedAlumni()
 
     useEffect(() => {
         fetchMessages();
         // fetchUsers();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
     
     return (

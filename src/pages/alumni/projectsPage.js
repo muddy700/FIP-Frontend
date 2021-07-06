@@ -241,7 +241,8 @@ const ProjectsPage = () => {
   
 
     useEffect(() => {
-      getAlumniProjects()
+      getAlumniProjects();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
   
     return (

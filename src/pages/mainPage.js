@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { BrowserRouter as Router} from 'react-router-dom';
+import { BrowserRouter as Router, useHistory} from 'react-router-dom';
 import Header from '../components/header';
 import Sidebar from "react-sidebar";
 import './../styles/sidebar.css'
@@ -35,6 +35,7 @@ export const HomePage = () => {
   const [collapse, setCollapse] = useState(false)
   
   var idleTimer = null
+  const history = useHistory()
   const [isTimedOut, setIsTimedOut] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const appData = useSelector(selectAppData)
@@ -131,7 +132,8 @@ export const HomePage = () => {
 
             if (user.designation === 'alumni') {
                 removeLoggedAlumni()
-            }
+          }
+          history.replace('/')
         } catch (error) {
             console.log({
                 'request': 'Logout Request',

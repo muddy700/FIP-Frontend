@@ -19,7 +19,7 @@ const WarningModal = ({title, content, closeModal, postId, professionId, organiz
                 {content}
             </Modal.Body>
             <Modal.Footer>
-                <Link to={{ pathname: "/interview_page", postId, professionId, organizationId }}>
+                <Link to={{ pathname: `/interview_page/${postId}/${professionId}/${organizationId}`  }}>
                     <Button variant="link" >Start</Button>
                 </Link>
                 <Button

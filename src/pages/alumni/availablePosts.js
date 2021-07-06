@@ -1,8 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import '../../App.css'
-import { List, Avatar, Space } from 'antd';
-import Icon from 'supercons'
-import { Button, Row, Col, Card, InputGroup, FormControl } from 'react-bootstrap'
+import { List } from 'antd';
+import { Button, Row, Col, Card} from 'react-bootstrap'
 import Message from '../../components/message'
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch}  from 'react-redux'
@@ -97,6 +96,7 @@ const pullOrganizationProfiles = async () => {
     useEffect(() => {
         getInternshipPosts();
         pullOrganizationProfiles();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     return (

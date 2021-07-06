@@ -1,4 +1,3 @@
-import { Divider } from 'antd'
 import React, {useState, useEffect} from 'react'
 import Icon from 'supercons'
 import {TimeAgo} from '../../components/timeAgo'
@@ -12,7 +11,7 @@ import DataPlaceHolder from '../../components/dataPlaceHolder';
 
 const AnnouncementsPage = () => {
 
-    const [isOpen, setIsOpen] = useState(false)
+    // const [isOpen, setIsOpen] = useState(false)
     const [activeItem, setactIveItem] = useState(null)
     const [alumniAnnouncements, setAlumniAnnouncements] = useState([])
     const config = useSelector(apiConfigurations)
@@ -36,7 +35,8 @@ const AnnouncementsPage = () => {
     }
 
     useEffect(() => {
-        getAnnouncements()
+        getAnnouncements();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const handleOpen = (id) => {

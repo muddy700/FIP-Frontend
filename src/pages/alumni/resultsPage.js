@@ -5,12 +5,14 @@ import Button  from 'react-bootstrap/Button'
 import {Form, Modal}  from 'react-bootstrap'
 import Message from '../../components/message';
 import '../../styles/alumni.css'
-import Icon from 'supercons'
 import ContentModal from '../../components/contentModal';
-import { editInternshipPost, editJobInvitation, editSingleApplication, fetchAlumniInvitations, getAlumniApplications, getPostSchedule } from '../../app/api';
+import {
+  editJobInvitation, editSingleApplication,
+  fetchAlumniInvitations, getAlumniApplications,
+  getPostSchedule
+} from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
-import { useSelector, useDispatch}  from 'react-redux'
-import Loader from '../../components/loader';
+import { useSelector}  from 'react-redux'
 import DataPlaceHolder from '../../components/dataPlaceHolder';
 
 const ResultsPage = () => {
@@ -196,6 +198,7 @@ const ResultsPage = () => {
 
   useEffect(() => {
     fetchAlumniApplications();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const confirmAttendance = async () => {
@@ -219,6 +222,7 @@ const ResultsPage = () => {
     const payload = {...record, status: 'accepted' }
     try {
       const response = await editJobInvitation(payload, config)
+      console.log(response.length)
       // const newInvitationList = alumniInvitations.map(item => item.id === response.id ? response : item)
       // setAlumniInvitations(newInvitationList)
       getAlumniInvitations()
@@ -236,6 +240,7 @@ const ResultsPage = () => {
     }
     try {
       const response = await editJobInvitation(payload, config)
+      console.log(response.length)
       getAlumniInvitations()
       setModalShow2(false)
       setModal2Content('')

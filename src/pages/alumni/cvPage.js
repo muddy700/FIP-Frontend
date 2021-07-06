@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import dp from '../../Black2.jpg'
+// import dp from '../../Black2.jpg'
 import Message from '../../components/message'
 import { Card, Row, Col, Button, Accordion, Form, Alert } from 'react-bootstrap'
 import {
@@ -12,7 +12,7 @@ import {
     fetchAlumniSkills, fetchAllSkills, addAlumniSkills,
     dropAlumniSkill
 } from '../../app/api'
-import { useSelector, useDispatch}  from 'react-redux'
+import { useSelector}  from 'react-redux'
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import Loader from '../../components/loader'
 import ContentModal from '../../components/contentModal'
@@ -73,7 +73,8 @@ const CvPage = () => {
             name: 'Software Developer',
         }
     ]
-
+    console.log(skillsList.length)
+    
      const config2 = {
             headers: {
                 'Content-Type': 'multipart/form-data',
@@ -221,6 +222,7 @@ const CvPage = () => {
         getAlumniCertificates();
         getAlumniSkills();
         getAllSkills();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const onPersonalInfoChange = (e) => {
@@ -243,7 +245,13 @@ const CvPage = () => {
     }
 
     const personalInfoValidator = () => {
-        if (personalInfo.date_of_birth === '') {
+    const allowedExtensions = /(\.jpg|\.jpeg|\.png)$/i;
+
+        if (personalInfo.uploaded_image && !allowedExtensions.exec(personalInfo.uploaded_image.name) ) {
+            setPersonalInfoErrorMessage('Unsupported File!')
+            return false
+        }
+        else if (personalInfo.date_of_birth === '') {
             setPersonalInfoErrorMessage('Enter date of birth')
             return false
         }
@@ -465,6 +473,10 @@ const CvPage = () => {
                     const newSet = experienceInfoSet.map(info => info.id === response.id ? response : info)
                     setExperienceInfoSet(newSet)
                     setisEditingExperienceInfo(false)
+                    setIsSendingExperienceInfo(false)
+                    setHasExperienceInfoChanged(false)
+                    setHasExperienceInfoSaved(true)
+                    setExperienceInfo(initialWorkExperience)
                 }
                 else {
                     response = await sendCvExperienceInfo(payload, config)
@@ -518,6 +530,7 @@ const CvPage = () => {
             })
             try {
                 const responseArray = addAlumniSkills(payloads, config)
+                console.log(responseArray.length)
                 setNewSkills([])
                 setHasSkillsInfoSaved(true)
                 setHasSkillsInfoChanged(false)
@@ -536,6 +549,7 @@ const CvPage = () => {
     const deleteAlumniSkill = async () => {
         try {
             const response = await dropAlumniSkill(selectedSkill.id, config)
+            console.log(response.length)
             const remainingSkills = alumniSkills.filter(skill => skill.id !== selectedSkill.id)
             setAlumniSkills(remainingSkills)
             const remainingIds = knownSkills.filter(id => id !== selectedSkill.profession)
@@ -556,7 +570,7 @@ const CvPage = () => {
         if (e.target.name === 'certificate_file') {
             setCertificateInfo({
                 ...certificateInfo,
-                certificate_file: e.target.files[0]
+                certificate_file: e.target.files[0] ? e.target.files[0] : null
             })
         }
         else {
@@ -568,6 +582,8 @@ const CvPage = () => {
     }
 
     const certificateFormValidator = () => {
+    const allowedExtensions = /(\.pdf)$/i;
+
         if (certificateInfo.name === '') {
             setCertificateErrorMessage('Enter Certificate Name')
             return false
@@ -578,6 +594,10 @@ const CvPage = () => {
         }
         else if (certificateInfo.certificate_file === null) {
             setCertificateErrorMessage('Select Certificate')
+            return false
+        }
+        else if (!allowedExtensions.exec(certificateInfo.certificate_file.name)) {
+            setCertificateErrorMessage('Unsupported  File!.')
             return false
         }
         else {

@@ -1,8 +1,6 @@
 import React from 'react'
-import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
-import Button from 'react-bootstrap/Button'
+import { Switch, Route} from 'react-router-dom';
 import 'react-pro-sidebar/dist/css/styles.css';
-import { useState } from 'react';
 import '../../styles/alumni.css'
 import AvailablePosts from './availablePosts'
 import {DashboardPage} from './dashboardPage'
@@ -34,7 +32,7 @@ const AlumniContents = () => {
             <Route exact path={["/application_results"]}>
               <ResultsPage />
             </Route>
-            <Route exact path={["/interview_page"]}>
+            <Route exact path={["/interview_page/:postId/:professionId/:organizationId"]}>
               <InterviewPage />
             </Route>
             <Route exact path={["/my_profile"]}>

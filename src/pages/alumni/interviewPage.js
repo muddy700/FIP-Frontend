@@ -1,19 +1,20 @@
 import React, {useState, useEffect} from 'react'
 import '../../styles/alumni.css'
 import Message from '../../components/message'
-import { Card, Row, Col, Button, Modal, Form } from 'react-bootstrap'
+import { Card, Button, Modal, Form } from 'react-bootstrap'
 import { useSelector}  from 'react-redux'
 import { apiConfigurations, selectUserData } from '../../slices/userSlice'
-import { useHistory, Link, useLocation } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
+import DataPlaceHolder from '../../components/dataPlaceHolder';
 import { getInterviewQuestions, getInterviewQuestionChoices, sendInternshipApplication } from '../../app/api'
 
 export const InterviewPage = () => {
 
-    const location = useLocation();
     const history = useHistory();
     const user = useSelector(selectUserData)
     const config = useSelector(apiConfigurations)
-    const { postId, professionId, organizationId } = location
+    const params = useParams()
+    const { postId, professionId, organizationId } = params
 
     const [showModal, setShowModal] = useState(true)
     const [marks, setMarks] = useState(0)
@@ -24,6 +25,8 @@ export const InterviewPage = () => {
     const [selectedChoice, setSelectedChoice] = useState('')
     const [applicantAnswers, setApplicantAnswers] = useState([])
     const [isTestDone, setisTestDone] = useState(false)
+    const [isFetchingData, setIsFetchingData] = useState(false)
+    const [isFetchingMultipleChoices, setIsFetchingMultipleChoices] = useState(false)
     // const [timer, setTimer] = useState(60)
 
     const goToPreviousPage = () => {
@@ -93,14 +96,17 @@ export const InterviewPage = () => {
     }
     
     const fetchQuestions = async () => {
+        setIsFetchingData(true)
         try {
             const response = await getInterviewQuestions(professionId, config)
             setQuestions(response)
             var qn = response[Math.floor(Math.random() * response.length)]
             setActiveQuestion(qn)
             setAttemptedQuestions([...attemptedQuestions, qn])
-
+            setIsFetchingData(false)
+            
         } catch (error) {
+            setIsFetchingData(false)
             console.log({
                 'request': 'Fetch Interview Questions Request',
                 'Error => ': error
@@ -108,10 +114,13 @@ export const InterviewPage = () => {
     }
 
     const fetchQuestionChoices = async () => {
+        setIsFetchingMultipleChoices(true)
         try {
             const response = await getInterviewQuestionChoices(activeQuestion.id, config)
             setQuestionChoices(response)
+            setIsFetchingMultipleChoices(false)
         } catch (error) {
+            setIsFetchingMultipleChoices(false)
             console.log({
                 'request': 'Fetch Question Choices Request',
                 'Error => ': error
@@ -129,8 +138,8 @@ export const InterviewPage = () => {
 
         try {
             const response = await sendInternshipApplication(payload, config)
+            console.log(response.length)
             setisTestDone(true)
-            // console.log(response)
         } catch (error) {
             console.log({
                 'request': 'Send Applicant Scores Request',
@@ -139,11 +148,13 @@ export const InterviewPage = () => {
     }
 
     useEffect(() => {
-       fetchQuestions()
+        fetchQuestions();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [professionId])
 
     useEffect(() => {
-      fetchQuestionChoices()
+        fetchQuestionChoices();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [questions.length ? activeQuestion.id : '' ])
 
     return (
@@ -158,6 +169,8 @@ export const InterviewPage = () => {
                     aria-labelledby="contained-modal-title-vcenter"
                     centered
                 >
+          {isFetchingData ?
+            <Message variant='info'> <DataPlaceHolder /> </Message> : <>
                     <Modal.Header >
                         <Modal.Title id="contained-modal-title-vcenter">{questions.length ? <>
                             <b>{activeQuestion ? attemptedQuestions.length + '. ' : ''} </b>
@@ -165,21 +178,23 @@ export const InterviewPage = () => {
                             <span>Ooops...!</span> }
                         </Modal.Title>
                     </Modal.Header>
-                    <Modal.Body > {questions.length ?
-                        <ul>
-                            {questionChoices.map((choice) => (
-                                <li key={choice.id} style={{ marginTop: '3px' }}>
-                                    <Form.Check
-                                        type="radio"
-                                        id={choice.id}
-                                        name="selectedChoice"
-                                        label={choice.choice}
-                                        value={choice.isCorrect}
-                                        onChange={handleApplicantAnswers}
-                                    />
-                                </li>))}
-                        </ul> :
-                        <Message variant='info'>Sorry!, there is no questions yet for this job title</Message>}
+                    <Modal.Body >
+                        {isFetchingMultipleChoices ?
+                            <Message variant='info'> <DataPlaceHolder /> </Message> : <> {questions.length ?
+                                <ul>
+                                    {questionChoices.map((choice) => (
+                                        <li key={choice.id} style={{ marginTop: '3px' }}>
+                                            <Form.Check
+                                                type="radio"
+                                                id={choice.id}
+                                                name="selectedChoice"
+                                                label={choice.choice}
+                                                value={choice.isCorrect}
+                                                onChange={handleApplicantAnswers}
+                                            />
+                                        </li>))}
+                                </ul> :
+                                <Message variant='info'>Sorry!, some error occured. please try again</Message>}</>}
                     </Modal.Body>
                     <Modal.Footer>{questions.length ?
                         <Button
@@ -190,7 +205,7 @@ export const InterviewPage = () => {
                             variant="secondary"
                             onClick={e => { e.preventDefault(); setShowModal(false) }}
                         >Close</Button>}
-                    </Modal.Footer>
+                    </Modal.Footer> </>}
                 </Modal>
             </Card.Body>
             <Button

@@ -1,7 +1,7 @@
 import React from 'react'
 import Message from '../../components/message'
-import { useHistory, Link, useLocation } from "react-router-dom";
-import { Button, Row, Col, Card, InputGroup, FormControl, Table } from 'react-bootstrap'
+import { useHistory, useLocation } from "react-router-dom";
+import { Button, Card, Table } from 'react-bootstrap'
 import { getPostById } from '../../slices/internshipPostSlice';
 import { useSelector}  from 'react-redux'
 
