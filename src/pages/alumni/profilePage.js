@@ -138,22 +138,25 @@ const ProfilePage = () => {
             [e.target.name] : e.target.value
         })
     }
-
     
     const profileFormValidator = () => {
     let re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         const emailResult = re.test(profileChanges.email)
         
-        if (!profileChanges.first_name) {
-            setInfoError('First name cannot be blank.')
-            return false;
-        }
-        else if (!profileChanges.last_name) {
-            setInfoError('Last name cannot be blank.')
-            return false;
-        }
-        else if (!profileChanges.phone) {
+        // if (!profileChanges.first_name) {
+        //     setInfoError('First name cannot be blank.')
+        //     return false;
+        // }
+        // else if (!profileChanges.last_name) {
+        //     setInfoError('Last name cannot be blank.')
+        //     return false;
+        // }
+        if (!profileChanges.phone) {
             setInfoError('Phone number cannot be blank.')
+            return false;
+        }
+        else if (profileChanges.phone.length < 10) {
+            setInfoError('Enter atleast 10 digits in phone number.')
             return false;
         }
         else if (!profileChanges.email) {
@@ -186,11 +189,11 @@ const ProfilePage = () => {
                 password: alumniProfile.pwd
             }
 
-            const blob = await (await fetch(user.profile_image)).blob();
-            const prof_img = new File([blob], `${user.username}.jpg`, { type: "image/jpeg", lastModified: new Date() });
+            // const blob = await (await fetch(user.profile_image)).blob();
+            // const prof_img = new File([blob], `${user.username}.jpg`, { type: "image/jpeg", lastModified: new Date() });
 
             const payload2 = new FormData();
-            payload2.append('profile_image', prof_img)
+            // payload2.append('profile_image', prof_img)
             payload2.append('user', user.userId)
             payload2.append('designation', user.designation_id)
             payload2.append('phone', profileChanges.phone)
@@ -254,9 +257,10 @@ const ProfilePage = () => {
             setIsPublishing(false)
         }
     }
+
     const formTitle = 'Edit Profile Info';
     const formContents = <Form onSubmit={sendProfileChanges}>
-            <Form.Row>
+            {/* <Form.Row>
                 <Form.Group as={Col} controlId="formGridEmail">
                     <Form.Label>First name</Form.Label>
                     <Form.Control
@@ -276,13 +280,13 @@ const ProfilePage = () => {
                         onChange={handleProfileChanges}
                         name="last_name" />
                 </Form.Group>
-            </Form.Row>
+            </Form.Row> */}
 
             <Form.Row>
                 <Form.Group as={Col} controlId="formGridAddress1">
                     <Form.Label>Phone</Form.Label>
                     <Form.Control
-                        type="text"
+                        type="number"
                         placeholder="enter phone number"
                         value={profileChanges.phone}
                         onChange={handleProfileChanges}
@@ -292,7 +296,7 @@ const ProfilePage = () => {
                 <Form.Group as={Col} controlId="formGridAddress2">
                     <Form.Label>Email</Form.Label>
                     <Form.Control
-                        type="email"
+                        type="text"
                         placeholder="enter email"
                         value={profileChanges.email}
                         onChange={handleProfileChanges}

@@ -13,6 +13,8 @@ import {
 } from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
+import DataPlaceHolder from '../../components/dataPlaceHolder'
+
 
 function FieldPostsPage() {
 
@@ -27,12 +29,14 @@ function FieldPostsPage() {
     const [organizationProfiles, setOrganizationProfiles] = useState([])
     const [selectedProfile, setselectedProfile] = useState({})
     const [departmentPrograms, setDepartmentPrograms] = useState([])
+    const [isFetchingData, setIsFetchingData] = useState(false)
     
     const getPrograms = async (departmentId) => {
         try {
             const programs = await getProgramsByDepartmentId(departmentId, config)
             const programsIds = programs.map(item => item.id)
             setDepartmentPrograms(programsIds)
+            setIsFetchingData(false)
         } catch (error) {
             console.log({
                 'Request': 'Getting Staff Profile Request',
@@ -42,6 +46,7 @@ function FieldPostsPage() {
     }
 
     const getProfile = async () => {
+        setIsFetchingData(true)
         try {
             const profile = await getStaffProfile(user.userId, config)
             getPrograms(profile[0].department)
@@ -118,6 +123,7 @@ function FieldPostsPage() {
         }
         setFilteredArray(merged_posts)
         setDisplayArray(merged_posts)
+        // setIsFetchingData(false)
     }
 
     useEffect(() => {
@@ -125,16 +131,19 @@ function FieldPostsPage() {
         fetchFieldPosts();
         fetchFieldPostProfessions();
         fetchFieldPostPrograms();
-        pullOrganizationProfiles()
+        pullOrganizationProfiles();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useEffect(() => {
-        mergeFieldPostInfo()
+        mergeFieldPostInfo();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [postPrograms.length && postSkills.length])
 
     useEffect(() => {
         setDisplayArray(removeUnMatchedPosts())
-        setFilteredArray(removeUnMatchedPosts())
+        setFilteredArray(removeUnMatchedPosts());
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filteredArray.length && departmentPrograms.length])
 
     const calculateTotalChances = (chances) => {
@@ -257,95 +266,97 @@ const pullOrganizationProfiles = async () => {
                         onClick={e => { e.preventDefault(); selectGeneralPosts()}}
                     >General Posts</Button>
                 </Row>
-                <Row>
-                    <List
-                        itemLayout="vertical"
-                        style={{width: '100%'}}
-                        size="small"
-                        pagination={{ pageSize: 5, }}
-                        dataSource={displayArray}
-                        renderItem={post => (
-                            <List.Item
-                                key={post.id}
-                                className="list-items"
-                                style={{padding: 0,}}
-                            >
-                                <Row
-                                    style={{
-                                        // border: '1px solid blue',
-                                        borderRadius: '5px',
-                                        backgroundColor: 'lightgray',
-                                        width: '98%',
-                                        padding: '1% 3%',
-                                        margin: '1% 1%',
-                                    }}>
-                                    <Col md={12} >
-                                         <Tooltip placement="topLeft" title="View organization profile">   <h4 >
-                                        <Button
-                                            variant="link"
-                                            onClick={e => { e.preventDefault(); selectOrganizationProfile(post.organization) }}
-                                            >{post.organization_name}
-                                            </Button></h4> </Tooltip>
-                                        {/* <Button variant='link' ><b>{post.organization_name}</b></Button> */}
-                                    </Col>
-                                    <Col md={3}>
-                                        <span>
-                                            <b>Total Chances: </b>
-                                            {countAllPostChances(post)}
-                                        </span><br />
-                                        <span>
-                                            <b>Applied: </b>
-                                            {post.applied_chances}
-                                        </span><br />
-                                        <span>
-                                            <b>Remaining: </b>
-                                            {countAllPostChances(post) - post.applied_chances}
-                                        </span><br />
-                                    </Col>
-                                    <Col md={4}>
-                                        <span>
-                                            <b>Skills: </b>
-                                            <span>{post.skills && post.skills.length ? 
-                                            <span>
-                                                <ol>{post.skills.map(skill => (
-                                                    <li><span>{skill.profession_name}: {skill.profession_capacity}</span></li>))}
-                                                </ol>
-                                            </span> 
-                                                : 'no skills selected'}</span>
-                                        </span>
-                                    </Col>
-                                    <Col md={5}>
-                                        <span>
-                                            <b>Programs: </b>
-                                            <span>{post.programs && post.programs.length ? 
-                                            <span>
-                                                <ol>{post.programs.map(data => (
-                                                    <li><span>{data.program_name}: {data.program_capacity}</span></li>))}
-                                                </ol>
-                                            </span> 
-                                                : 'no programs selected'}</span>
-                                        </span>
-                                    </Col>
-                                    <Row style={{ display: 'flex', width: '100%', marginTop: '10px'  }}>
-                                        <Col md={4} >
-                                            <span style={{paddingLeft: '5%'}}><b>Expiry date: </b> {checkExpiryDate(post.expiry_date) ? <b style={{color: 'red'}}><i>Closed</i></b>: post.expiry_date}</span>
-                                        </Col>
-                                        <Col md={{span: 4, offset: 8}}>
-                                            {/* <Button
+                    {isFetchingData ?
+                        <Message variant='info'> <DataPlaceHolder /> </Message> : <>
+                <Row >
+                            <List
+                                itemLayout="vertical"
+                                style={{ width: '100%' }}
+                                size="small"
+                                pagination={{ pageSize: 5, }}
+                                dataSource={displayArray}
+                                renderItem={post => (
+                                    <List.Item
+                                        key={post.id}
+                                        className="list-items"
+                                        style={{ padding: 0, }}
+                                    >
+                                        <Row
+                                            style={{
+                                                // border: '1px solid blue',
+                                                borderRadius: '5px',
+                                                backgroundColor: 'lightgray',
+                                                width: '98%',
+                                                padding: '1% 3%',
+                                                margin: '1% 1%',
+                                            }}>
+                                            <Col md={12} >
+                                                <Tooltip placement="topLeft" title="View organization profile">   <h4 >
+                                                    <Button
+                                                        variant="link"
+                                                        onClick={e => { e.preventDefault(); selectOrganizationProfile(post.organization) }}
+                                                    >{post.organization_name}
+                                                    </Button></h4> </Tooltip>
+                                                {/* <Button variant='link' ><b>{post.organization_name}</b></Button> */}
+                                            </Col>
+                                            <Col md={3}>
+                                                <span>
+                                                    <b>Total Chances: </b>
+                                                    {countAllPostChances(post)}
+                                                </span><br />
+                                                <span>
+                                                    <b>Applied: </b>
+                                                    {post.applied_chances}
+                                                </span><br />
+                                                <span>
+                                                    <b>Remaining: </b>
+                                                    {countAllPostChances(post) - post.applied_chances}
+                                                </span><br />
+                                            </Col>
+                                            <Col md={4}>
+                                                <span>
+                                                    <b>Skills: </b>
+                                                    <span>{post.skills && post.skills.length ?
+                                                        <span>
+                                                            <ol>{post.skills.map(skill => (
+                                                                <li><span>{skill.profession_name}: {skill.profession_capacity}</span></li>))}
+                                                            </ol>
+                                                        </span>
+                                                        : 'no skills selected'}</span>
+                                                </span>
+                                            </Col>
+                                            <Col md={5}>
+                                                <span>
+                                                    <b>Programs: </b>
+                                                    <span>{post.programs && post.programs.length ?
+                                                        <span>
+                                                            <ol>{post.programs.map(data => (
+                                                                <li><span>{data.program_name}: {data.program_capacity}</span></li>))}
+                                                            </ol>
+                                                        </span>
+                                                        : 'no programs selected'}</span>
+                                                </span>
+                                            </Col>
+                                            <Row style={{ display: 'flex', width: '100%', marginTop: '10px' }}>
+                                                <Col md={4} >
+                                                    <span style={{ paddingLeft: '5%' }}><b>Expiry date: </b> {checkExpiryDate(post.expiry_date) ? <b style={{ color: 'red' }}><i>Closed</i></b> : post.expiry_date}</span>
+                                                </Col>
+                                                <Col md={{ span: 4, offset: 8 }}>
+                                                    {/* <Button
                                                 variant="link"
                                                 onClick={e => { e.preventDefault(); setSelectedPost(post); deleteSinglePost(post)}}
                                                 style={{ color: 'red',  }}>{isDeletingPost && (selectedPost.id === post.id) ? <Loader message='Wait...!' /> : 'Delete'}</Button> */}
-                                            <Link to={{pathname: `/field_post/${post.id}/applicants` }}>
-                                            <Button variant="link" >View applied students</Button>
-                                            </Link>
-                                        </Col>
-                                    </Row>
-                                </Row>
-                            </List.Item>
-                        )}
-                    />
-
+                                                    <Link to={{ pathname: `/field_post/${post.id}/applicants` }}>
+                                                        <Button variant="link" >View applied students</Button>
+                                                    </Link>
+                                                </Col>
+                                            </Row>
+                                        </Row>
+                                    </List.Item>
+                                )}
+                            /> 
                 </Row>
+                            </> }
        </Card.Body>
         <ContentModal
           show={showOrganizationInfo}

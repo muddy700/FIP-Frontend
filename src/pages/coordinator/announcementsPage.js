@@ -7,6 +7,7 @@ import { AddAnnouncement, DeleteSingleAnnouncement, fetchAllAnnouncements } from
 import { apiConfigurations, selectUserData } from '../../slices/userSlice'
 import ContentModal from '../../components/contentModal'
 import Loader from '../../components/loader'
+import DataPlaceHolder from '../../components/dataPlaceHolder'
 
 const AnnouncementsPage = () => {
 
@@ -25,13 +26,17 @@ const AnnouncementsPage = () => {
     const [announcementError, setAnnouncementError] = useState('')
     const [isDeletingAnnouncement, setIsDeletingAnnouncement] = useState(false)
     const [activeAnnounce, setActiveAnnounce] = useState({})
+    const [isFetchingData, setIsFetchingData] = useState(false)
 
     const getAnnouncements = async () => {
+        setIsFetchingData(true)
         try {
             const response = await fetchAllAnnouncements(config)
             const coordinator_announcements = response.filter(item => item.source === user.designation_id)
             setAlumniAnnouncements(coordinator_announcements)
+            setIsFetchingData(false)
         } catch (error) {
+            setIsFetchingData(false)
             console.log({
                 'Request': 'Getting Alumni Announcements Request',
                 'Error => ' : error.response.data,
@@ -41,7 +46,8 @@ const AnnouncementsPage = () => {
     }
 
     useEffect(() => {
-        getAnnouncements()
+        getAnnouncements();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const handleAnnouncementForm = (e) => {
@@ -168,30 +174,32 @@ const AnnouncementsPage = () => {
                 <Row style={{paddingLeft: '2%', marginBottom: '16px'}}>
                     <Button onClick={e => { e.preventDefault(); setShowModal(true)}}>Add Announcement</Button>
                 </Row>
-                {alumniAnnouncements.slice().sort((a, b) => b.date_updated.localeCompare(a.date_updated))
-                    .map((item) =>
-                        <Card
-                            onMouseEnter={e => {e.preventDefault(); setActiveAnnounce(item)}}
-                            onMouseLeave={e => {e.preventDefault(); setActiveAnnounce({})}}
-                            style={{ marginBottom: '16px', borderRadius: '10px ' }}>
-                            <Card.Header>
-                                <h6>{item.title} </h6>
-                            </Card.Header>
-                            <Card.Body> {item.description} </Card.Body>
-                            <Card.Footer className="text-muted" style={{backgroundColor: ''}}>
-                                <Row>
-                                    <Col md={6} style={{ backgroundColor: '' }}>
-                                        <Button
-                                            variant='danger'
-                                            hidden={activeAnnounce.id !== item.id}
-                                            onClick={e => { e.preventDefault(); setActiveAnnounce(item); deleteAnnouncement(item) }}
-                                        >
-                                            {isDeletingAnnouncement && activeAnnounce.id === item.id ? <Loader message='Deleting...' /> : 'Delete'}</Button> </Col>
-                                    <Col md={6} style={{ textAlign: 'right' }}><small><i><TimeAgo timestamp={item.date_updated} /></i></small> </Col>
-                                </Row>
-                            </Card.Footer>
-                        </Card>
-                    )}
+                {isFetchingData ?
+                    <Message variant='info'> <DataPlaceHolder /> </Message> : <>
+                        {alumniAnnouncements.slice().sort((a, b) => b.date_updated.localeCompare(a.date_updated))
+                            .map((item) =>
+                                <Card
+                                    onMouseEnter={e => { e.preventDefault(); setActiveAnnounce(item) }}
+                                    onMouseLeave={e => { e.preventDefault(); setActiveAnnounce({}) }}
+                                    style={{ marginBottom: '16px', borderRadius: '10px ' }}>
+                                    <Card.Header>
+                                        <h6>{item.title} </h6>
+                                    </Card.Header>
+                                    <Card.Body> {item.description} </Card.Body>
+                                    <Card.Footer className="text-muted" style={{ backgroundColor: '' }}>
+                                        <Row>
+                                            <Col md={6} style={{ backgroundColor: '' }}>
+                                                <Button
+                                                    variant='danger'
+                                                    hidden={activeAnnounce.id !== item.id}
+                                                    onClick={e => { e.preventDefault(); setActiveAnnounce(item); deleteAnnouncement(item) }}
+                                                >
+                                                    {isDeletingAnnouncement && activeAnnounce.id === item.id ? <Loader message='Deleting...' /> : 'Delete'}</Button> </Col>
+                                            <Col md={6} style={{ textAlign: 'right' }}><small><i><TimeAgo timestamp={item.date_updated} /></i></small> </Col>
+                                        </Row>
+                                    </Card.Footer>
+                                </Card>
+                            )} </>}
             </div>
             <ContentModal
             show={showModal}

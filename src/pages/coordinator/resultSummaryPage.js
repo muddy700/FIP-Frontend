@@ -7,6 +7,7 @@ import { useSelector}  from 'react-redux'
 import { getAllReportedStudentsProfiles, getProgramsByDepartmentId, getStaffProfile, getUsersProfilesByDesignationId} from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import SummaryExport from './summaryExport';
+import DataPlaceHolder from '../../components/dataPlaceHolder'
 
 function ResultSummaryPage() {
   const [page, setPage] = useState(1)
@@ -98,14 +99,18 @@ function ResultSummaryPage() {
     const [academicSupervisors, setAcademicSupervisors] = useState([])
     const [departmentPrograms, setDepartmentPrograms] = useState([])
     const [exportData, setExportData] = useState([])
+    const [isFetchingData, setIsFetchingData] = useState(false)
     
-    const getPrograms = async (departmentId) => {
-        try {
-            const programs = await getProgramsByDepartmentId(departmentId, config)
-            // const programsIds = programs.map(item => item.id)
-            setDepartmentPrograms(programs)
-        } catch (error) {
-            console.log({
+  const getPrograms = async (departmentId) => {
+      setIsFetchingData(true)
+      try {
+        const programs = await getProgramsByDepartmentId(departmentId, config)
+        // const programsIds = programs.map(item => item.id)
+        setDepartmentPrograms(programs)
+        setIsFetchingData(false)
+      } catch (error) {
+        setIsFetchingData(false)
+        console.log({
                 'Request': 'Getting Staff Profile Request',
                 'Error => ' : error,
             })
@@ -150,6 +155,7 @@ function ResultSummaryPage() {
     useEffect(() => {
       getProfile();
       fetchAcademicSupervisor();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const showAllStudents = () => {
@@ -248,11 +254,14 @@ function ResultSummaryPage() {
                   <SummaryExport studentsList={exportData}/> &nbsp; &nbsp;
                 </Row>
                 <hr/>
-          <Table
-            columns={columns}
-            dataSource={displayArray}
-            pagination={{ onChange(current) {setPage(current)}, pageSize: 5 }}
-            column={{ ellipsis: true }} />
+          {isFetchingData ?
+            <Message variant='info'> <DataPlaceHolder /> </Message> : <>
+              <Table
+                columns={columns}
+                dataSource={displayArray}
+                pagination={{ onChange(current) { setPage(current) }, pageSize: 5 }}
+                column={{ ellipsis: true }} /> </>
+          }
        </Card.Body>
         </Card>
     )

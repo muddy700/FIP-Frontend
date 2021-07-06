@@ -46,7 +46,7 @@ const ProfilePage = () => {
     }
     else if (!allowedExtensions.exec(profileImage.name)) {
       setFileError('Unsupported File Type!')
-    //   setProfileImage(null)
+      setProfileImage(null)
       return false;
     }
     else {
@@ -133,6 +133,10 @@ const ProfilePage = () => {
             setInfoError('Phone number cannot be blank.')
             return false;
         }
+        else if (profileChanges.phone.length < 10 ) {
+            setInfoError('Enter atleast 10 digits in phone number')
+            return false;
+        }
         else if (!profileChanges.email) {
             setInfoError('Email cannot be blank.')
             return false;
@@ -163,11 +167,11 @@ const ProfilePage = () => {
                 // password: alumniProfile.pwd
             }
 
-            const blob = await (await fetch(user.profile_image)).blob();
-            const prof_img = new File([blob], `${user.username}.jpg`, {type:"image/jpeg", lastModified:new Date()});
+            // const blob = await (await fetch(user.profile_image)).blob();
+            // const prof_img = new File([blob], `${user.username}.jpg`, {type:"image/jpeg", lastModified:new Date()});
 
             const payload2 = new FormData();
-            payload2.append('profile_image', prof_img)
+            // payload2.append('profile_image', prof_img)
             payload2.append('user', user.userId)
             payload2.append('designation', user.designation_id)
             payload2.append('phone', profileChanges.phone)
@@ -218,7 +222,7 @@ const ProfilePage = () => {
 
     const formTitle = 'Edit Profile Info';
     const formContents = <Form onSubmit={sendProfileChanges}>
-            <Form.Row>
+            {/* <Form.Row>
                 <Form.Group as={Col} controlId="formGridEmail">
                     <Form.Label>First name</Form.Label>
                     <Form.Control
@@ -238,13 +242,13 @@ const ProfilePage = () => {
                         onChange={handleProfileChanges}
                         name="last_name" />
                 </Form.Group>
-            </Form.Row>
+            </Form.Row> */}
 
             <Form.Row>
                 <Form.Group as={Col} controlId="formGridAddress1">
                     <Form.Label>Phone</Form.Label>
                     <Form.Control
-                        type="text"
+                        type="number"
                         placeholder="enter phone number"
                         value={profileChanges.phone}
                         onChange={handleProfileChanges}

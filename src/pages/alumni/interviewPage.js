@@ -160,7 +160,7 @@ export const InterviewPage = () => {
     return (
         <Card className="">
             {isTestDone ?
-                <h1>{marks >= 50 ? 'Congratulations, You Got ' : 'Your Marks For The Test Is '}  {marks}% </h1>
+                <Message variant='info'><span>{marks >= 50 ? <h3>Congratulations, you got {marks}%.</h3> : <h3>Your marks for the test is {marks}%</h3>}</span></Message>
                 : ''}
             <Card.Body>
                 <Modal

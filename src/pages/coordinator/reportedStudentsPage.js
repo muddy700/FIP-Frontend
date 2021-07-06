@@ -9,6 +9,7 @@ import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 import Loader from '../../components/loader'
 import XLSX from 'xlsx';
+import DataPlaceHolder from '../../components/dataPlaceHolder'
 
 function ReportedStudentsPage() {
   const [page, setPage] = useState(1)
@@ -104,14 +105,18 @@ function ReportedStudentsPage() {
     const [assignByOrganization, setAssignByOrganization] = useState(false)
     const [targetInfo, setTargetInfo] = useState(targetAssignmentInfo)
     const [isAssigningMultiple, setIsAssigningMultiple] = useState(false)
+    const [isFetchingData, setIsFetchingData] = useState(false)
   
-      const getProfile = async () => {
+  const getProfile = async () => {
+        setIsFetchingData(true)
         try {
-            const profile = await getStaffProfile(user.userId, config)
+          const profile = await getStaffProfile(user.userId, config)
           setStaffProfile(profile[0])
           fetchStudentsProfiles(profile[0]);
           fetchAcademicSupervisor(profile[0])
+          setIsFetchingData(false)
         } catch (error) {
+          setIsFetchingData(false)
             console.log({
                 'Request': 'Getting Staff Profile Request',
                 'Error => ' : error,
@@ -159,6 +164,7 @@ function ReportedStudentsPage() {
 
     useEffect(() => {
       getProfile();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const assignAcademicSupervisor = async () => {
@@ -491,11 +497,14 @@ function ReportedStudentsPage() {
           </Row>
           
                 <hr/>
-          <Table
-            columns={columns}
-            dataSource={displayArray}
-            pagination={{ onChange(current) {setPage(current)}, pageSize: 5 }}
-            column={{ ellipsis: true }} />
+          {isFetchingData ?
+            <Message variant='info'> <DataPlaceHolder /> </Message> : <>
+              <Table
+                columns={columns}
+                dataSource={displayArray}
+                pagination={{ onChange(current) { setPage(current) }, pageSize: 5 }}
+                column={{ ellipsis: true }} /> </>
+          }
        </Card.Body>
         <ContentModal
         show={modalShow}

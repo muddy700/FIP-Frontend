@@ -8,6 +8,7 @@ import { useSelector} from 'react-redux'
 import  Loader  from '../../components/loader'
 import { apiConfigurations, } from '../../slices/userSlice';
 import { PullProjectsWithoutMembers, recommendProject,} from '../../app/api';
+import DataPlaceHolder from '../../components/dataPlaceHolder'
 
 function AlumniProjectsPage() {
     
@@ -105,18 +106,21 @@ function AlumniProjectsPage() {
     const [modalContent, setModalContent] = useState('')
     const [activeProject, setActiveProject] = useState({})
     const [isLoading, setIsLoading] = useState(false)
+    const [isFetchingData, setIsFetchingData] = useState(false)
     const [isRejecting, setIsRejecting] = useState(false)
 
       
     const getAllProjects = async () => {
-        
+        setIsFetchingData(true)
         try {
             const response = await PullProjectsWithoutMembers(config)
             let sortedArray = response.slice().sort((a, b) => b.date_added.localeCompare(a.date_added))
             setAllAlumniProjects(sortedArray)
             setFilteredProjects(sortedArray)
+            setIsFetchingData(false)
         } catch (error) {
-        console.log({
+            setIsFetchingData(false)
+            console.log({
             'Request': 'Getting All Alumni Projects Request',
             'Error => ' : error.response.data,
         })
@@ -124,7 +128,8 @@ function AlumniProjectsPage() {
     }
   
     useEffect(() => {
-        getAllProjects()
+        getAllProjects();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
 
@@ -195,11 +200,14 @@ function AlumniProjectsPage() {
                     <Button style={{marginRight: '3%'}} onClick={e => { e.preventDefault(); sortByRecommendationStatus(3)} }>Recommended</Button>
                     <Button style={{marginRight: '3%'}} onClick={e => { e.preventDefault(); sortByRecommendationStatus('')} }>All</Button>
                 </Row>
-                <Table
-                    columns={columns}
-                    dataSource={filteredProjects}
-                    pagination={{ onChange(current) {setPage(current)}, pageSize: 5 }}
-                    column={{ ellipsis: true }} />
+                {isFetchingData ?
+                    <Message variant='info'> <DataPlaceHolder /> </Message> : <>
+                        <Table
+                            columns={columns}
+                            dataSource={filteredProjects}
+                            pagination={{ onChange(current) { setPage(current) }, pageSize: 5 }}
+                            column={{ ellipsis: true }} /> </>
+                }
                 </Card.Body>
                 <ContentModal
                     show={modalShow}
