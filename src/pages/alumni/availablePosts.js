@@ -99,6 +99,12 @@ const pullOrganizationProfiles = async () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
+    const checkExpiryDate = (postdate) => {
+        const currentDate = new Date()
+        const closingDate = new Date(postdate)
+        if (currentDate > closingDate) return true
+        else return false
+    }
     return (
         
         <Card style={{marginBottom: '10px'}}>
@@ -139,9 +145,10 @@ const pullOrganizationProfiles = async () => {
                                     </Col>
                                     <Col md={3} style={{ display: 'flex' }}>
                                         Expire Date:  &nbsp; <p>{post.expiry_date} </p>
+                                        {/* Expire Date:  &nbsp; <p>{checkExpiryDate(post.expiry_date) ? <i style={{color: 'red'}}>Closed</i> : post.expiry_date} </p> */}
                                     </Col>
                                     <Col md={3} style={{ display: 'flex' }}>
-                                        <>
+                                        {checkExpiryDate(post.expiry_date) ? <b><i style={{color: 'red'}}>Closed</i></b>  : <>
                                             <Link to={{ pathname: "/post_details", postId: post.id, }}>
                                                 <Button variant="link" >View Details</Button>
                                             </Link><Link>
@@ -155,7 +162,7 @@ const pullOrganizationProfiles = async () => {
                                                         setProfession(post.profession)
                                                     }}
                                                 >Apply</Button></Link>
-                                        </>
+                                        </>}
                                     </Col>
                                 </Row>
                             </List.Item>
