@@ -61,7 +61,7 @@ const Header = ({ changeCollapse, value }) => {
     return (
         <div className="header-card">
             <Navbar className="header-card" sticky="top" fixed="top" >
-                <Link to = "/home" className="link" style={{color: 'white'}}>
+                <Link to = "/dashboard" className="link" style={{color: 'white'}}>
                     <Navbar.Brand href="#home" style={{ color: 'white' }}>FIPMS</Navbar.Brand>
                 </Link>
                 <Nav className="mr-auto">

@@ -6,16 +6,18 @@ import { useSelector}  from 'react-redux'
 import { apiConfigurations, selectUserData } from '../../slices/userSlice'
 import { useHistory, useParams } from "react-router-dom";
 import DataPlaceHolder from '../../components/dataPlaceHolder';
-import { getInterviewQuestions, getInterviewQuestionChoices, sendInternshipApplication } from '../../app/api'
+import Countdown from "react-countdown";
+
+import { getInterviewQuestions, getInterviewQuestionChoices, sendInternshipApplication, getAlumniApplications } from '../../app/api'
 
 export const InterviewPage = () => {
-
+    
     const history = useHistory();
     const user = useSelector(selectUserData)
     const config = useSelector(apiConfigurations)
     const params = useParams()
     const { postId, professionId, organizationId } = params
-
+    
     const [showModal, setShowModal] = useState(true)
     const [marks, setMarks] = useState(0)
     const [questions, setQuestions] = useState([])
@@ -27,11 +29,12 @@ export const InterviewPage = () => {
     const [isTestDone, setisTestDone] = useState(false)
     const [isFetchingData, setIsFetchingData] = useState(false)
     const [isFetchingMultipleChoices, setIsFetchingMultipleChoices] = useState(false)
-    // const [timer, setTimer] = useState(60)
-
+    const [hasTestSubmitted, setHasTestSubmitted] = useState(false)
+    const [hasAlreadyDidTest, setHasAlreadyDidTest] = useState(false)
+    
     const goToPreviousPage = () => {
         history.goBack()
-
+        
         setSelectedChoice('')
         setQuestions([])
         setAttemptedQuestions([])
@@ -42,13 +45,26 @@ export const InterviewPage = () => {
         setisTestDone(false)
     }
     
-    // var seconds = 10;
-
-    // setInterval(() => {
-    //     // changeQuestions()
-    // }, 1000 * 60);
+    const pullAlumniApplications = async () => {
+        setIsFetchingData(true)
+        try {
+            const response = await getAlumniApplications(user.userId, config)
+            const hasApplied = response.find(item => item.alumni === user.userId && item.post === parseInt(postId))
+            if (hasApplied) {
+                setHasAlreadyDidTest(true)
+                setShowModal(false)
+            }
+            else {
+                fetchQuestions()
+            }
+            setIsFetchingData(false)
+        } catch (error) {
+            console.log('Getting Alumni Applications ', error.response.data)
+        }
+    }
 
     const findMarks = () => {
+        setHasTestSubmitted(true)
         const correctAnswers = applicantAnswers.filter((answer) => answer.choice === 'true')
         var score = 0;
         if (selectedChoice === 'true') {
@@ -61,9 +77,8 @@ export const InterviewPage = () => {
         }
         saveInternshipApplication(score)
     }
-
+    
     const changeQuestions = () => {
-
         const answer = {
             alumni: user.userId,
             question: activeQuestion.id,
@@ -90,8 +105,9 @@ export const InterviewPage = () => {
             }
         }
     }
-
+    
     const handleApplicantAnswers = (e) => {
+        localStorage.setItem(`${attemptedQuestions.length}`, e.target.value)
         setSelectedChoice(e.target.value)
     }
     
@@ -111,8 +127,8 @@ export const InterviewPage = () => {
                 'request': 'Fetch Interview Questions Request',
                 'Error => ': error
             }) }
-    }
-
+        }
+        
     const fetchQuestionChoices = async () => {
         setIsFetchingMultipleChoices(true)
         try {
@@ -125,30 +141,38 @@ export const InterviewPage = () => {
                 'request': 'Fetch Question Choices Request',
                 'Error => ': error
             }) }
+        }
+
+    const clearLocalStorage = () => {
+
+        for (let i = 1; i <= 5; i++){
+                localStorage.removeItem(i)
+            }
     }
+        const saveInternshipApplication = async (score) => {
 
-    const saveInternshipApplication = async (score) => {
-
-        const payload = {
-            alumni: user.userId,
+            const payload = {
+                alumni: user.userId,
             post: postId,
             test_marks: score,
             organization: organizationId
         }
-
+        
         try {
             const response = await sendInternshipApplication(payload, config)
             console.log(response.length)
+            clearLocalStorage()
             setisTestDone(true)
         } catch (error) {
             console.log({
                 'request': 'Send Applicant Scores Request',
                 'Error => ': error
             }) }
-    }
+        }
 
-    useEffect(() => {
-        fetchQuestions();
+        useEffect(() => {
+            // fetchQuestions();
+            pullAlumniApplications();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [professionId])
 
@@ -157,11 +181,50 @@ export const InterviewPage = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [questions.length ? activeQuestion.id : '' ])
 
+    const timeFinished = () => {
+        if (hasTestSubmitted) {
+            console.log('Test Already Submitted ')
+        }
+        else {
+            console.log('Test Was Still Pending')
+            setShowModal(false);
+            let answers = [];
+            for (let i = 1; i <= 5; i++){
+                answers.push(localStorage.getItem(i))
+            }
+            const correct_answers = answers.filter(item => item === 'true')
+            let score = 0;
+            score = correct_answers.length * 20;
+            setMarks(score)
+            saveInternshipApplication(score)
+            clearLocalStorage()
+            setRemainder(0)
+        }
+    }
+
+    const renderer = ({ hours, minutes, seconds, completed }) => {
+        if (completed) {
+            // Render a complete state
+            return <span>Time is over!.</span>;
+        } else {
+            // Render a countdown
+            return (
+                <span>
+                {hours}:{minutes}:{seconds}
+            </span>
+            );
+        }
+    };
+
+    const [remainder, setRemainder] = useState(<Countdown date={Date.now() + 1000 * 60 * 2} renderer={renderer} onComplete={timeFinished} />)
+    
     return (
         <Card className="">
             {isTestDone ?
-                <Message variant='info'><span>{marks >= 50 ? <h3>Congratulations, you got {marks}%.</h3> : <h3>Your marks for the test is {marks}%</h3>}</span></Message>
-                : ''}
+                <Message variant='info'><span>{marks >= 50 ? <h3>Congratulations, you got {marks}%.</h3> : <h3>Your marks for the test is {marks}%</h3>}</span></Message> :
+                hasAlreadyDidTest ?
+                <Message variant='info'><h3>You already did this test</h3></Message> :
+                ''}
             <Card.Body>
                 <Modal
                     show={showModal}
@@ -173,6 +236,7 @@ export const InterviewPage = () => {
             <Message variant='info'> <DataPlaceHolder /> </Message> : <>
                     <Modal.Header >
                         <Modal.Title id="contained-modal-title-vcenter">{questions.length ? <>
+                            <Card.Header style={{ background: 'lightcyan', textAlign: 'right', fontFamily: 'bold' }} > Time remaining {remainder}</Card.Header>
                             <b>{activeQuestion ? attemptedQuestions.length + '. ' : ''} </b>
                            {activeQuestion ? activeQuestion.question_body : 'No questions yet'} </>:
                             <span>Ooops...!</span> }

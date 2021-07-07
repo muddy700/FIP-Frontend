@@ -111,9 +111,10 @@ const InternshipApplications = () => {
     }
   ]
 
-    const goToPreviousPage = () => {
-      history.goBack()
-      setFinalStage('')
+  
+  const goToPreviousPage = () => {
+    history.goBack()
+    setFinalStage('')
   }
   
   const filterByScore = (e) => {
