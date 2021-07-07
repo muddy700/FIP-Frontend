@@ -16,6 +16,7 @@ import {
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 import DataPlaceHolder from '../../components/dataPlaceHolder';
+import Loader from '../../components/loader';
 
 const InternshipChances = () => {
   const [page, setPage] = useState(1)
@@ -92,8 +93,10 @@ const InternshipChances = () => {
   const [newPost, setNewPost] = useState(initialPost)
   const [skills, setSkills] = useState([])
   const [editingMode, setEditingMode] = useState(false)
-  const [postError, setPostError] = useState('')
-    const [isFetchingData, setIsFetchingData] = useState(false)
+  // const [postError, setPostError] = useState('')
+  const [isFetchingData, setIsFetchingData] = useState(false)
+  const [isCreatingPost, setIsCreatingPost] = useState(false)
+  const [postFormError, setPostFormError] = useState('')
 
   const viewPost = (id) => {
     const postInfo = internshipPosts.find(post => post.id === id)
@@ -119,7 +122,8 @@ const InternshipChances = () => {
   }
 
   const onPostFormChange = (e) => {
-    setPostError('')
+    setPostFormError('')
+    // setPostError('')
     setNewPost({
       ...newPost,
       [e.target.name]: e.target.value,
@@ -142,47 +146,80 @@ const InternshipChances = () => {
         }
   }
 
+  const postFormValidator = () => {
+    if (!newPost.profession) {
+      setPostFormError('Select job title')
+      return false
+    }
+    else if (!newPost.post_capacity) {
+      setPostFormError('Enter free chances')
+      return false
+    }
+    else if (!newPost.post_description) {
+      setPostFormError('post description cannot be blank.')
+      return false
+    }
+    else if (!newPost.expiry_date) {
+      setPostFormError('Select expiry date')
+      return false
+    }
+    else{
+      setPostFormError('')
+      return true
+    }
+  }
   const onPostFormSubmit = async (e) => {
     e.preventDefault();
-    setPostError('')
-    let { profession_name, ...payload } = newPost
-    const randomNumber = Math.floor((Math.random() * 1000) + 1);
-    const year = new Date().getFullYear()
+    const isPostFormValid = postFormValidator()
     
-    try {
-      var response
-      if (editingMode) {
-        response = await editInternshipPost(newPost.id, payload, config)
-        const newPosts = internshipPosts.map(post => {
-          if (post.id === response.id) return response
-          else return post
-        })
-        setInternshipPosts(newPosts)
-        setEditingMode(false)
-      }
-      else {
-        // const refNo = `FIP/${year}/P331`
-        const refNo = `FIPMS/${year}/P${randomNumber}`
-        payload = {...payload, reference_number: refNo}
-        response = await pushInternshipPost(payload, config)
-        setInternshipPosts([
-            ...internshipPosts, response ])
-      }
-              setNewPost(initialPost)
-              setModalShow(false)
-      setModalMode('')
-      setPostError('')
-        } catch (error) {
-            console.log({
-                'request': 'Send Or Edit Internship Post Request',
-                'Error => ': error.response.data
-            })
-      if (error.response.data.reference_number) {
-        console.log('ref repeated')
-        setPostError('Ooops...!, some error occured. Please try again')
-        // onPostFormSubmit(e)
-            }
+    if (isPostFormValid) {
+      setIsCreatingPost(true)
+      // setPostError('')
+      let { profession_name, ...payload } = newPost
+      const randomNumber = Math.floor((Math.random() * 1000) + 1);
+      const year = new Date().getFullYear()
+      
+      try {
+        var response
+        if (editingMode) {
+          response = await editInternshipPost(newPost.id, payload, config)
+          const newPosts = internshipPosts.map(post => {
+            if (post.id === response.id) return response
+            else return post
+          })
+          setInternshipPosts(newPosts)
+          setEditingMode(false)
+          setIsCreatingPost(false)
         }
+        else {
+          // const refNo = `FIP/${year}/P331`
+          const refNo = `FIPMS/${year}/P${randomNumber}`
+          payload = {...payload, reference_number: refNo}
+          response = await pushInternshipPost(payload, config)
+          setInternshipPosts([
+              ...internshipPosts, response ])
+        }
+                setNewPost(initialPost)
+        setModalShow(false)
+        setIsCreatingPost(false)
+        setModalMode('')
+        // setPostError('')
+      } catch (error) {
+              console.log({
+                  'request': 'Send Or Edit Internship Post Request',
+                  'Error => ': error.response.data
+              })
+        if (error.response.data.reference_number) {
+          console.log('ref repeated')
+          setPostFormError('Ooops...!, some error occured. Please try again')
+          // setPostError('Ooops...!, some error occured. Please try again')
+          // onPostFormSubmit(e)
+              }
+        }
+    }
+    else {
+      console.log('Post Form Is Invalid')
+    }
   }
 
   const fetchInternshipPosts = async () => {
@@ -256,7 +293,7 @@ const InternshipChances = () => {
               value={newPost.profession}
               onChange={onPostFormChange}
               name="profession">
-              <option>---Select Job Title---</option>
+              <option value={null}>---Select Job Title---</option>
               {skills.map(skill => (
                 <option value={skill.id}>{skill.profession_name} </option>
               ))}
@@ -304,11 +341,19 @@ const InternshipChances = () => {
       <Button
         type="submit"
         variant={editingMode ? 'success' : 'primary'}
-        style={{ float: 'right' }}>{postError !== '' ? 'try again' : editingMode ? 'Save' : 'Send'} </Button>
+        style={{ float: 'right' }}>{isCreatingPost ? <Loader message='loading...!' /> : editingMode ? 'Save' : 'Send'} </Button>
+      {/* <Button
+        type="submit"
+        variant={editingMode ? 'success' : 'primary'}
+        style={{ float: 'right' }}>{postError !== '' ? 'try again' : editingMode ? 'Save' : 'Send'} </Button> */}
       <Button
         variant="danger"
+        hidden={!postFormError}
+      > {postFormError} </Button>
+      {/* <Button
+        variant="danger"
         hidden={postError === '' ? true : false}
-      > {postError} </Button>
+      > {postError} </Button> */}
     </Form> 
   const modalTitle = modalMode !== 'form' ? "Post Details" : editingMode ? 'Edit post info' : 'Fill Post Details' ;
   const modalContent = modalMode === 'form' ? postForm : postDetails;

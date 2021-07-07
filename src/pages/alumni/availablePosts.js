@@ -74,8 +74,16 @@ const pullOrganizationProfiles = async () => {
     const infoTitle = 'Organization Profile'
     var infoTable =  <tbody>
                                 <tr>
-                                    <td className="post-properties">ORGANIZATION</td>
+                                    <td className="post-properties">ALIAS</td>
                                 <td>{selectedProfile.organization_name} </td>
+                                </tr>
+                                <tr>
+                                    <td className="post-properties">FULL NAME</td>
+                                <td>{selectedProfile.organization_full_name} </td>
+                                </tr>
+                                <tr>
+                                    <td className="post-properties">EMAIL</td>
+                                <td>{selectedProfile.organization_email} </td>
                                 </tr>
                                 <tr>
                                     <td className="post-properties">ADDRESS</td>
