@@ -4,9 +4,9 @@ import { Table } from 'antd';
 import Icon from 'supercons'
 import { Button, Row, Col, Card, InputGroup, FormControl, Form} from 'react-bootstrap'
 import Message from '../../components/message'
-import { useLocation, useHistory } from 'react-router-dom';
+import { useLocation, useHistory, } from 'react-router-dom';
 import { useSelector}  from 'react-redux'
-import { editInternshipPost, editMultipleApplications, getInternshipApplications} from '../../app/api';
+import { editInternshipPost, editMultipleApplications, getInternshipApplications, } from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 import DataPlaceHolder from '../../components/dataPlaceHolder';
@@ -59,6 +59,24 @@ const InternshipApplications = () => {
   // },
     ];
 
+  //   const param = useParams()
+  // const postId = param.id
+  // console.log(postId)
+
+  //   const getPostInfo = async () => {
+  //   console.log(postId)
+  //   try {
+  //     const response = await getSingleInternshipPost(postId, config)
+  //     console.log(response)
+  //   } catch (error) {
+  //     console.log('Post Info By Id, ', error.response.data)
+  //   }
+  // }
+
+  // useEffect(() => {
+  //   getPostInfo();
+  //   // eslint-disable-next-line
+  // }, [])
   
     const location = useLocation();
     const history = useHistory();

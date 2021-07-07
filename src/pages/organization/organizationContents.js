@@ -41,6 +41,7 @@ const OrganizationContents = () => {
                 <FieldReports />
               </Route>
             <Route exact path="/post_applications">
+            {/* <Route exact path="/post/:id/applications"> */}
                 <InternshipApplications />
               </Route>
             <Route exact path="/post_applicants">

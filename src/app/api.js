@@ -48,6 +48,11 @@ export async function logoutUser(config) {
 }
 
 // Posts APIs
+export async function getSingleInternshipPost(postId, config) {
+    const response = await baseLink.get(`internship_posts/${postId}/`, config)
+    return response.data
+}
+
 export async function pullInternshipPosts(config) {
     const response = await baseLink.get("internship_posts/", config)
     return response.data

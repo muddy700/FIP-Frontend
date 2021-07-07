@@ -4,20 +4,44 @@ import { Table } from 'antd';
 import Icon from 'supercons'
 import { Button, Row, Col, Card, InputGroup, FormControl, Form } from 'react-bootstrap'
 import Message from '../../components/message'
-import { useLocation, useHistory } from 'react-router-dom';
+import {
+  useLocation, useHistory,
+  // useParams
+} from 'react-router-dom';
 import { useSelector}  from 'react-redux'
-import { createPostSchedule, editInternshipPost, editMultipleApplications, editPostSchedule, editSingleApplication, getInternshipApplications, getPostSchedule } from '../../app/api';
+import {
+  createPostSchedule, editInternshipPost,
+  editMultipleApplications, editPostSchedule,
+  editSingleApplication, getInternshipApplications,
+  getPostSchedule,
+  // getSingleInternshipPost
+} from '../../app/api';
 import { apiConfigurations} from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 import Loader from '../../components/loader';
-// import DataPlaceHolder from '../../components/dataPlaceHolder';
+import DataPlaceHolder from '../../components/dataPlaceHolder';
 
 const PostApplicants = () => {
 
   const [page, setPage] = useState(1)
-  
+  // const param = useParams()
+  // const postId = param.id
   const location = useLocation();
   const [post, setPost] = useState(location.post)
+
+  // const getPostInfo = async () => {
+  //   console.log(postId)
+  //   try {
+  //     const response = await getSingleInternshipPost(postId, config)
+  //     console.log(response)
+  //   } catch (error) {
+  //     console.log('Post Info By Id, ', error.response.data)
+  //   }
+  // }
+
+  // useEffect(() => {
+  //   getPostInfo();
+  // }, [])
 
   const columns = [
   {
@@ -96,7 +120,7 @@ const PostApplicants = () => {
   const [isStageFinished, setIsStageFinished] = useState(false)
   const [modalMode, setModalMode] = useState('')
   const [latestSchedule, setlatestSchedule] = useState({})
-    // const [isFetchingData, setIsFetchingData] = useState(false)
+    const [isFetchingData, setIsFetchingData] = useState(false)
 
   const goToPreviousPage = () => {
     history.goBack()
@@ -357,21 +381,24 @@ const PostApplicants = () => {
   
     
   const fetchPostApplicants = async () => {
-        try {
-          const response = await getInternshipApplications(post.id, config)
-        //   const arrangedByScore = arrangedByDate.slice().sort((a, b) => b.test_marks- a.test_marks)
-          var newApplications = response.filter(item => item.confirmation_status === post.status)
-          if (newApplications[0].practical_marks >= 0) {
-            newApplications = newApplications.slice().sort((a, b) => b.practical_marks - a.practical_marks)
-          }
-          else if (newApplications[0].oral_marks >= 0) {
-            newApplications = newApplications.slice().sort((a, b) => b.oral_marks - a.oral_marks)
-          }
-          setApplications(newApplications)
-          setFilteredArray(newApplications)
-
-          // console.log(newApplications)
-        } catch (error) {
+    setIsFetchingData(true)
+    try {
+      const response = await getInternshipApplications(post.id, config)
+      //   const arrangedByScore = arrangedByDate.slice().sort((a, b) => b.test_marks- a.test_marks)
+      var newApplications = response.filter(item => item.confirmation_status === post.status)
+      if (newApplications[0].practical_marks >= 0) {
+        newApplications = newApplications.slice().sort((a, b) => b.practical_marks - a.practical_marks)
+      }
+      else if (newApplications[0].oral_marks >= 0) {
+        newApplications = newApplications.slice().sort((a, b) => b.oral_marks - a.oral_marks)
+      }
+      setApplications(newApplications)
+      setFilteredArray(newApplications)
+      setIsFetchingData(false)
+      
+      // console.log(newApplications)
+    } catch (error) {
+          setIsFetchingData(false)
             console.log({ 
                 'request': 'Fetch Internship Applications Request',
                 'Error => ': error
@@ -423,52 +450,55 @@ const PostApplicants = () => {
           >{post.status === 'completed' ? 'Add reporting instructions' : `Add schedule for ${post.status} interview`} </Button>
         </Card.Header>
         <Card.Body style={{ overflowX: 'scroll' }}  >
-          {applications.length !== 0 ? <>
-                <Row style={{marginBottom: '16px'}}>
-                    <Col md={{ span: 8 }} >Seleceted Applicants &nbsp;
-                      <Button>{selectedAlumni.length} </Button>
-              <Button
-                style={{ marginLeft: '5%' }}
-                onClick={e => { e.preventDefault(); inviteApplicants() }}
-                disabled={selectedAlumni.length === 0 ? true : false}>{post.status === applications[0].final_stage ? 'Approve Selected' : 'Invite Selected'}</Button>
-              &nbsp;
-              <Button
-                style={{ marginLeft: '5%' }}
-                  onClick={e => { e.preventDefault(); setModalShow(true); setModalMode('marks') }}
-                  disabled={applications.length === 0
-                    // || (post.status === 'practical' && applications[0].practical_marks >= 0)
-                    // || (post.status === 'oral' && applications[0].oral_marks >= 0)
-                    ? true : false}
-              >Fill {post.status} marks </Button>
-                    </Col>
-                    <Col md={{ span: 4}}>
-                        <InputGroup>
-                            <FormControl
-                            placeholder="Enter Cut-Off Point"
-                            type="number"
-                            aria-label="Message Content"
-                            aria-describedby="basic-addon2"
-                            onChange={filterByScore}
-                            />
-                            <InputGroup.Append>
-                                <Button variant="outline-primary">
-                                    <Icon glyph="search" size={20} />
-                                </Button>
-                            </InputGroup.Append>
-                        </InputGroup>
-                    </Col>
+          {isFetchingData ?
+            <Message variant='info'> <DataPlaceHolder /> </Message> : <>
+              {applications.length !== 0 ? <>
+                <Row style={{ marginBottom: '16px' }}>
+                  <Col md={{ span: 8 }} >Seleceted Applicants &nbsp;
+                    <Button>{selectedAlumni.length} </Button>
+                    <Button
+                      style={{ marginLeft: '5%' }}
+                      onClick={e => { e.preventDefault(); inviteApplicants() }}
+                      disabled={selectedAlumni.length === 0 ? true : false}>{post.status === applications[0].final_stage ? 'Approve Selected' : 'Invite Selected'}</Button>
+                    &nbsp;
+                    <Button
+                      style={{ marginLeft: '5%' }}
+                      onClick={e => { e.preventDefault(); setModalShow(true); setModalMode('marks') }}
+                      disabled={applications.length === 0
+                        // || (post.status === 'practical' && applications[0].practical_marks >= 0)
+                        // || (post.status === 'oral' && applications[0].oral_marks >= 0)
+                        ? true : false}
+                    >Fill {post.status} marks </Button>
+                  </Col>
+                  <Col md={{ span: 4 }}>
+                    <InputGroup>
+                      <FormControl
+                        placeholder="Enter Cut-Off Point"
+                        type="number"
+                        aria-label="Message Content"
+                        aria-describedby="basic-addon2"
+                        onChange={filterByScore}
+                      />
+                      <InputGroup.Append>
+                        <Button variant="outline-primary">
+                          <Icon glyph="search" size={20} />
+                        </Button>
+                      </InputGroup.Append>
+                    </InputGroup>
+                  </Col>
                 </Row>
-                <hr/>
-          <Table 
-            columns={columns}
-            dataSource={filteredArray}
-            pagination={{ onChange(current) {setPage(current)}, pageSize: 5 }}
-            column={{ ellipsis: true }} /> </> : '' }
-          <Button
+                <hr />
+                <Table
+                  columns={columns}
+                  dataSource={filteredArray}
+                  pagination={{ onChange(current) { setPage(current) }, pageSize: 5 }}
+                  column={{ ellipsis: true }} /> </> : ''}
+              <Button
                 variant="secondary"
                 onClick={goToPreviousPage} >
                 Back
-            </Button> 
+              </Button>  </>
+          }
        </Card.Body> 
         <ContentModal
           show={modalShow}

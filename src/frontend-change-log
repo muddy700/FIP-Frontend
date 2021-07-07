@@ -126,36 +126,36 @@ Planned
 // => Means Completed
 ** => Means Not Necessary
 
-=> Validate Emails
+//=> Validate Emails
 0. Change Icons
-1. Validate All Forms And Provide A Fixed Error Display Area.
+//1. Validate All Forms And Provide A Fixed Error Display Area.
 2. Allow Organizations To Upload Results(ie Practical or Oral Interview Results) From A File(ie. Excel).
-3.Add Loaders In API Requests(ie.. After Submit A Form)
+** 3.Add Loaders In API Requests(ie.. After Submit A Form)
 4. Prevent Taken  Alumni From Signing Another Contract
     =>Assumptions : 1 Alumni has only 1 Contract In 1 organization
 //5. Disable Button For Completed Posts In Internship Report Table
-6. Allow Organization To View Approved Alumni Profiles
+** 6. Allow Organization To View Approved Alumni Profiles
 //7. Allow Organization To Rate Released Alumni By Adding 'Ratings' Field In Alumni Profile
-8. SetIsLoading(false In All Catch Methods)
+** 8. SetIsLoading(false In All Catch Methods)
 9. Make The Requirements Field Optional In Post Schedule
 //10. If It's Reporting Instructions Change Event Date To Reporting Date In The Reporting form
 //11. Add Page In Organization For Viewing Alumni Profile And Related Info
 12. Adding Search Functionality
 13. Checks If Password Meets Requirements (ie..8 charracters, Uppercase, lowercase, special charracters, and numbers) then Display strong %
-14. Change Choose File Into Change Image In Profile Page.
+** 14. Change Choose File Into Change Image In Profile Page.
 //15. If No Changes Dont Submit The Form Of Personal Info
 16. Change Input Type From month with year to only year in CV-Education Time Period
-17. Allow Coordinator To Upload List Of Graduates ie.. Using Excel With The Same Name In DB
+** 17. Allow Coordinator To Upload List Of Graduates ie.. Using Excel With The Same Name In DB
 18. Think On How To Achieve Interoperability
 //19. Display Preview Only For Openned Accordion Form 
-20. Allow Alumni To Delete Certificate Or Any Other Data In Cv List
+** 20. Allow Alumni To Delete Certificate Or Any Other Data In Cv List
 21. Handle Profile Error For New Organizations Which Doesnt Have Profiles Yet.
 22. Handle Alumni Skills In Cv Page When Saving Selected SKills(The Remaining Checks Auto)
 23. Reference Part In CV Can Be Replaced By UDOM??
-24.  Validate Selected File If Its An Image Or Pdf(Done For Alumni Project)
+//24.  Validate Selected File If Its An Image Or Pdf(Done For Alumni Project)
 //25. Add Organization box address when creating Account
 26. When Release Alumni go And Change Finish Date In Contract
-**27. Put Organization Profile In Available Post (in Alumi Page)
+//27. Put Organization Profile In Available Post (in Alumi Page)
 28. Change Fonts
 29. Handle Error If User Does Not Have Profile
 30. Allow Organization To Add GPA Limit In Alumni Posts. Or Filter Alumni By GPA In The Stage Of Processing
@@ -176,7 +176,7 @@ set time interval in alumni test
 
     When fetching Data In Heroku Database Make It The Same As In Local Db For Some Reference Ids
         Consider=> 
-            -Pending User
+            //-Pending User
             //-Designation Ids(fetching User Profiles by designation Id)
                 //-Designation Names In MainPage
                 //-Adding Organization Designation Id=2

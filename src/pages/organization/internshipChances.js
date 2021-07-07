@@ -65,7 +65,8 @@ const InternshipChances = () => {
           <Icon glyph="delete" size={32} />
           </Button>
         </Popconfirm>
-        <Link to={{pathname: "/post_applications", post: record }}>
+        <Link to={{pathname: `/post_applications`, post: record }}>
+        {/* <Link to={{pathname: `/post/${record.id}/applications`, post: record }}> */}
             <Button variant="link" >View Requests</Button>
         </Link>
       </Space>
