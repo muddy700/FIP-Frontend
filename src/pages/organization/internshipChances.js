@@ -82,6 +82,7 @@ const InternshipChances = () => {
     expiry_date: '',
     post_description: '',
     post_capacity: '',
+    minimum_gpa: '',
   }
 
   const [modalShow, setModalShow] = useState(false);
@@ -155,12 +156,20 @@ const InternshipChances = () => {
       setPostFormError('Enter free chances')
       return false
     }
-    else if (!newPost.post_description) {
-      setPostFormError('post description cannot be blank.')
+    else if (!newPost.minimum_gpa) {
+      setPostFormError('Enter minimum gpa')
+      return false
+    }
+    else if (newPost.minimum_gpa < 2 || newPost.minimum_gpa > 5) {
+      setPostFormError('Entered GPA is out of range')
       return false
     }
     else if (!newPost.expiry_date) {
       setPostFormError('Select expiry date')
+      return false
+    }
+    else if (!newPost.post_description) {
+      setPostFormError('post description cannot be blank.')
       return false
     }
     else{
@@ -168,6 +177,7 @@ const InternshipChances = () => {
       return true
     }
   }
+
   const onPostFormSubmit = async (e) => {
     e.preventDefault();
     const isPostFormValid = postFormValidator()
@@ -313,14 +323,14 @@ const InternshipChances = () => {
           </Form.Group>
       </Form.Row>
       <Form.Row>
-        <Form.Group as={Col} controlId="InternshipPostInput3">
-          <Form.Label>Post Description</Form.Label>
+           <Form.Group as={Col} controlId="InternshipPostInput2">
+          <Form.Label>Minimum GPA</Form.Label>
           <FormControl
-            placeholder="post description"
-            type="text"
+            placeholder="Enter minimum gpa requirement"
+            type="number"
             aria-label="Message Content"
-            name="post_description"
-            value={newPost.post_description}
+            name="minimum_gpa"
+            value={newPost.minimum_gpa}
             aria-describedby="basic-addon2"
             onChange={onPostFormChange}
             />
@@ -337,6 +347,20 @@ const InternshipChances = () => {
             onChange={onPostFormChange}
             />
         </Form.Group>
+      </Form.Row>
+      <Form.Row>
+          <Form.Group as={Col} controlId="InternshipPostInput3">
+          <Form.Label>Post Description</Form.Label>
+          <FormControl as="textarea"
+            placeholder="post description"
+            type="text"
+            aria-label="Message Content"
+            name="post_description"
+            value={newPost.post_description}
+            aria-describedby="basic-addon2"
+            onChange={onPostFormChange}
+            />
+          </Form.Group>
       </Form.Row>
       <Button
         type="submit"

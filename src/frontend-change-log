@@ -123,6 +123,12 @@ Done
 1. Validated Internship Post Form.
 2. Added Time Limit In Alumni Test
 
+    8/7/2021
+1. Added Form For Adding Questions
+1. Added GPA Limit In Internship Post
+
+lumni Test
+
 Planned
 
 => Key
@@ -131,6 +137,7 @@ Planned
 
 //=> Validate Emails
 0. Change Icons
+Check If Questions Are Correct Arranged(Correct Answer Is First Always.. Edit choice 2 change time)
 //1. Validate All Forms And Provide A Fixed Error Display Area.
 2. Allow Organizations To Upload Results(ie Practical or Oral Interview Results) From A File(ie. Excel).
 ** 3.Add Loaders In API Requests(ie.. After Submit A Form)

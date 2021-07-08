@@ -489,8 +489,19 @@ export async function getAllStudents(config) {
     return response.data
 }
 
+export async function addQuestion(payload, config) {
+    const response = await baseLink.post('questions/', payload, config)
+    return response.data
+}
+
 export async function editMultipleStudentsProfiles(payloads, config){
     const requests = payloads.map((item) => baseLink.put(`students_profiles/${item.id}/`, item, config))
+    const  responseArray = await axios.all([...requests])
+    return responseArray
+}
+
+export async function addMultipleChoices(payloads, config){
+    const requests = payloads.map((item) => baseLink.post('multiplechoices/', item, config))
     const  responseArray = await axios.all([...requests])
     return responseArray
 }
