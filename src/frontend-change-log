@@ -130,6 +130,7 @@ Done
 
     9/7/2021
 1. Prevented Alumni Which Does Not Meet Minimum GPA To Apply Internship Post
+2. Changed Icons
 
 
 Planned
@@ -139,7 +140,7 @@ Planned
 ** => Means Not Necessary
 
 //=> Validate Emails
-0. Change Icons
+//0. Change Icons
 Check If Questions Are Correct Arranged(Correct Answer Is First Always.. Edit choice 2 change time)
 //1. Validate All Forms And Provide A Fixed Error Display Area.
 2. Allow Organizations To Upload Results(ie Practical or Oral Interview Results) From A File(ie. Excel).

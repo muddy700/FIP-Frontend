@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import 'react-pro-sidebar/dist/css/styles.css';
 import Icon from 'supercons'
 import '../../styles/sidebar.css'
+import { FaUsers } from "react-icons/fa";
+import { MdPerson, MdSettings } from "react-icons/md";
 
 const AdminSidebar = () => {
 
@@ -15,22 +17,22 @@ const AdminSidebar = () => {
             </li>
             <li className="list-item">
                 <Link to = "/manage_students" className="aside-link">
-                     <Icon glyph="pin" size={32} /> <span>Manage Students</span>
+                     <FaUsers style={{fontSize: '20px'}}/>  <span>Manage Students</span>
                 </Link>
             </li>
             <li className="list-item">
                 <Link to = "/manage_alumni" className="aside-link">
-                     <Icon glyph="pin" size={32} /> <span>Manage Alumni</span>
+                     <FaUsers style={{fontSize: '20px'}}/> <span>Manage Alumni</span>
                 </Link>
             </li>
             <li className="inner-list-item">
                 <Link to = "/my_profile" className="aside-link">
-                    <Icon glyph="person" size={24} /> <span>My Profile</span>
+                    <MdPerson style={{fontSize: '20px'}}/>  <span>My Profile</span>
                 </Link>
             </li>
             <li className="list-item">
                 <Link to = "/password" className="aside-link">
-                     <Icon glyph="settings" size={32} /> <span>Change Password</span>
+                     <MdSettings style={{fontSize: '20px'}}/> <span>Change Password</span>
                 </Link>
             </li>
         </ul>

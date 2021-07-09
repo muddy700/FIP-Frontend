@@ -64,11 +64,13 @@ const AvailablePostsPage = () => {
     }
 
     const fetchAllFieldPosts = async () => {
+        setIsFetchingData(true)
         try {
             const response = await getAllFieldPosts(config)
             const arrangedByDate = response.slice().sort((a, b) => b.date_created.localeCompare(a.date_created))
             const valid_posts = arrangedByDate.filter(post => post.organization !== 38)
             setAllFieldPosts(valid_posts)
+            setIsFetchingData(false)
         } catch (error) {
             console.log('Getting All Field Posts ', error.response.data)
         }
@@ -119,7 +121,7 @@ const pullOrganizationProfiles = async () => {
     }
 
     const getStudentProfile = async () => {
-        setIsFetchingData(true)
+        // setIsFetchingData(true)
         try {
             const response = await getStudentProfileInfo(user.userId, config)
             setStudentInfo(response[0])
@@ -163,7 +165,7 @@ const pullOrganizationProfiles = async () => {
 
     const removeUnMatchedPosts = (postsList) => {
         const qualified_posts = postsList.filter(post => post.programs ? post.programs[0].program === studentInfo.program : post)
-        setIsFetchingData(false)
+        // setIsFetchingData(false)
         return qualified_posts;
     }
 

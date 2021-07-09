@@ -4,9 +4,8 @@ import 'react-pro-sidebar/dist/css/styles.css';
 import Icon from 'supercons'
 import Accordion from 'react-bootstrap/Accordion'
 import '../../styles/sidebar.css'
-import { UsergroupAddOutlined } from '@ant-design/icons';
-
-
+import { FaUsers } from "react-icons/fa";
+import { MdAssignment, MdPerson, MdSettings, MdExpandMore, MdAssignmentInd } from "react-icons/md";
 
 const OrganizationSidebar = () => {
     return (
@@ -18,14 +17,15 @@ const OrganizationSidebar = () => {
             </li>
             <li className="list-item">
                 <Link to = "/published_alumni" className="aside-link">
-                     <Icon glyph="person" size={32} /> <span>Published Alumni</span>
+                     <MdAssignmentInd style={{fontSize: '25px'}}/> <span>Published Alumni</span>
                 </Link>
             </li>
             <li className="list-item">
                 <Accordion  style={{backgroundColor: 'inherit', border: 'none'}}>
                 <div>
                     <Accordion.Toggle as="div" variant="link" eventKey="0">
-                        <Icon glyph="docs" size={32} /> <span>Post Chance</span>
+                            <Icon glyph="docs" size={32} /> <span style={{ cursor: 'pointer' }}>Post Chance</span>
+                            <MdExpandMore style={{ fontSize: '20px', marginLeft: '5%' }} />
                     </Accordion.Toggle>
                     <Accordion.Collapse eventKey="0">
                             <span>
@@ -49,7 +49,8 @@ const OrganizationSidebar = () => {
                 <Accordion  style={{backgroundColor: 'inherit', border: 'none'}}>
                 <div>
                     <Accordion.Toggle as="div" variant="link" eventKey="0">
-                        <Icon glyph="docs" size={32} /> <span>Report</span>
+                        <MdAssignment style={{fontSize: '28px'}}/> <span style={{ cursor: 'pointer' }}>Report</span>
+                        <MdExpandMore style={{ fontSize: '20px', marginLeft: '30%' }} />
                     </Accordion.Toggle>
                     <Accordion.Collapse eventKey="0">
                             <span>
@@ -71,18 +72,18 @@ const OrganizationSidebar = () => {
             </li>
             <li className="list-item">
                 <Link to = "/approved_page" className="aside-link">
-                    <UsergroupAddOutlined style={{ fontSize: '20px', paddingRight: '2px' }}/><span>Approved Alumni</span>
-                     {/* <Icon glyph="person" size={32} /> <span>Approved Alumni</span> */}
+                    {/* <UsergroupAddOutlined style={{ fontSize: '20px', paddingRight: '2px' }}/><span>Approved Alumni</span> */}
+                     <FaUsers style={{fontSize: '20px'}}/> <span>Approved Alumni</span>
                 </Link>
             </li>
             <li className="list-item">
                 <Link to = "/my_profile" className="aside-link">
-                     <Icon glyph="person" size={32} /> <span>Profile</span>
+                     <MdPerson style={{fontSize: '20px'}}/> <span>Profile</span>
                 </Link>
             </li>
             <li className="list-item">
                 <Link to = "/password" className="aside-link">
-                     <Icon glyph="settings" size={32} /> <span>Change Password</span>
+                     <MdSettings style={{fontSize: '20px'}}/> <span>Change Password</span>
                 </Link>
             </li>
         </ul>

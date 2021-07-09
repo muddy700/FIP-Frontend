@@ -3,6 +3,8 @@ import {  Link} from 'react-router-dom';
 import 'react-pro-sidebar/dist/css/styles.css';
 import Icon from 'supercons'
 import '../../styles/sidebar.css'
+import { FaUsers } from "react-icons/fa";
+import { MdAssignment, MdPerson, MdSettings } from "react-icons/md";
 
 const AcademicSupervisorSidebar = () => {
 
@@ -15,22 +17,26 @@ const AcademicSupervisorSidebar = () => {
             </li>
             <li className="list-item">
                 <Link to = "/my_students" className="aside-link">
-                     <Icon glyph="pin" size={32} /> <span>My Students</span>
+                    <FaUsers style={{fontSize: '20px'}}/> <span>My Students</span>
+                     {/* <Icon glyph="pin" size={32} /> <span>My Students</span> */}
                 </Link>
             </li> 
             <li className="list-item">
                 <Link to = "/result_summary" className="aside-link">
-                     <Icon glyph="pin" size={32} /> <span>Result Summary</span>
+                    <MdAssignment style={{fontSize: '20px'}}/> <span>Result Summary</span>
+                     {/* <Icon glyph="pin" size={32} /> <span>Result Summary</span> */}
                 </Link>
             </li> 
             <li className="inner-list-item">
                 <Link to = "/my_profile" className="aside-link">
-                    <Icon glyph="person" size={24} /> <span>My Profile</span>
+                    {/* <Icon glyph="person" size={24} /> <span>My Profile</span> */}
+                    <MdPerson style={{fontSize: '20px'}}/> <span>My Profile</span>
                 </Link>
             </li>
             <li className="list-item">
                 <Link to = "/password" className="aside-link">
-                     <Icon glyph="settings" size={32} /> <span>Change Password</span>
+                     {/* <Icon glyph="settings" size={32} /> <span>Change Password</span> */}
+                    <MdSettings style={{fontSize: '20px'}}/> <span>Change Password</span>
                 </Link>
             </li>
         </ul>

@@ -4,6 +4,7 @@ import 'react-pro-sidebar/dist/css/styles.css';
 import Icon from 'supercons'
 import Accordion from 'react-bootstrap/Accordion'
 import '../../styles/sidebar.css'
+import { MdAssignment, MdPerson, MdExpandMore, MdAssignmentInd, MdFolder } from "react-icons/md";
 
 const AlumniSidebar = () => {
 
@@ -21,31 +22,34 @@ const AlumniSidebar = () => {
             </li>
             <li className="list-item">
                 <Link to = "/application_results" className="aside-link">
-                     <Icon glyph="docs" size={32} /> <span>Application Results</span>
+                     <MdAssignment style={{fontSize: '28px'}}/>  <span>Application Results</span>
                 </Link>
             </li>
             <li className="list-item">
                 <Accordion  style={{backgroundColor: 'inherit', border: 'none'}}>
                 <div>
                     <Accordion.Toggle as="div" variant="link" eventKey="0">
-                        <Icon glyph="person" size={32} /> <span>My Account</span>
+                        <MdPerson style={{ fontSize: '20px' }} /> 
+                        <span style={{ cursor: 'pointer' }}> My Account</span>
+                        <MdExpandMore style={{ fontSize: '20px', marginLeft: '20%' }} />
                     </Accordion.Toggle>
                     <Accordion.Collapse eventKey="0">
                             <span>
                                 <ul >
                                     <li className="inner-list-item">
                                         <Link to = "/my_profile" className="aside-link">
-                                            <Icon glyph="person" size={24} /> <span>My Profile</span>
+                                            <MdPerson style={{fontSize: '20px'}}/>  <span>My Profile</span>
                                         </Link>
                                     </li>
                                     <li className="inner-list-item">
                                         <Link to = "/my_cv" className="aside-link">
-                                            <Icon glyph="docs" size={24} /> <span>My CV</span>
+                                            {/* <MdExpandMore style={{fontSize: '20px'}}/>  <span>My Profile</span> */}
+                                            <MdAssignmentInd style={{fontSize: '20px'}}/> <span>My CV</span>
                                         </Link>
                                     </li>
                                     <li className="inner-list-item">
                                         <Link to = "/my_projects" className="aside-link">
-                                            <Icon glyph="docs-fill" size={24} /> <span>My Projects</span>
+                                            <MdFolder style={{fontSize: '20px'}}/>  <span>My Projects</span>
                                         </Link>
                                     </li>
                                 </ul>

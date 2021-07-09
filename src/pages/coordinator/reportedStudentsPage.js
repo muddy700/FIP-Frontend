@@ -458,7 +458,7 @@ function ReportedStudentsPage() {
     </Col>
   </Row>
   
-    return (
+  return (
     <Card >
         <Card.Header >
           <Message variant='info' >List of students arrival notes</Message>
@@ -490,10 +490,10 @@ function ReportedStudentsPage() {
                         ))}
                         </Form.Control>
                     </Col>
-                    <Button onClick={e => { e.preventDefault(); setModalShow2(true) }}>Upload discontinued </Button> &nbsp; &nbsp;
           </Row>
           <Row>
               <Button onClick={e => { e.preventDefault(); setAssignByOrganization(true)}}>Assign by organization </Button> &nbsp; &nbsp;
+              <Button onClick={e => { e.preventDefault(); setModalShow2(true) }}>Upload discontinued </Button> &nbsp; &nbsp;
           </Row>
           
                 <hr/>

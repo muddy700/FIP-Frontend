@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import 'react-pro-sidebar/dist/css/styles.css';
 import Icon from 'supercons'
 import '../../styles/sidebar.css'
+import { MdAnnouncement, MdPerson, MdSettings } from "react-icons/md";
 
 
 const StudentSidebar = () => {
@@ -16,17 +17,17 @@ const StudentSidebar = () => {
             </li>
             <li className="list-item">
                 <Link to = "/available_posts" className="aside-link">
-                     <Icon glyph="docs-fill" size={32} /> <span>Available Posts</span>
+                     <Icon glyph="docs" size={32} /> <span>Available Posts</span>
                 </Link>
             </li>
             <li className="list-item">
                 <Link to = "/field_info" className="aside-link">
-                     <Icon glyph="docs" size={32} /> <span>Field Info</span>
+                     <MdAnnouncement style={{fontSize: '20px'}}/> <span>Field Info</span>
                 </Link>
             </li>
             <li className="inner-list-item">
                 <Link to = "/my_profile" className="aside-link">
-                    <Icon glyph="person" size={24} /> <span>My Profile</span>
+                    <MdPerson style={{fontSize: '20px'}}/> <span>My Profile</span>
                 </Link>
             </li>
             {/* <li className="inner-list-item">
@@ -36,7 +37,7 @@ const StudentSidebar = () => {
             </li> */}
             <li className="list-item">
                 <Link to = "/password" className="aside-link">
-                     <Icon glyph="settings" size={32} /> <span>Change Password</span>
+                     <MdSettings style={{fontSize: '20px'}}/> <span>Change Password</span>
                 </Link>
             </li>
         </ul>
