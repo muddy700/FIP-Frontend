@@ -278,6 +278,10 @@ const InternshipChances = () => {
                     <td>{selectedPost.post_capacity}</td>
                 </tr>
                 <tr>
+                    <td className="post-properties">MINIMUM GPA</td>
+                    <td>{selectedPost.minimum_gpa}</td>
+                </tr>
+                <tr>
                     <td className="post-properties">Date Created</td>
                     <td>{selectedPost.date_created}</td>
                 </tr>
@@ -327,7 +331,7 @@ const InternshipChances = () => {
           <Form.Label>Minimum GPA</Form.Label>
           <FormControl
             placeholder="Enter minimum gpa requirement"
-            type="number"
+            type="number" step="0.1"
             aria-label="Message Content"
             name="minimum_gpa"
             value={newPost.minimum_gpa}

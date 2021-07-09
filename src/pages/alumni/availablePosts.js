@@ -5,7 +5,7 @@ import { Button, Row, Col, Card} from 'react-bootstrap'
 import Message from '../../components/message'
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch}  from 'react-redux'
-import { getAlumniApplications, getOrganizationProfiles, pullInternshipPosts } from '../../app/api';
+import { getAlumniApplications, getAlumniProfile, getOrganizationProfiles, pullInternshipPosts } from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import { fetchInternshipPosts, selectInternshipPostList } from '../../slices/internshipPostSlice';
 import WarningModal from '../../components/warningModal';
@@ -27,8 +27,28 @@ const AvailablePostsPage = () => {
     const [showOrganizationInfo, setShowOrganizationInfo] = useState(false)
     const [selectedProfile, setselectedProfile] = useState({})
     const [isFetchingData, setIsFetchingData] = useState(false)
+    const [alumniProfile, setAlumniProfile] = useState({})
+    const [doesNotMeetRequirements, setDoesNotMeetRequirements] = useState(false)
     const modalTitle = "Warning!"
     const modalContent = "To apply this post you need to do a test. And once you start the test, you cannot abort the process. To continue press 'Start', to quit press 'Cancel'"
+    const cancellationTitle = <span style={{color: 'red'}}>Request rejected.</span>
+    const cancellationMessage = 'Your GPA is below the minimum required GPA for this post'
+
+    const getProfile = async () => {
+        setIsFetchingData(true)
+        try {
+            const profile = await getAlumniProfile(user.userId, config)
+            setAlumniProfile(profile[0])
+            setIsFetchingData(false)
+            // console.log(profile)
+        } catch (error) {
+            setIsFetchingData(false)
+            console.log({
+                'Request': 'Getting Alumni Profile Request',
+                'Error => ' : error,
+            })
+        }
+    }
 
     const getInternshipPosts = async () => {
     setIsFetchingData(true)
@@ -58,7 +78,7 @@ const AvailablePostsPage = () => {
     }
     }
     
-const pullOrganizationProfiles = async () => {
+    const pullOrganizationProfiles = async () => {
         try {
             const response = await getOrganizationProfiles(config)
             // console.log(response)
@@ -102,6 +122,7 @@ const pullOrganizationProfiles = async () => {
     }
     
     useEffect(() => {
+        getProfile()
         getInternshipPosts();
         pullOrganizationProfiles();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -113,6 +134,19 @@ const pullOrganizationProfiles = async () => {
         if (currentDate > closingDate) return true
         else return false
     }
+
+    const checkRequirements = (post) => {
+        if (alumniProfile.gpa >= post.minimum_gpa) {
+            setModalShow(true);
+            setSelectedPost(post.id);
+            setSelectedOrganization(post.organization)
+            setProfession(post.profession)
+        }
+        else {
+            setDoesNotMeetRequirements(true)
+        }
+    }
+
     return (
         
         <Card style={{marginBottom: '10px'}}>
@@ -164,10 +198,7 @@ const pullOrganizationProfiles = async () => {
                                                     variant="link"
                                                     onClick={e => {
                                                         e.preventDefault();
-                                                        setModalShow(true);
-                                                        setSelectedPost(post.id);
-                                                        setSelectedOrganization(post.organization)
-                                                        setProfession(post.profession)
+                                                        checkRequirements(post);
                                                     }}
                                                 >Apply</Button></Link>
                                         </>}
@@ -193,6 +224,13 @@ const pullOrganizationProfiles = async () => {
           title={infoTitle}
           content={infoTable}
           onHide={() => { setShowOrganizationInfo(false) }}
+        />
+        <ContentModal
+          show={doesNotMeetRequirements}
+          isTable={false}
+          title={cancellationTitle}
+          content={cancellationMessage}
+          onHide={() => { setDoesNotMeetRequirements(false) }}
         />
         </Card>
     )

@@ -371,6 +371,10 @@ const ProfilePage = () => {
                                     <td>{alumniProfile.degree_program}</td>
                                 </tr>
                                 <tr>
+                                    <td className="post-properties">GPA</td>
+                                    <td>{alumniProfile.gpa}</td>
+                                </tr>
+                                <tr>
                                     <td className="post-properties">COMPLETION YEAR</td>
                                     <td>{alumniProfile.completion_year}</td>
                                 </tr>

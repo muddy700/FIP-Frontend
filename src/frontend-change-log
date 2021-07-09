@@ -128,6 +128,9 @@ Done
 2. Added GPA Limit In Internship Post
 3. Validated Questions Form
 
+    9/7/2021
+1. Prevented Alumni Which Does Not Meet Minimum GPA To Apply Internship Post
+
 
 Planned
 
@@ -175,7 +178,7 @@ Check if we can add user with registration numbers
 //replace all username with fname and lname in dashboard and Profile Page Under The Image
 //in username place designation
 //set username to email for staff and organization
-set time interval in alumni test
+//set time interval in alumni test
 //set time out in main.js(React-Idle-Timer)
 
 

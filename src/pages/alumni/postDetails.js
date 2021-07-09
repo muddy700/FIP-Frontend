@@ -35,6 +35,10 @@ export const PostDetails = () => {
                                 <td>{internship_post.post_capacity} </td>
                                 </tr>
                                 <tr>
+                                    <td className="post-properties">MINIMUM GPA</td>
+                                <td>{internship_post.minimum_gpa} </td>
+                                </tr>
+                                <tr>
                                     <td className="post-properties">EXPIRE DATE</td>
                                     <td>{internship_post.expiry_date}</td>
                                 </tr>
