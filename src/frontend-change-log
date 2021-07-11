@@ -141,7 +141,7 @@ Planned
 
 //=> Validate Emails
 //0. Change Icons
-Check If Questions Are Correct Arranged(Correct Answer Is First Always.. Edit choice 2 change time)
+//Check If Questions Are Correct Arranged(Correct Answer Is First Always.. Edit choice 2 change time)
 //1. Validate All Forms And Provide A Fixed Error Display Area.
 2. Allow Organizations To Upload Results(ie Practical or Oral Interview Results) From A File(ie. Excel).
 ** 3.Add Loaders In API Requests(ie.. After Submit A Form)
@@ -172,7 +172,7 @@ Check If Questions Are Correct Arranged(Correct Answer Is First Always.. Edit ch
 //27. Put Organization Profile In Available Post (in Alumi Page)
 28. Change Fonts
 29. Handle Error If User Does Not Have Profile
-30. Allow Organization To Add GPA Limit In Alumni Posts. Or Filter Alumni By GPA In The Stage Of Processing
+//30. Allow Organization To Add GPA Limit In Alumni Posts. Or Filter Alumni By GPA In The Stage Of Processing
 
 **allow admin to upload a list of students and Alumni //=> Need API For That Task
 Check if we can add user with registration numbers
@@ -194,7 +194,7 @@ Check if we can add user with registration numbers
             //-Designation Ids(fetching User Profiles by designation Id)
                 //-Designation Names In MainPage
                 //-Adding Organization Designation Id=2
-            -Field Post ID=32 With Programs And Professions
+            //-Field Post ID=32 With Programs And Professions Or post.organization !== 38
            // -In Announcments designation Ids for alumni and Coordinator
 
             

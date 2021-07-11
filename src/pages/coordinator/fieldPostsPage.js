@@ -62,7 +62,8 @@ function FieldPostsPage() {
         try {
           const response = await getAllFieldPosts(config)
             const arrangedByDate = response.slice().sort((a, b) => b.date_updated.localeCompare(a.date_updated))
-            const valid_posts = arrangedByDate.filter(item => item.id !== 32)
+            const valid_posts = arrangedByDate.filter(item => item.organization !== 38)
+            // const valid_posts = arrangedByDate.filter(item => item.id !== 32)
             setFieldPosts(valid_posts)
         } catch (error) {
             console.log({

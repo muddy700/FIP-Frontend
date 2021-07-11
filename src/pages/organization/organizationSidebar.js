@@ -25,7 +25,7 @@ const OrganizationSidebar = () => {
                 <div>
                     <Accordion.Toggle as="div" variant="link" eventKey="0">
                             <Icon glyph="docs" size={32} /> <span style={{ cursor: 'pointer' }}>Post Chance</span>
-                            <MdExpandMore style={{ fontSize: '20px', marginLeft: '5%' }} />
+                            <MdExpandMore style={{ fontSize: '20px', marginLeft: '3%' }} />
                     </Accordion.Toggle>
                     <Accordion.Collapse eventKey="0">
                             <span>
