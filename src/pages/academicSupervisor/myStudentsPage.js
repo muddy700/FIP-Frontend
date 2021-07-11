@@ -165,9 +165,12 @@ function MyStudentsPage() {
       try {
         const response = await getStudentsByAcademicSupervisor(user.userId, config)
         const arrangedArray = response.slice().sort((a, b) => b.date_reported.localeCompare(a.date_reported))
-        setStudentsProfiles(arrangedArray)
-        setDisplayArray(arrangedArray)
-        const inprogress_students = arrangedArray.filter(item => item.student_status)
+          const valid_data = arrangedArray.map(item => {
+            return {...item, registration_number: item.registration_number.replaceAll('-', '/')}
+          })
+        setStudentsProfiles(valid_data)
+        setDisplayArray(valid_data)
+        const inprogress_students = valid_data.filter(item => item.student_status)
         prepareData(inprogress_students)
         setIsFetchingData(false)
         } catch (error) {

@@ -38,7 +38,10 @@ const ProfilePage = () => {
         setIsFetchingData(true)
         try {
             const profile = await getAlumniProfile(user.userId, config)
-            setAlumniProfile(profile[0])
+            setAlumniProfile({
+                ...profile[0],
+                registration_number: profile[0].registration_number.replaceAll('-', '/')
+            })
             setIsFetchingData(false)
             // console.log(profile)
         } catch (error) {

@@ -235,7 +235,10 @@ const InternshipApplications = () => {
       const arrangedByDate = response.slice().sort((a, b) => b.date_applied.localeCompare(a.date_applied))
       const arrangedByScore = arrangedByDate.slice().sort((a, b) => b.test_marks- a.test_marks)
       const unProcessedApplications = arrangedByScore.filter(item => item.status === 'received')
-      setApplications(unProcessedApplications)
+        const valid_data = unProcessedApplications.map(item => {
+          return {...item, alumni_name: item.alumni_name.replaceAll('-', '/')}
+        })
+      setApplications(valid_data)
       setIsFetchingData(false)
     } catch (error) {
           setIsFetchingData(false)

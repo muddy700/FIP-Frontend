@@ -118,7 +118,10 @@ function StudentsManagementsPage() {
     const fetchAllStudents = async () => {
         try {
             const studentsList = await getAllStudents(config)
-            setAllStudents(studentsList)
+          const valid_data = studentsList.map(item => {
+            return {...item, registration_number: item.registration_number.replaceAll('-', '/')}
+          })
+            setAllStudents(valid_data)
         } catch (error) {
             console.log({
                 'Request': 'Getting All Students Profiles Request',

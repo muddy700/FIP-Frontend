@@ -77,8 +77,11 @@ function AlumniManagementPage() {
     
     const fetchAllAlumni = async () => {
         try {
-            const alumniList = await getAllAlumni(config)
-            setAllAlumni(alumniList)
+          const alumniList = await getAllAlumni(config)
+          const valid_data = alumniList.map(item => {
+            return {...item, registration_number: item.registration_number.replaceAll('-', '/')}
+          })
+            setAllAlumni(valid_data)
         } catch (error) {
             console.log({
                 'Request': 'Getting All Alumni Profiles Request',

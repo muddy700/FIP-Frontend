@@ -74,7 +74,10 @@ const FieldApplications = () => {
       try {
         const response = await getFieldApplicationsByPostId(postId, config)
         const unConfirmedApplicantions = response.filter(item => !item.has_reported)
-        setFieldApplications(unConfirmedApplicantions)
+        const valid_data = unConfirmedApplicantions.map(item => {
+          return {...item, registration_number: item.registration_number.replaceAll('-', '/')}
+        })
+        setFieldApplications(valid_data)
         setIsFetchingData(false)
       } catch (error) {
           setIsFetchingData(false)

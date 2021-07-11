@@ -392,8 +392,11 @@ const PostApplicants = () => {
       else if (newApplications[0].oral_marks >= 0) {
         newApplications = newApplications.slice().sort((a, b) => b.oral_marks - a.oral_marks)
       }
-      setApplications(newApplications)
-      setFilteredArray(newApplications)
+      const valid_data = newApplications.map(item => {
+        return {...item, alumni_name: item.alumni_name.replaceAll('-', '/')}
+      })
+      setApplications(valid_data)
+      setFilteredArray(valid_data)
       setIsFetchingData(false)
       
       // console.log(newApplications)

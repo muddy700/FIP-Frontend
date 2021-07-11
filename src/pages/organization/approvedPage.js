@@ -215,8 +215,11 @@ const ApprovedAlumni = () => {
       const response = await getProcessedApplications(user.userId, config)
       var newApplications = response.filter(item => item.status === 'accepted' && item.reporting_instructions === 'True' )
       // var newApplications2 = newApplications.filter(item => item.reporting_instructions === 'True')
-      setApplications(newApplications)
-      setFilteredArray(newApplications)
+       const valid_data = newApplications.map(item => {
+        return {...item, alumni_name: item.alumni_name.replaceAll('-', '/')}
+      })
+      setApplications(valid_data)
+      setFilteredArray(valid_data)
       setIsFetchingData(false)
       
     } catch (error) {
@@ -232,7 +235,10 @@ const ApprovedAlumni = () => {
     setIsFetchingData2(true)
     try {
       const response = await fetchOrganizationInvitations(user.userId, config)
-      setOrganizationInvitations(response)
+           const valid_data = response.map(item => {
+        return {...item, alumni_name: item.alumni_name.replaceAll('-', '/')}
+      })
+      setOrganizationInvitations(valid_data)
       setIsFetchingData2(false)
     } catch (error) {
         setIsFetchingData2(false)

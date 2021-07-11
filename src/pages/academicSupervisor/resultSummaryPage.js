@@ -98,9 +98,12 @@ function ResultSummaryPage() {
       try {
         const response = await getStudentsByAcademicSupervisor(user.userId, config)
         const processed_students = response.filter(item => item.average_marks)
-        setStudentsProfiles(processed_students)
-        setDisplayArray(processed_students)
-        prepareData(processed_students)
+          const valid_data = processed_students.map(item => {
+            return {...item, registration_number: item.registration_number.replaceAll('-', '/')}
+          })
+        setStudentsProfiles(valid_data)
+        setDisplayArray(valid_data)
+        prepareData(valid_data)
         setIsFetchingData(false)
         console.log(studentsProfiles.length)
       } catch (error) {

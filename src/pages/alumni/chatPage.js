@@ -97,7 +97,7 @@ const ChatPage = () => {
                         <Card.Body className="messages-container" style={{padding: 0}}>
                             { messages.map((message) => (
                                 <div className={message.source === user.username ? "outgoing-messages" : "incoming-messages"} key={message.date}>
-                                    <span><b>{message.source === user.username ? 'You' : message.source} </b></span>
+                                    <span><b>{message.source === user.username ? 'You' : message.source.replaceAll('-', '/')} </b></span>
                                     <small>{message.content} </small>
                                     <span style={{float: 'right', marginLeft: '3%'}}><i><TimeAgo timestamp={message.date_created} /> </i></span>
                                 </div>
@@ -134,7 +134,7 @@ const ChatPage = () => {
                             {isFetchingData ?
                                 <Message variant='info'> <DataPlaceHolder /> </Message> : <>
                                     {activeAlumni.map((item) => (<>
-                                        <div key={item.id}>{item.username === user.username ? 'You' : item.username}</div> <hr /></>
+                                        <div key={item.id}>{item.username === user.username ? 'You' : item.username.replaceAll('-', '/')}</div> <hr /></>
                                     ))} </>
                             }
                         </Card.Body>

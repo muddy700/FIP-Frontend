@@ -129,8 +129,11 @@ function ReportedStudentsPage() {
             const response = await getAllReportedStudentsProfiles(config)
             const arrangedArray = response.slice().sort((a, b) => b.date_reported.localeCompare(a.date_reported))
             const department_students = arrangedArray.filter(item => item.department === staff.department)
-            setStudentsProfiles(department_students)
-            setDisplayArray(department_students)
+            const valid_data = department_students.map(item => {
+              return {...item, registration_number: item.registration_number.replaceAll('-', '/')}
+            })
+            setStudentsProfiles(valid_data)
+            setDisplayArray(valid_data)
             const ids = department_students.map(item => item.organization)
             const uniqueIds = Array.from(new Set(ids))
             fetchOrganizationList(uniqueIds)

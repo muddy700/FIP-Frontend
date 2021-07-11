@@ -78,7 +78,10 @@ const FieldReports = () => {
       try {
         const response = await getAllReportedStudents(config)
         const organization_students = response.filter(item => item.organization === user.userId)
-        setReportedStudents(organization_students)
+        const valid_data = organization_students.map(item => {
+          return {...item, registration_number: item.registration_number.replaceAll('-', '/')}
+        })
+        setReportedStudents(valid_data)
         setIsFetchingData(false)
       } catch (error) {
           setIsFetchingData(false)

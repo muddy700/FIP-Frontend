@@ -135,9 +135,12 @@ function ResultSummaryPage() {
           const response = await getAllReportedStudentsProfiles(config)
           const processed_students = response.filter(item => item.average_marks)
           const department_students = processed_students.filter(item => item.department === staff.department)
-          setStudentsProfiles(department_students)
-          setDisplayArray(department_students)
-          prepareData(department_students)
+          const valid_data = department_students.map(item => {
+            return {...item, registration_number: item.registration_number.replaceAll('-', '/')}
+          })
+          setStudentsProfiles(valid_data)
+          setDisplayArray(valid_data)
+          prepareData(valid_data)
       } catch (error) {
           console.log(
               'Fetching Students By Academic Supervisor ', error.response.data ) }

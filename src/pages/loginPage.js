@@ -70,8 +70,9 @@ export const LoginPage = () => {
         const isFormValid = formValidator(e);
 
         if (isFormValid) {
+            const payload = {...loginCredentials, username: loginCredentials.username.replaceAll('/', '-')}
             try {
-                const response = await authenticateUser(loginCredentials)
+                const response = await authenticateUser(payload)
                 const config = { headers: { 'Authorization': `Token ${response.token}` } }
 
                 try {

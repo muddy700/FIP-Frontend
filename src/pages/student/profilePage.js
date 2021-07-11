@@ -34,7 +34,7 @@ const ProfilePage = () => {
         setIsFetchingData(true)
         try {
             const profile = await getStudentProfileInfo(user.userId, config)
-            setStudentProfile(profile[0])
+            setStudentProfile({...profile[0], registration_number: profile[0].registration_number.replaceAll('-', '/')})
             setIsFetchingData(false)
         } catch (error) {
             console.log({

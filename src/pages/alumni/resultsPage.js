@@ -293,7 +293,7 @@ const ResultsPage = () => {
     <>
     <Card style={{marginBottom: '32px'}}>
         <Card.Header >
-          <Message variant='info' >Dear {user.username}, You have applied the folloving companies</Message>
+          <Message variant='info' >Dear {user.username.replaceAll('-', '/')}, You have applied the folloving companies</Message>
         </Card.Header>
         <Card.Body style={{ overflowX:'scroll'}}  >
           {isFetchingData ?
@@ -315,7 +315,7 @@ const ResultsPage = () => {
     </Card>
     <Card style={{width: '100%'}}>
         <Card.Header >
-          <Message variant='info' >Dear {user.username}, You have been invited with the following companies</Message>
+          <Message variant='info' >Dear {user.username.replaceAll('-', '/')}, You have been invited with the following companies</Message>
         </Card.Header>
         <Card.Body style={{ overflowX:'scroll'}}  >
           {isFetchingData ?
