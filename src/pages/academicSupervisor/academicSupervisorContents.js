@@ -8,6 +8,7 @@ import ProfilePage from './profilePage';
 import PasswordPage from './passwordPage';
 import MyStudentsPage from './myStudentsPage';
 import ResultSummaryPage from './resultSummaryPage';
+import StudentsLogBooks from './studentsLogBook';
 
 const AcademicSupervisorContents = () => {
 
@@ -22,6 +23,9 @@ const AcademicSupervisorContents = () => {
               </Route>
             <Route exact path={["/my_students"]}>
                 <MyStudentsPage />
+              </Route>
+            <Route exact path={["/students_logbooks"]}>
+                <StudentsLogBooks />
               </Route>
             <Route exact path={["/result_summary"]}>
                 <ResultSummaryPage />

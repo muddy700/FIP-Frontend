@@ -9,6 +9,7 @@ import { apiConfigurations} from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 import Loader from '../../components/loader'
 import XLSX from 'xlsx';
+import DataPlaceHolder from '../../components/dataPlaceHolder'
 
 function StudentsManagementsPage() {
   const [page, setPage] = useState(1)
@@ -114,15 +115,19 @@ function StudentsManagementsPage() {
     const [excelError, setExcelError] = useState('')
     const [excelData, setExcelData] = useState([])
     const [isSendingExcelData, setIsSendingExcelData] = useState(false)
+    const [isFetchingData, setIsFetchingData] = useState(false)
 
-    const fetchAllStudents = async () => {
-        try {
-            const studentsList = await getAllStudents(config)
-          const valid_data = studentsList.map(item => {
-            return {...item, registration_number: item.registration_number.replaceAll('-', '/')}
-          })
-            setAllStudents(valid_data)
-        } catch (error) {
+  const fetchAllStudents = async () => {
+      setIsFetchingData(true)
+      try {
+        const studentsList = await getAllStudents(config)
+        const valid_data = studentsList.map(item => {
+          return {...item, registration_number: item.registration_number.replaceAll('-', '/')}
+        })
+        setAllStudents(valid_data)
+        setIsFetchingData(false)
+      } catch (error) {
+          setIsFetchingData(false)
             console.log({
                 'Request': 'Getting All Students Profiles Request',
                 'Error => ' : error.response.data,
@@ -368,11 +373,14 @@ function StudentsManagementsPage() {
                     <StudentsExport studentsList={excelFormat}/> &nbsp; &nbsp;
                     <Button onClick={e => { e.preventDefault(); setModalShow(true)}}>Upload Students List</Button> &nbsp; &nbsp;
                 </Row> */}
-                <Table
-                    columns={columns}
-                    dataSource={allStudents}
-                    pagination={{ onChange(current) {setPage(current)}, pageSize: 5 }}
-                    column={{ ellipsis: true }} />
+          {isFetchingData ?
+            <Message variant='info'> <DataPlaceHolder /> </Message> : <>
+              <Table
+                columns={columns}
+                dataSource={allStudents}
+                pagination={{ onChange(current) { setPage(current) }, pageSize: 5 }}
+                column={{ ellipsis: true }} /> </>
+          }
        </Card.Body>
         <ContentModal //For Uploading Students Marks
         show={modalShow}

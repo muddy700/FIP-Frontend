@@ -21,6 +21,11 @@ const StudentSidebar = () => {
                 </Link>
             </li>
             <li className="list-item">
+                <Link to = "/logbook" className="aside-link">
+                     <Icon glyph="post" size={32} /> <span>Log Book</span>
+                </Link>
+            </li>
+            <li className="list-item">
                 <Link to = "/field_info" className="aside-link">
                      <MdAnnouncement style={{fontSize: '20px'}}/> <span>Field Info</span>
                 </Link>

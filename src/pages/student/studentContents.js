@@ -9,6 +9,7 @@ import ProfilePage from './profilePage';
 import ProjectsPage from './projectsPage';
 import PasswordPage from './passwordPage';
 import { FieldInfoPage } from './fieldInfoPage'
+import LogBookPage from './logbookPage';
 
 const StudentContents = () => {
 
@@ -20,6 +21,9 @@ const StudentContents = () => {
               </Route>
             <Route exact path={["/available_posts"]}>
                 <AvailablePosts />
+              </Route>
+            <Route exact path={["/logbook"]}>
+                <LogBookPage />
               </Route>
               <Route exact path={["/field_info"]}>
                 <FieldInfoPage />

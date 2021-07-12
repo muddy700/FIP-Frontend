@@ -22,6 +22,12 @@ const AcademicSupervisorSidebar = () => {
                 </Link>
             </li> 
             <li className="list-item">
+                <Link to = "/students_logbooks" className="aside-link">
+                    {/* <FaUsers style={{fontSize: '20px'}}/> <span>Students Logbooks</span> */}
+                     <Icon glyph="post" size={32} /> <span>Students Logbooks</span>
+                </Link>
+            </li> 
+            <li className="list-item">
                 <Link to = "/result_summary" className="aside-link">
                     <MdAssignment style={{fontSize: '20px'}}/> <span>Result Summary</span>
                      {/* <Icon glyph="pin" size={32} /> <span>Result Summary</span> */}

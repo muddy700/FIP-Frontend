@@ -97,6 +97,7 @@ export const FieldInfoPage = () => {
             console.log('Invalid Report File')
         }
     }
+    
     return (
         <Card >
         <Card.Header >

@@ -4,7 +4,7 @@ import 'react-pro-sidebar/dist/css/styles.css';
 import Icon from 'supercons'
 import '../../styles/sidebar.css'
 import { FaUsers } from "react-icons/fa";
-import { MdPerson, MdSettings } from "react-icons/md";
+import { MdPerson, MdSettings, MdAssignmentInd } from "react-icons/md";
 
 const AdminSidebar = () => {
 
@@ -17,12 +17,22 @@ const AdminSidebar = () => {
             </li>
             <li className="list-item">
                 <Link to = "/manage_students" className="aside-link">
-                     <FaUsers style={{fontSize: '20px'}}/>  <span>Manage Students</span>
+                     <FaUsers style={{fontSize: '20px'}}/>  <span>All Students</span>
                 </Link>
             </li>
             <li className="list-item">
                 <Link to = "/manage_alumni" className="aside-link">
-                     <FaUsers style={{fontSize: '20px'}}/> <span>Manage Alumni</span>
+                     <FaUsers style={{fontSize: '20px'}}/> <span>All Alumni</span>
+                </Link>
+            </li>
+            <li className="list-item">
+                <Link to = "/field_arrival_notes" className="aside-link">
+                     <Icon glyph="docs" size={32} /> <span>Field Arrival Notes</span>
+                </Link>
+            </li>
+            <li className="list-item">
+                <Link to = "/field_results" className="aside-link">
+                     <MdAssignmentInd style={{fontSize: '20px'}}/> <span>Field Results</span>
                 </Link>
             </li>
             <li className="inner-list-item">

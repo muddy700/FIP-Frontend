@@ -6,6 +6,7 @@ import Message from '../../components/message'
 import { useSelector}  from 'react-redux'
 import { getAllAlumni} from '../../app/api';
 import { apiConfigurations } from '../../slices/userSlice';
+import DataPlaceHolder from '../../components/dataPlaceHolder'
 
 function AlumniManagementPage() {
   const [page, setPage] = useState(1)
@@ -74,15 +75,19 @@ function AlumniManagementPage() {
 
     const config = useSelector(apiConfigurations)
     const [allAlumni, setAllAlumni] = useState([])
+    const [isFetchingData, setIsFetchingData] = useState(false)
     
-    const fetchAllAlumni = async () => {
-        try {
-          const alumniList = await getAllAlumni(config)
-          const valid_data = alumniList.map(item => {
-            return {...item, registration_number: item.registration_number.replaceAll('-', '/')}
-          })
-            setAllAlumni(valid_data)
-        } catch (error) {
+  const fetchAllAlumni = async () => {
+      setIsFetchingData(true)
+      try {
+        const alumniList = await getAllAlumni(config)
+        const valid_data = alumniList.map(item => {
+          return {...item, registration_number: item.registration_number.replaceAll('-', '/')}
+        })
+        setAllAlumni(valid_data)
+        setIsFetchingData(false)
+      } catch (error) {
+          setIsFetchingData(false)
             console.log({
                 'Request': 'Getting All Alumni Profiles Request',
                 'Error => ' : error.response.data,
@@ -102,11 +107,14 @@ function AlumniManagementPage() {
           <Message variant='info' >List of all Alumni</Message>
         </Card.Header>
             <Card.Body style={{ overflowX: 'scroll' }}  >
-                <Table
-                    columns={columns}
-                    dataSource={allAlumni}
-                    pagination={{ onChange(current) {setPage(current)}, pageSize: 5 }}
-                    column={{ ellipsis: true }} />
+          {isFetchingData ?
+            <Message variant='info'> <DataPlaceHolder /> </Message> : <>
+              <Table
+                columns={columns}
+                dataSource={allAlumni}
+                pagination={{ onChange(current) { setPage(current) }, pageSize: 5 }}
+                column={{ ellipsis: true }} /> </>
+          }
        </Card.Body>
         </Card>
     )

@@ -9,6 +9,8 @@ import AnnouncementsPage from './announcementsPage';
 import PasswordPage from './passwordPage';
 import AlumniManagementPage from './alumniManagementPage';
 import StudentsManagementsPage from './studentsManagementsPage';
+import FieldArrivalNotesPage from './fieldArrivalNotesPage';
+import FieldResultsPage from './fieldResultsPage';
 
 const AdminContents = () => {
 
@@ -29,6 +31,12 @@ const AdminContents = () => {
               </Route>
             <Route exact path={["/manage_students"]}>
                 <StudentsManagementsPage />
+              </Route>
+            <Route exact path={["/field_arrival_notes"]}>
+                <FieldArrivalNotesPage />
+              </Route>
+            <Route exact path={["/field_results"]}>
+                <FieldResultsPage />
               </Route>
             <Route exact path={["/announcements"]}>
                 <AnnouncementsPage />
