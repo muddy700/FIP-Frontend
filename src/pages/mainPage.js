@@ -86,7 +86,7 @@ export const HomePage = () => {
     activeContents =  <AcademicSupervisorContents />
     activeSidebar = <AcademicSupervisorSidebar />
   }
-  else if (userRole === 'admin') {
+  else if (userRole === 'admin' || userRole === 'assistant admin' ) {
     activeContents =  <AdminContents />
     activeSidebar = <AdminSidebar />
   }
@@ -180,7 +180,7 @@ export const HomePage = () => {
         onIdle={onIdle}
         onAction={onAction}
         debounce={250}
-        timeout={ 1000 * 60 * 30} />
+        timeout={ 1000 * 60 * 3} />
       <div className="main-page-container" style={{height: '100vh', overflowY: 'hidden'}}>
         <Header changeCollapse={changeCollapse} />
         <Sidebar {...sidebarProps}>

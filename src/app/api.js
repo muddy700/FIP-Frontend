@@ -32,6 +32,11 @@ export async function getUserProfile(config) {
     return response.data
 }
 
+export async function getUserProfileByUserId(userId, config) {
+    const response = await baseLink.get(`filter/user/${userId}/profile/`, config)
+    return response.data
+}
+
 export async function editUserProfile(profileId, payload, config) {
     const response = await baseLink.put(`users_profiles/${profileId}/`, payload, config)
     return response.data
@@ -504,4 +509,14 @@ export async function addMultipleChoices(payloads, config){
     const requests = payloads.map((item) => baseLink.post('multiplechoices/', item, config))
     const  responseArray = await axios.all([...requests])
     return responseArray
+}
+
+export async function getAllRoles(config) {
+    const response = await baseLink.get('designations/', config)
+    return response.data
+}
+
+export async function getAllStaffsProfiles(config) {
+    const response = await baseLink.get('staffs_profiles/', config)
+    return response.data
 }

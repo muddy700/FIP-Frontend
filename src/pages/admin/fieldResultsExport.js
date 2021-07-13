@@ -7,7 +7,7 @@ const ExcelColumn = ExportExcel.ExcelFile.ExcelColumn;
 
 function FieldResultsExport({ studentsList }) {
     return (
-        <ExcelFile filename='field-students-arrival-notes' element={<Button>Export as Excel</Button>}> 
+        <ExcelFile filename='field-results-summary' element={<Button>Export as Excel</Button>}> 
             <ExcelSheet data={studentsList} name="sheet-1">
                 <ExcelColumn label="Registration Number" value="regNo"/>
                 <ExcelColumn label="Average" value="avg"/>

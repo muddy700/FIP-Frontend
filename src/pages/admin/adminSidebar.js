@@ -35,6 +35,16 @@ const AdminSidebar = () => {
                      <MdAssignmentInd style={{fontSize: '20px'}}/> <span>Field Results</span>
                 </Link>
             </li>
+            <li className="list-item">
+                <Link to = "/questions" className="aside-link">
+                     <Icon glyph="docs-fill" size={32} /> <span>Questions</span>
+                </Link>
+            </li>
+            <li className="list-item">
+                <Link to = "/roles" className="aside-link">
+                     <MdAssignmentInd style={{fontSize: '20px'}}/> <span>Roles</span>
+                </Link>
+            </li>
             <li className="inner-list-item">
                 <Link to = "/my_profile" className="aside-link">
                     <MdPerson style={{fontSize: '20px'}}/>  <span>My Profile</span>

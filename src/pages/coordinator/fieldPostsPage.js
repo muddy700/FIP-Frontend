@@ -323,7 +323,7 @@ const pullOrganizationProfiles = async () => {
                                                                 <li><span>{skill.profession_name}: {skill.profession_capacity}</span></li>))}
                                                             </ol>
                                                         </span>
-                                                        : 'no skills selected'}</span>
+                                                        : 'any skills'}</span>
                                                 </span>
                                             </Col>
                                             <Col md={5}>
@@ -335,7 +335,7 @@ const pullOrganizationProfiles = async () => {
                                                                 <li><span>{data.program_name}: {data.program_capacity}</span></li>))}
                                                             </ol>
                                                         </span>
-                                                        : 'no programs selected'}</span>
+                                                        : 'all program'}</span>
                                                 </span>
                                             </Col>
                                             <Row style={{ display: 'flex', width: '100%', marginTop: '10px' }}>
