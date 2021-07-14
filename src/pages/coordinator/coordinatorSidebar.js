@@ -2,9 +2,10 @@ import React from 'react'
 import {  Link} from 'react-router-dom';
 import 'react-pro-sidebar/dist/css/styles.css';
 import Icon from 'supercons'
+import Accordion from 'react-bootstrap/Accordion'
 import '../../styles/sidebar.css'
 import { FaUsers } from "react-icons/fa";
-import { MdAssignment, MdPerson, MdSettings, MdFolder } from "react-icons/md";
+import { MdAssignment, MdAssignmentInd, MdPerson, MdSettings, MdFolder, MdExpandMore } from "react-icons/md";
 
 
 const CoordinatorSidebar = () => {
@@ -36,15 +37,61 @@ const CoordinatorSidebar = () => {
                      <Icon glyph="pin" size={32} /> <span>My Announcements</span>
                 </Link>
             </li>
-            <li className="list-item">
+            {/* <li className="list-item">
                 <Link to = "/notifications" className="aside-link">
                      <Icon glyph="pin" size={32} /> <span>Notifications</span>
                 </Link>
-            </li>
+            </li> */}
             <li className="list-item">
                 <Link to = "/alumni_projects" className="aside-link">
                      <MdFolder style={{fontSize: '20px'}}/> <span>Alumni Projects</span>
                 </Link>
+            </li>
+            <li className="list-item">
+                <Link to = "/roles" className="aside-link">
+                     <MdAssignmentInd style={{fontSize: '20px'}}/> <span>Manage Roles</span>
+                </Link>
+            </li>
+            <li className="list-item">
+                <Link to = "/questions" className="aside-link">
+                     <Icon glyph="docs-fill" size={32} /> <span> Add Questions</span>
+                </Link>
+            </li>
+            <li className="list-item">
+                <Accordion  style={{backgroundColor: 'inherit', border: 'none'}}>
+                <div>
+                    <Accordion.Toggle as="div" variant="link" eventKey="0">
+                        {/* <Icon glyph="" size={32} /> */}
+                        <span style={{ cursor: 'pointer' }}>College Summary</span>
+                        <MdExpandMore style={{ fontSize: '20px', marginLeft: '10%' }} />
+                    </Accordion.Toggle>
+                    <Accordion.Collapse eventKey="0">
+                            <span>
+                                <ul >
+                                    <li className="list-item">
+                                        <Link to = "/field_arrival_notes" className="aside-link">
+                                            <Icon glyph="" size={32} /> <span>Field Arrival Notes</span>
+                                        </Link>
+                                    </li>
+                                    <li className="list-item">
+                                        <Link to = "/field_results" className="aside-link">
+                                            <Icon glyph="" size={32} /> <span>Field Results</span>
+                                        </Link>
+                                    </li>
+                                    <li className="list-item">
+                                        <Link to = "/manage_alumni" className="aside-link">
+                                           <Icon glyph="" size={32} /> <span>All Alumni</span>
+                                        </Link>
+                                    </li>
+                                    {/* <li className="inner-list-item">
+                                        <Link to = "/my_projects" className="aside-link">
+                                            <Icon glyph="" size={32} />  <span>All organizations</span>
+                                        </Link>
+                                    </li> */}
+                                </ul>
+                                </span>
+                    </Accordion.Collapse>
+                </div> </Accordion> 
             </li>
             <li className="inner-list-item">
                 <Link to = "/my_profile" className="aside-link">

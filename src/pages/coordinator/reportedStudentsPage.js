@@ -302,7 +302,13 @@ function ReportedStudentsPage() {
       const validData = excelData.filter(item => item.registration_number)
       let payloads = mergeStudentInfo(validData)
       payloads = payloads.map(item => {
-        let { field_report, ...rest } = item;
+        let { field_report,
+          week_1_logbook,
+          week_2_logbook,
+          week_3_logbook,
+          week_4_logbook,
+          week_5_logbook,
+            ...rest } = item;
         return { ...rest, student_status: false }
       })
 
@@ -408,7 +414,13 @@ function ReportedStudentsPage() {
     setIsAssigningMultiple(true)
     const targetStudents = studentsProfiles.filter(item => item.organization === targetInfo.organization)
     const payloads = targetStudents.map(item => {
-      let { field_report, ...rest } = item;
+      let { field_report,
+          week_1_logbook,
+          week_2_logbook,
+          week_3_logbook,
+          week_4_logbook,
+          week_5_logbook,
+        ...rest } = item;
       return { ...rest, academic_supervisor: targetInfo.supervisor }
     })
 

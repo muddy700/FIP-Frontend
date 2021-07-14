@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import Message from '../../components/message'
 import Icon from 'supercons'
-import { Card, Row, Col, Badge, FormControl,  InputGroup, Button} from 'react-bootstrap'
+import { Card, Row, Col, FormControl,  InputGroup, Button} from 'react-bootstrap'
 import db from '../../firebase'
 import { useSelector}  from 'react-redux'
 import { selectUserData } from '../../slices/userSlice'
@@ -67,6 +67,13 @@ const ChatPage = () => {
         setIsFetchingData(false)
     }
 
+    // const removeDuplicate = (data) => {
+    //     // console.log(data)
+    //     const singleValue = data.map(item => item.id)
+    //     let unique = [...new Set(singleValue)];
+    //     return unique;
+    // console.log(activeAlumni.length)
+    // }
     // const removeRepeatedAlumni = () => {
     //     const newUsers1 = activeAlumni.map(item => item.username)
     //     const newUsers2 = [...new Set(newUsers1)]
@@ -80,6 +87,7 @@ const ChatPage = () => {
 
     useEffect(() => {
         fetchMessages();
+    console.log(activeAlumni.length)
         // fetchUsers();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
@@ -125,24 +133,26 @@ const ChatPage = () => {
                         }
                     </Card>
                 </Col>
-                <Col md={{span: 3, offset: 1}} xs={12} style={{marginBottom: '10px'}}>
-                    <Card>
-                        {/* <Card.Header> */}
-                        <Message variant='info' >ONLINE ALUMNI<Badge variant="info" style={{ float: 'right' }}> {activeAlumni.length} </Badge></Message>
-                        {/* </Card.Header> */}
-                        <Card.Body className="active-alumni-list">
-                            {isFetchingData ?
-                                <Message variant='info'> <DataPlaceHolder /> </Message> : <>
-                                    {activeAlumni.map((item) => (<>
-                                        <div key={item.id}>{item.username === user.username ? 'You' : item.username.replaceAll('-', '/')}</div> <hr /></>
-                                    ))} </>
-                            }
-                        </Card.Body>
-                    </Card>
-                </Col>
+               
             </Row>
         </div>
     )
 }
 
 export default ChatPage
+
+//  <Col md={{span: 3, offset: 1}} xs={12} style={{marginBottom: '10px'}}>
+//                     <Card>
+//                         {/* <Card.Header> */}
+//                         <Message variant='info' >ONLINE ALUMNI<Badge variant="info" style={{ float: 'right' }}> {removeDuplicate(activeAlumni).length} </Badge></Message>
+//                         {/* </Card.Header> */}
+//                         <Card.Body className="active-alumni-list">
+//                             {isFetchingData ?
+//                                 <Message variant='info'> <DataPlaceHolder /> </Message> : <>
+//                                     {activeAlumni.map((item) => (<>
+//                                         <div key={item.id}>{item.username === user.username ? 'You' : item.username.replaceAll('-', '/')}</div> <hr /></>
+//                                     ))} </>
+//                             }
+//                         </Card.Body>
+//                     </Card>
+//                 </Col>

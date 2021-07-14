@@ -14,6 +14,11 @@ import ReportedStudentsPage from './reportedStudentsPage';
 import ResultSummaryPage from './resultSummaryPage';
 import NotificationsPage from './notificationsPage';
 import NotificationViewersPage from './notificationViewersPage';
+import FieldArrivalNotesPage from './fieldArrivalNotesPage';
+import FieldResultsPage from './fieldResultsPage';
+import RolesPage from './rolesPage';
+import AlumniManagementPage from './alumniManagementPage';
+import { QuestionsPage } from './questionsPage';
 
 const CoordinatorContents = () => {
 
@@ -38,14 +43,29 @@ const CoordinatorContents = () => {
             <Route exact path={["/result_summary"]}>
                 <ResultSummaryPage />
             </Route>
+            <Route exact path={["/questions"]}>
+                <QuestionsPage />
+              </Route>
+            <Route exact path={["/manage_alumni"]}>
+                <AlumniManagementPage />
+              </Route>
             <Route exact path="/field_post/:id/applicants">
                 <FieldApplications />
               </Route>
             <Route exact path={["/announcements"]}>
                 <AnnouncementsPage />
               </Route>
+            <Route exact path={["/field_arrival_notes"]}>
+                <FieldArrivalNotesPage />
+              </Route>
+            <Route exact path={["/field_results"]}>
+                <FieldResultsPage />
+              </Route>
             <Route exact path={["/notifications"]}>
                 <NotificationsPage />
+              </Route>
+            <Route exact path={["/roles"]}>
+                <RolesPage />
               </Route>
             <Route exact path={["/notification/:id/viewers"]}>
                 <NotificationViewersPage />

@@ -4,7 +4,7 @@ import 'react-pro-sidebar/dist/css/styles.css';
 import Icon from 'supercons'
 import '../../styles/sidebar.css'
 import { FaUsers } from "react-icons/fa";
-import { MdPerson, MdSettings, MdAssignmentInd } from "react-icons/md";
+import { MdPerson, MdSettings } from "react-icons/md";
 
 const AdminSidebar = () => {
 
@@ -25,26 +25,26 @@ const AdminSidebar = () => {
                      <FaUsers style={{fontSize: '20px'}}/> <span>All Alumni</span>
                 </Link>
             </li>
-            <li className="list-item">
+            {/* <li className="list-item">
                 <Link to = "/field_arrival_notes" className="aside-link">
                      <Icon glyph="docs" size={32} /> <span>Field Arrival Notes</span>
                 </Link>
-            </li>
-            <li className="list-item">
+            </li> */}
+            {/* <li className="list-item">
                 <Link to = "/field_results" className="aside-link">
                      <MdAssignmentInd style={{fontSize: '20px'}}/> <span>Field Results</span>
                 </Link>
-            </li>
+            </li> */}
             <li className="list-item">
                 <Link to = "/questions" className="aside-link">
                      <Icon glyph="docs-fill" size={32} /> <span>Questions</span>
                 </Link>
             </li>
-            <li className="list-item">
+            {/* <li className="list-item">
                 <Link to = "/roles" className="aside-link">
                      <MdAssignmentInd style={{fontSize: '20px'}}/> <span>Roles</span>
                 </Link>
-            </li>
+            </li> */}
             <li className="inner-list-item">
                 <Link to = "/my_profile" className="aside-link">
                     <MdPerson style={{fontSize: '20px'}}/>  <span>My Profile</span>
