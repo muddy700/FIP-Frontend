@@ -520,3 +520,28 @@ export async function getAllStaffsProfiles(config) {
     const response = await baseLink.get('staffs_profiles/', config)
     return response.data
 }
+
+export async function createNotification(payload, config) {
+    const response = await baseLink.post('notifications/', payload, config)
+    return response.data
+}
+
+export async function getAllNotifications(config) {
+    const response = await baseLink.get('notifications/', config)
+    return response.data
+}
+
+export async function deleteNotification(itemId, config) {
+    const response = await baseLink.delete(`notifications/${itemId}/`, config)
+    return response.data
+}
+
+export async function getAllNotificationsViews(config) {
+    const response = await baseLink.get('notifications_views/', config)
+    return response.data
+}
+
+export async function createNotificationView(payload, config) {
+    const response = await baseLink.post('notifications_views/', payload,  config)
+    return response.data
+}

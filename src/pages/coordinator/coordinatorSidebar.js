@@ -37,6 +37,11 @@ const CoordinatorSidebar = () => {
                 </Link>
             </li>
             <li className="list-item">
+                <Link to = "/notifications" className="aside-link">
+                     <Icon glyph="pin" size={32} /> <span>Notifications</span>
+                </Link>
+            </li>
+            <li className="list-item">
                 <Link to = "/alumni_projects" className="aside-link">
                      <MdFolder style={{fontSize: '20px'}}/> <span>Alumni Projects</span>
                 </Link>

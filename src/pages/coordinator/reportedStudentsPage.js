@@ -172,7 +172,13 @@ function ReportedStudentsPage() {
 
     const assignAcademicSupervisor = async () => {
       setIsSendingData(true)
-      const { field_report, ...rest } = selectedStudent;
+      const { field_report,
+        week_1_logbook,
+        week_2_logbook,
+        week_3_logbook,
+        week_4_logbook,
+        week_5_logbook,
+        ...rest } = selectedStudent;
         const payload = {
             ...rest, academic_supervisor: selectedSupervisor,
         }

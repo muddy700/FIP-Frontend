@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link, useHistory } from 'react-router-dom';
 import Navbar from 'react-bootstrap/Navbar'
-import Nav from 'react-bootstrap/Nav'
+import {Nav, Col} from 'react-bootstrap'
 import { PoweroffOutlined } from '@ant-design/icons';
 import '../styles/header.css'
 import Icon from 'supercons'
@@ -67,7 +67,15 @@ const Header = ({ changeCollapse, value }) => {
                 <Nav className="mr-auto">
                 <Icon glyph="list" size={32} onClick={changeCollapse} />
                 </Nav>
-                <span href="#pricing" style={{ color: 'white', marginRight: '20px' }}> {user.designation} </span>
+                <Col md={4} xs={5}>
+                    {user.designation === 'organization' ?
+                        <span href="#pricing" style={{ color: 'white', }}>{user.last_name.toUpperCase()} </span> :
+                        <span href="#pricing" style={{ color: 'white', }}> {user.first_name.toUpperCase()} {user.last_name.toUpperCase()} </span>
+                    }
+                </Col>
+                <Col md={2} className="d-none d-md-block">
+                    <span href="#pricing" style={{ color: 'white', marginRight: '20px' }}> {user.designation} </span>
+                </Col>
                 <span style={{ cursor: 'pointer' }} className="logout-span" onClick={handleLogOut}>
                     <PoweroffOutlined /> &nbsp; Log out
                 </span>

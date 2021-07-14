@@ -173,7 +173,9 @@ const ProfilePage = () => {
                             ...user,
                             email: response1.email,
                             username: response1.username,
-                            phone: response3.phone
+                            phone: response3.phone,
+                            first_name: response1.first_name,
+                            last_name: response1.last_name
                         }))
                         setProfileInfo(initialProfile)
                         setIsLoading2(false)

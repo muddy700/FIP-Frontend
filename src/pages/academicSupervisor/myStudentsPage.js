@@ -218,8 +218,14 @@ function MyStudentsPage() {
   const sendReportMarks = async () => {
         setIsSendingData(true)
     const {
-      field_report, academic_supervisor_marks, field_supervisor_marks,
-      ...rest } = selectedStudent
+      field_report,
+        week_1_logbook,
+        week_2_logbook,
+        week_3_logbook,
+        week_4_logbook,
+        week_5_logbook,
+        academic_supervisor_marks, field_supervisor_marks,
+        ...rest } = selectedStudent
       const payload = {
         ...rest,
         report_marks: reportScore,
@@ -234,6 +240,7 @@ function MyStudentsPage() {
             setStudentsProfiles(new_list)
             setDisplayArray(new_list)
             setReportScore(null)
+            setModalShow(false)
             setIsSendingData(false)
           } catch (error) {
             console.log('Sending Report Marks ', error.response.data)
@@ -306,7 +313,15 @@ function MyStudentsPage() {
 
   const sendAcademicAndFieldMarks = async () => {
         setIsSendingData(true)
-        const { field_report, report_marks, ...rest } = selectedStudent
+    const { field_report,
+        week_1_logbook,
+        week_2_logbook,
+        week_3_logbook,
+        week_4_logbook,
+        week_5_logbook,
+        report_marks,
+        ...rest } = selectedStudent
+    
         const payload = {
           ...rest,
           academic_supervisor_marks: getAcademicMarks(),
@@ -545,7 +560,13 @@ function MyStudentsPage() {
     })
 
     const dataWithoutFieldReport = dataWithGrades.map(item => {
-      let { field_report, ...rest } = item;
+      let { field_report,
+        week_1_logbook,
+        week_2_logbook,
+        week_3_logbook,
+        week_4_logbook,
+        week_5_logbook,
+        ...rest } = item;
       return rest
     })
     return dataWithoutFieldReport

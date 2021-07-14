@@ -188,7 +188,7 @@ const ResultsPage = () => {
     try {
       const response = await fetchAlumniInvitations(user.userId, config)
       setAlumniInvitations(response)
-      const has_accepted = response.find(item => item.status === 'accepted')
+      const has_accepted = response.find(item => item.status === 'accepted' && !item.has_released)
       if(has_accepted) setHasAcceptedAny(true)
     } catch (error) {
       console.log('Get Alumni Invitations ', error.response.data)

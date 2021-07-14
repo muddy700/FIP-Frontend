@@ -16,6 +16,7 @@ import PostApplicants from './post_applicants';
 import ApprovedAlumni from './approvedPage';
 import PublishedAlumniPage from './publishedAlumniPage';
 import AlumniDetailsPage from './alumniDetailsPage';
+import NotificationsPage from './notificationsPage';
 
 const OrganizationContents = () => {
 
@@ -58,6 +59,9 @@ const OrganizationContents = () => {
             </Route>
             <Route exact path={["/my_profile"]}>
                 <ProfilePage />
+            </Route>
+            <Route exact path={["/notifications"]}>
+                <NotificationsPage />
             </Route>
             <Route exact path={["/password"]}>
                 <PasswordPage />

@@ -77,6 +77,11 @@ const OrganizationSidebar = () => {
                 </Link>
             </li>
             <li className="list-item">
+                <Link to = "/notifications" className="aside-link">
+                     <Icon glyph="pin" size={24} /> <span>Notifications</span>
+                </Link>
+            </li>
+            <li className="list-item">
                 <Link to = "/my_profile" className="aside-link">
                      <MdPerson style={{fontSize: '20px'}}/> <span>Profile</span>
                 </Link>

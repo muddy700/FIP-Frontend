@@ -283,7 +283,11 @@ const ApprovedAlumni = () => {
   const fetchOrganizationContracts = async () => {
     try {
       const response = await getOrganizationContracts(user.userId, config)
-      setOrganizationContracts(response)
+      const valid_data = response.map(item => {
+        return {...item, alumni_name: item.alumni_name.replaceAll('-', '/')}
+      })
+      console.log(response)
+      setOrganizationContracts(valid_data)
     } catch (error) {
         console.log({ 
             'request': 'Fetch Organization Contracts Request',

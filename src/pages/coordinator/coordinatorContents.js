@@ -12,6 +12,8 @@ import FieldPostsPage from './fieldPostsPage';
 import FieldApplications from './fieldApplications';
 import ReportedStudentsPage from './reportedStudentsPage';
 import ResultSummaryPage from './resultSummaryPage';
+import NotificationsPage from './notificationsPage';
+import NotificationViewersPage from './notificationViewersPage';
 
 const CoordinatorContents = () => {
 
@@ -41,6 +43,12 @@ const CoordinatorContents = () => {
               </Route>
             <Route exact path={["/announcements"]}>
                 <AnnouncementsPage />
+              </Route>
+            <Route exact path={["/notifications"]}>
+                <NotificationsPage />
+              </Route>
+            <Route exact path={["/notification/:id/viewers"]}>
+                <NotificationViewersPage />
               </Route>
             <Route exact path={["/password"]}>
                 <PasswordPage />

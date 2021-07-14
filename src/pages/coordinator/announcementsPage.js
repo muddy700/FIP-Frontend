@@ -17,6 +17,7 @@ const AnnouncementsPage = () => {
         title: '',
         description: ''
     }
+
     const user = useSelector(selectUserData)
     const config = useSelector(apiConfigurations)
     const [alumniAnnouncements, setAlumniAnnouncements] = useState([])
@@ -165,7 +166,6 @@ const AnnouncementsPage = () => {
     }
 
     return (
-        
         <div>
             <Card.Header>
                <Message  variant='info' >Latest Announcements</Message>  
