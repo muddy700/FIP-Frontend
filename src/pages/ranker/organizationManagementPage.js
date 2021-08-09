@@ -1,12 +1,98 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import { Card, Button, Col, Form, Row, Alert } from 'react-bootstrap'
 import { apiConfigurations} from '../../slices/userSlice';
 import { useSelector}  from 'react-redux'
-import { createOrganizationProfile, createUser, createUserProfile, editUserInfo } from '../../app/api';
+import { createOrganizationProfile, createUser, createUserProfile, editUserInfo, getOrganizationProfiles } from '../../app/api';
 import Loader from '../../components/loader';
 import ContentModal from '../../components/contentModal';
+import DataPlaceHolder from '../../components/dataPlaceHolder'
+import Message from '../../components/message'
+import { Table} from 'antd';
+
 
 const OrganizationManagementPage = () => {
+  const [page, setPage] = useState(1)
+
+  const columns = [
+  {
+    title: 'S/No',
+    key: 'index',
+    render: ( value, object, index) =>  (page - 1) * 5 + (index+1),
+  },
+  {
+    title: 'Name:',
+    dataIndex: 'organization_name',
+    key: 'id',
+    // ellipsis: 'true',
+    render: text => <>{text}</>,
+  },
+  {
+    title: 'Address',
+    dataIndex: 'box_address',
+    key: 'id',
+    // ellipsis: 'true',
+    render: text => <>{text}</>,
+  },
+  {
+    title: 'Email',
+    dataIndex: 'organization_email',
+    key: 'id',
+    // ellipsis: 'true',
+    render: text => <>{text}</>,
+  },
+//   {
+//     title: 'Email',
+//     dataIndex: 'email',
+//     key: 'id',
+//     // ellipsis: 'true',
+//     render: text => <>{text}</>,
+//   },
+//   {
+//     title: 'Phone',
+//     dataIndex: 'phone_number',
+//     key: 'id',
+//     // ellipsis: 'true',
+//     render: text => <>{text}</>,
+//   },
+//   {
+//     title: 'Year of study',
+//     dataIndex: 'year_of_study',
+//     key: 'id',
+//     // ellipsis: 'true',
+//     render: text => <>{text}</>,
+//   },
+//   {
+//     title: 'Program',
+//     dataIndex: 'degree_program',
+//     key: 'id',
+//     // ellipsis: 'true',
+//     render: text => <>{text}</>,
+//   },
+//   {
+//     title: 'Department',
+//     dataIndex: 'department_name',
+//     key: 'id',
+//     // ellipsis: 'true',
+//     render: text => <>{text}</>,
+//   },
+//   {
+//     title: 'Status',
+//     key: 'id',
+//     // ellipsis: 'true',
+//     dataIndex: 'student_status',
+//     render: text => <Tag color={text ? 'green' : 'red'}>{text ? 'Inprogress' : 'Discontinue'}</Tag>,
+//   },
+  // {
+  //   title: 'Action',
+  //   // ellipsis: 'true',
+  //   key: 'action',
+  //   render: (text, record) => (
+  //     <Space size="middle">
+  //           <span>no action</span>
+  //     </Space>
+  //   ),
+  // },
+    ];
 
     const initialOrganizationInfo = {
         // username: '',
@@ -23,7 +109,29 @@ const OrganizationManagementPage = () => {
     const [isSendingOrganizationInfo, setisSendingOrganizationInfo] = useState(false)
     const [hasOrganizationCreated, setHasOrganizationCreated] = useState(false)
     const [modalShow, setModalShow] = useState(false)
+    const [allOrganizations, setAllOrganizations] = useState([])
+    const [isFetchingData, setIsFetchingData] = useState(false)
 
+    const fetchAllOrganizations = async () => {
+      setIsFetchingData(true)
+      try {
+          const list = await getOrganizationProfiles(config)
+          setAllOrganizations(list)
+        setIsFetchingData(false)
+      } catch (error) {
+          setIsFetchingData(false)
+            console.log({
+                'Request': 'Getting All Students Profiles Request',
+                'Error => ' : error.response.data,
+            })
+        }
+
+    }
+
+    useEffect(() => {
+      fetchAllOrganizations();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
     const handleOrganizationInfoChanges = (e) => {
         setOrganizationInfoErrorMessage('')
         setHasOrganizationCreated(false)
@@ -86,6 +194,7 @@ const OrganizationManagementPage = () => {
         try {
             const response3 = await createOrganizationProfile(payload3, config)
             console.log(response3.length)
+            setAllOrganizations([...allOrganizations, response3])
                   setisSendingOrganizationInfo(false)
                   setOrganizationInfo(initialOrganizationInfo)
                   setHasOrganizationCreated(true)
@@ -254,6 +363,17 @@ const OrganizationManagementPage = () => {
                     hidden={!hasOrganizationCreated}
                 >Organization Created Successfull.</Alert>
             </Row>
+            
+            <Card.Body style={{ overflowX: 'scroll' }}  >
+          {isFetchingData ?
+            <Message variant='info'> <DataPlaceHolder /> </Message> : <>
+              <Table
+                columns={columns}
+                dataSource={allOrganizations}
+                pagination={{ onChange(current) { setPage(current) }, pageSize: 5 }}
+                column={{ ellipsis: true }} /> </>
+          }
+       </Card.Body>
             <ContentModal
                 show={modalShow}
                 isTable={false}

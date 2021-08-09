@@ -180,7 +180,7 @@ export const HomePage = () => {
         onIdle={onIdle}
         onAction={onAction}
         debounce={250}
-        timeout={ 1000 * 60 * 3} />
+        timeout={ 1000 * 60 * 5} />
       <div className="main-page-container" style={{height: '100vh', overflowY: 'hidden'}}>
         <Header changeCollapse={changeCollapse} />
         <Sidebar {...sidebarProps}>

@@ -98,13 +98,20 @@ const FieldReports = () => {
       let profile = '';
       try {
         profile = await getStudentProfileInfo(studentId, config)
+        const { field_report,
+          week_1_logbook,
+          week_2_logbook,
+          week_3_logbook,
+          week_4_logbook,
+          week_5_logbook,
+          ...rest } = profile[0];
         const payload = {
-          ...profile[0], has_reported: false, organization: 38, date_reported: null, field_report: null
+          ...rest, has_reported: false, organization: 38, date_reported: null
         }
 
         try {
           const response = await editStudentProfileInfo(payload, config)
-          console.log(response.length)
+          console.log(response.length, 'done')
           setIsReleasing(false)
         } catch (error) {
           console.log('Editing Arrival Note ', error.response.data)

@@ -121,7 +121,18 @@ function MyStudentsPage() {
     key: 'action',
     render: (text, record) => (
         <Space size="middle">
-            {record.average_marks ? '' :
+        {record.average_marks ?
+              <Button
+                  onClick={e => {
+                      e.preventDefault();
+                      setModalShow2(true);
+                      setSelectedStudent(record)
+                      setFieldScore(record.field_supervisor_marks)
+                      setAcademicScore(record.academic_supervisor_marks)
+                  }}
+                  variant="link"
+                >Edit Marks</Button>
+          :
               <Button
                   onClick={e => {
                       e.preventDefault();
@@ -158,7 +169,10 @@ function MyStudentsPage() {
     const [excelFile, setExcelFile] = useState(null)
     const [excelError, setExcelError] = useState('')
     const [excelData, setExcelData] = useState([])
-    const [isFetchingData, setIsFetchingData] = useState(false)
+  const [isFetchingData, setIsFetchingData] = useState(false)
+  const [reportMarksError, setReportMarksError] = useState('')
+  const [academicMarksError, setAcademicMarksError] = useState('')
+  const [fieldMarksError, setFieldMarksError] = useState('')
   
   const fetchStudentsProfiles = async () => {
       setIsFetchingData(true)
@@ -215,10 +229,27 @@ function MyStudentsPage() {
   //       return report_file
   // }
   
+  const reportMarksValidator = () => {
+    if (!reportScore) {
+      setReportMarksError('Report marks cannot be blank')
+      return false;
+    }
+    else if (reportScore > 100 || reportScore < 0) {
+      setReportMarksError('Enter valid marks')
+      return false;
+    }
+    else {
+      setReportMarksError('')
+      return true;
+    }
+  }
+
   const sendReportMarks = async () => {
-        setIsSendingData(true)
-    const {
-      field_report,
+    const isMarksValid = reportMarksValidator()
+    if (isMarksValid) {
+      setIsSendingData(true)
+      const {
+        field_report,
         week_1_logbook,
         week_2_logbook,
         week_3_logbook,
@@ -230,22 +261,26 @@ function MyStudentsPage() {
         ...rest,
         report_marks: reportScore,
         average_marks: calculateAverageMarks(),
-        marks_grade:  calculateGrade(calculateAverageMarks())
+        marks_grade: calculateGrade(calculateAverageMarks())
       }
         
-        try {
-          const response = await sendFieldReport(selectedStudent.id, payload, config)
-            setSelectedStudent(response)
-            const new_list = studentsProfiles.map(item => item.id === response.id ? response : item)
-            setStudentsProfiles(new_list)
-            setDisplayArray(new_list)
-            setReportScore(null)
-            setModalShow(false)
-            setIsSendingData(false)
-          } catch (error) {
-            console.log('Sending Report Marks ', error.response.data)
-            setIsSendingData(false)
-          }
+      try {
+        const response = await sendFieldReport(selectedStudent.id, payload, config)
+        setSelectedStudent(response)
+        const new_list = studentsProfiles.map(item => item.id === response.id ? response : item)
+        setStudentsProfiles(new_list)
+        setDisplayArray(new_list)
+        setReportScore(null)
+        setModalShow(false)
+        setIsSendingData(false)
+      } catch (error) {
+        console.log('Sending Report Marks ', error.response.data)
+        setIsSendingData(false)
+      }
+    }
+    else {
+      console.log('Invalid Report Marks')
+    }
         }
         
         const getReportMarks = () => {
@@ -305,15 +340,36 @@ function MyStudentsPage() {
         else if(avg >= 35 && avg < 40) {
           return 'D'
         }
+        else if(avg > 100 || avg < 0) {
+          return 'invalid'
+        }
         else  {
           return 'E'
         }
       }
    }
 
+    const academicAndFieldMarksValidator = () => {
+    if (academicScore > 100 || academicScore < 0) {
+      setAcademicMarksError('Invalid academic marks')
+      return false;
+    }
+    else if (fieldScore > 100 || fieldScore < 0) {
+      setFieldMarksError('Invalid field marks')
+      return false;
+    }
+    else {
+      setFieldMarksError('')
+      setAcademicMarksError('')
+      return true;
+    }
+  }
+
   const sendAcademicAndFieldMarks = async () => {
-        setIsSendingData(true)
-    const { field_report,
+    let isMarksValid = academicAndFieldMarksValidator()
+    if (isMarksValid) {
+      setIsSendingData(true)
+      const { field_report,
         week_1_logbook,
         week_2_logbook,
         week_3_logbook,
@@ -322,82 +378,100 @@ function MyStudentsPage() {
         report_marks,
         ...rest } = selectedStudent
     
-        const payload = {
-          ...rest,
-          academic_supervisor_marks: getAcademicMarks(),
-          field_supervisor_marks: getFieldMarks(),
-          average_marks: calculateAverageMarks(),
-          marks_grade:  calculateGrade(calculateAverageMarks())
-        }
+      const payload = {
+        ...rest,
+        academic_supervisor_marks: getAcademicMarks(),
+        field_supervisor_marks: getFieldMarks(),
+        average_marks: calculateAverageMarks(),
+        marks_grade: calculateGrade(calculateAverageMarks())
+      }
 
-    try {
-            const response = await sendFieldReport(selectedStudent.id, payload, config)
-            const new_list = studentsProfiles.map(item => item.id === response.id ? response : item)
-            setStudentsProfiles(new_list)
-            setDisplayArray(new_list)
-            setAcademicScore(null)
-            setFieldScore(null)
-            setIsSendingData(false)
-            setModalShow2(false)
-            setSelectedStudent({})
-        } catch (error) {
-            console.log('Sending Academic And Fild Marks ', error.response.data)
-            setIsSendingData(false)
-        }
+      try {
+        const response = await sendFieldReport(selectedStudent.id, payload, config)
+        const new_list = studentsProfiles.map(item => item.id === response.id ? response : item)
+        setStudentsProfiles(new_list)
+        setDisplayArray(new_list)
+        setAcademicScore(null)
+        setFieldScore(null)
+        setIsSendingData(false)
+        setModalShow2(false)
+        setSelectedStudent({})
+      } catch (error) {
+        console.log('Sending Academic And Fild Marks ', error.response.data)
+        setIsSendingData(false)
+      }
     }
+    else {
+      console.log('Invalid Academic Or Field Marks')
+    }
+  }
 
     const reportMarksForm = <Row style={{width: '100%', }}>
-        <Col md={4}>
+        <Col md={3}>
           <FormControl
             placeholder="Enter report marks"
             type="number"
             aria-label="Message Content"
             value={reportScore}
             aria-describedby="basic-addon2"
-            onChange={e => {setReportScore(e.target.value)}}
+            onChange={e => { setReportMarksError(''); setReportScore(e.target.value)}}
             />
         </Col>
-        <Col>
+        <Col md={5}><Row>
             <Button
                 onClick={e => { e.preventDefault(); sendReportMarks()}}
-                disabled={!reportScore}
+                disabled={reportMarksError}
             >{isSendingData ? <Loader message='Sending...' /> : 'Save'}
             </Button>
-        </Col>
-    </Row>
-
-    const reportMarks = <Message variant='info'>
+            <Button 
+              hidden={!reportMarksError}
+              variant='danger' style={{marginLeft: '2px'}}>{reportMarksError}
+            </Button></Row>
+      </Col>
+      <Col md={4}>
+        <Message variant='info'>
         <b>Report Marks: </b>
         <span>{selectedStudent.report_marks}</span>
     </Message>
+      </Col>
+    </Row>
+
+    // const reportMarks = <Message variant='info'>
+    //     <b>Report Marks: </b>
+    //     <span>{selectedStudent.report_marks}</span>
+    // </Message>
     
     const modalTitle2 = 'Academic and Field marks'
     const modalContent2 = <Row style={{width: '100%', }}>
-        <Col md={4}>
+        <Col md={3}>
           <FormControl
             placeholder="Enter academic marks"
             type="number"
             aria-label="Message Content"
             value={academicScore}
             aria-describedby="basic-addon2"
-            onChange={e => {setAcademicScore(e.target.value)}}
+            onChange={e => { setAcademicMarksError(''); setAcademicScore(e.target.value)}}
             />
         </Col>
-        <Col md={4}>
+        <Col md={3}>
           <FormControl
             placeholder="Enter field marks"
             type="number"
             aria-label="Message Content"
             value={fieldScore}
             aria-describedby="basic-addon2"
-            onChange={e => {setFieldScore(e.target.value)}}
+            onChange={e => { setFieldMarksError(''); setFieldScore(e.target.value)}}
             />
         </Col>
-        <Col>
+        <Col md={5}>
             <Button
                 onClick={e => { e.preventDefault(); sendAcademicAndFieldMarks()}}
                 disabled={!academicScore && !fieldScore}
             >{isSendingData ? <Loader message='Sending...' /> : 'Save'}
+            </Button>
+            <Button 
+              hidden={!academicMarksError && !fieldMarksError}
+              variant='danger' style={{marginLeft: '2px'}}>{academicMarksError || fieldMarksError}
             </Button>
         </Col>
     </Row>
@@ -726,7 +800,8 @@ const handleExcel = (e) => {
             {modalContent}
         </Modal.Body>
         <Modal.Footer>
-            {selectedStudent.report_marks ? reportMarks : reportMarksForm}
+            { reportMarksForm}
+            {/* {selectedStudent.report_marks ? reportMarks : reportMarksForm} */}
         </Modal.Footer>
     </Modal>
     <ContentModal //Forr Filling Field And Academic Marks

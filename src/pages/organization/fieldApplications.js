@@ -57,7 +57,8 @@ const FieldApplications = () => {
 
     const param = useParams()
     const postId = param.id
-    const history = useHistory();
+  const history = useHistory();
+  // eslint-disable-next-line
     const user = useSelector(selectUserData)
     const config = useSelector(apiConfigurations)
     const [fieldApplications, setFieldApplications] = useState([])
@@ -90,8 +91,15 @@ const FieldApplications = () => {
     let profile = '';
     try {
       profile = await getStudentProfileInfo(studentId, config)
+        const { field_report,
+          week_1_logbook,
+          week_2_logbook,
+          week_3_logbook,
+          week_4_logbook,
+          week_5_logbook,
+          ...rest } = profile[0];
       const payload = {
-        ...profile[0], has_reported: true, organization: user.userId, date_reported: currentDate, field_report: null
+        ...rest, has_reported: true, date_reported: currentDate
       }
 
       try {
@@ -109,6 +117,7 @@ const FieldApplications = () => {
     }
 
   }
+
     const confirmReporting = async (record) => {
         setIsConfirming(true)
       const payload = {

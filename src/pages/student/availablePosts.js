@@ -197,6 +197,23 @@ const pullOrganizationProfiles = async () => {
         return sum
     }
 
+    const addStudentOrganization = async (postInfo) => {
+        const { field_report,
+          week_1_logbook,
+          week_2_logbook,
+          week_3_logbook,
+          week_4_logbook,
+          week_5_logbook,
+          ...rest } = studentInfo;
+        const payload = { ...rest, organization: postInfo.organization }
+        try {
+            const response = await editStudentProfileInfo(payload, config)
+            setStudentInfo({...studentInfo, organization: response.organization})
+        } catch (error) {
+           console.log('Adding Student Organization ', error.response.data) 
+        }
+    }
+
     const submitApplication = async (postData) => {
         setIsSendingAppplication(true)
         const payload1 = {
@@ -212,6 +229,7 @@ const pullOrganizationProfiles = async () => {
                 const newPostList = filteredArray.map(item => item.id === response2.id ? {...item, applied_chances: response2.applied_chances } : item)
                 setFilteredArray(newPostList)
                 setStudentApplications([...studentApplications, response1])
+                addStudentOrganization(postData)
                 setIsSendingAppplication(false)
             } catch (error) {
                 console.log('Editing Field Post ', error.response.data)
@@ -224,8 +242,18 @@ const pullOrganizationProfiles = async () => {
     }
 
     const reduceCancellationCount = async () => {
-        const { field_report, ...rest } = studentInfo;
-        const payload = { ...rest, cancellation_count: studentInfo.cancellation_count + 1 }
+        const { field_report,
+          week_1_logbook,
+          week_2_logbook,
+          week_3_logbook,
+          week_4_logbook,
+          week_5_logbook,
+          ...rest } = studentInfo;
+        const payload = {
+            ...rest,
+            cancellation_count: studentInfo.cancellation_count + 1,
+            organization: 38
+        }
         try {
             const response = await editStudentProfileInfo(payload, config)
             setStudentInfo({...studentInfo, cancellation_count: response.cancellation_count})
@@ -233,6 +261,7 @@ const pullOrganizationProfiles = async () => {
            console.log('Reducing Number Of Cancelling Field Application ', error.response.data) 
         }
     }
+
     const cancelApplication = async (postData) => {
         if (studentInfo.cancellation_count === 2) {
             setCancellationLimitReached(true)

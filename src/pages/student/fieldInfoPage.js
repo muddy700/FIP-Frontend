@@ -108,12 +108,27 @@ export const FieldInfoPage = () => {
                     <Message variant='info'> <DataPlaceHolder /> </Message> : <>
                         <Row style={{ marginBottom: '16px' }}>
                             <Col md={2}>
+                                <span><b>Organization: </b></span>
+                            </Col>
+                            <Col md={4}>
+                                <span>{studentProfile.organization_name === 'pending' ? '---' : studentProfile.organization_name}</span>
+                            </Col>
+                        </Row>
+
+                        <Row style={{ marginBottom: '16px' }}>
+                            <Col md={2}>
                                 <span><b>Field Report: </b></span>
                             </Col>
-                            {studentProfile.field_report !== null ?
+                            {
+                                !studentProfile.week_5_logbook ?
+                                <Col md={4}>
+                                    <Message variant='info'>You must upload all logbooks so as to be able to upload your field report.</Message>
+                                </Col> :
+                                studentProfile.field_report !== null ?
                                 <Col md={4}>
                                     <Message variant='success'>Uploaded Successfull.</Message>
-                                </Col> :
+                                </Col>
+                                :
                                 <Col md={6}>
                                     <Form.Control
                                         type="file"

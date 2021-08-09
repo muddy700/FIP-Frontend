@@ -73,8 +73,14 @@ function ReportedStudentsPage() {
             {!record.student_status ? '' : record.academic_supervisor_name === 'pending' ?
                 <Button
                     onClick={e => { e.preventDefault(); setSelectedStudent(record); setModalShow(true) }}
-                    variant="link" >Assign Supervisor</Button> :
-                <span>Assigned </span>
+                  variant="link" >Assign Supervisor
+                </Button>
+          :
+               <> <span>Assigned </span>
+                <Button
+                    onClick={e => { e.preventDefault(); setSelectedStudent(record); setModalShow(true) }}
+                  variant="link" >Edit
+                </Button></>
             }
       </Space>
     ),
@@ -126,12 +132,14 @@ function ReportedStudentsPage() {
     
     const fetchStudentsProfiles = async (staff) => {
         try {
-            const response = await getAllReportedStudentsProfiles(config)
-            const arrangedArray = response.slice().sort((a, b) => b.date_reported.localeCompare(a.date_reported))
-            const department_students = arrangedArray.filter(item => item.department === staff.department)
-            const valid_data = department_students.map(item => {
-              return {...item, registration_number: item.registration_number.replaceAll('-', '/')}
-            })
+          const response = await getAllReportedStudentsProfiles(config)
+          // console.log(response)
+          const arrangedArray = response.slice().sort((a, b) => b.date_reported.localeCompare(a.date_reported))
+          const department_students = arrangedArray.filter(item => item.department === staff.department)
+          const valid_data = department_students.map(item => {
+            return {...item, registration_number: item.registration_number.replaceAll('-', '/')}
+          })
+          // console.log(valid_data)
             setStudentsProfiles(valid_data)
             setDisplayArray(valid_data)
             const ids = department_students.map(item => item.organization)
@@ -206,7 +214,7 @@ function ReportedStudentsPage() {
               name="academic_supervisor">
               <option>---Select Supervisor---</option>
               {academicSupervisors.map(person => (
-                <option value={person.user}>{person.username} </option>
+                <option value={person.user}>{person.first_name} {person.last_name} </option>
               ))}
             </Form.Control>
             <Button

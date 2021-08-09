@@ -131,7 +131,18 @@ function LogBookPage() {
                 {isFetchingData ?
                     <Message variant='info'> <DataPlaceHolder /> </Message> : <>
                         
-                        <Row style={{ marginBottom: '16px' }}>
+                        <Row 
+                            hidden={studentProfile.has_reported}
+                            style={{ marginBottom: '16px' }}>
+                            <Message variant="info">{studentProfile.organization === 38 ? 'No any information yet because, you have not applied/assigned to any organization.' :
+                                studentProfile.organization !== 38 && !studentProfile.has_reported ? 'You have not reported to your organization till now. Report first, so that you can upload your logbooks.' :
+                                    ''}
+                            </Message>
+                        </Row>
+
+                        <Row 
+                            hidden={!studentProfile.has_reported}
+                            style={{ marginBottom: '16px' }}>
                             <Col md={2}>
                                 <span><b>Week 1: </b></span>
                             </Col>
@@ -145,7 +156,6 @@ function LogBookPage() {
                                         onChange={handleLogBookFile}
                                         accept="application/pdf" />
                                     <Button
-                                        disabled={!studentProfile.has_reported}
                                         style={{ marginTop: '16px' }}
                                         onClick={e => { e.preventDefault(); submitLogBook() }}
                                     >{isSendingFile && activeWeek === 1? <Loader message='Sending...' /> : 'Submit'}
@@ -173,7 +183,7 @@ function LogBookPage() {
                                         onChange={handleLogBookFile}
                                         accept="application/pdf" />
                                     <Button
-                                        disabled={!studentProfile.has_reported}
+                                        // disabled={!studentProfile.has_reported}
                                         style={{ marginTop: '16px' }}
                                         onClick={e => { e.preventDefault(); submitLogBook() }}
                                     >{isSendingFile && activeWeek === 2 ? <Loader message='Sending...' /> : 'Submit'}
@@ -201,7 +211,7 @@ function LogBookPage() {
                                         onChange={handleLogBookFile}
                                         accept="application/pdf" />
                                     <Button
-                                        disabled={!studentProfile.has_reported}
+                                        // disabled={!studentProfile.has_reported}
                                         style={{ marginTop: '16px' }}
                                         onClick={e => { e.preventDefault(); submitLogBook() }}
                                     >{isSendingFile && activeWeek === 3 ? <Loader message='Sending...' /> : 'Submit'}
@@ -229,7 +239,7 @@ function LogBookPage() {
                                         onChange={handleLogBookFile}
                                         accept="application/pdf" />
                                     <Button
-                                        disabled={!studentProfile.has_reported}
+                                        // disabled={!studentProfile.has_reported}
                                         style={{ marginTop: '16px' }}
                                         onClick={e => { e.preventDefault(); submitLogBook() }}
                                     >{isSendingFile && activeWeek === 4 ? <Loader message='Sending...' /> : 'Submit'}
@@ -257,7 +267,7 @@ function LogBookPage() {
                                         onChange={handleLogBookFile}
                                         accept="application/pdf" />
                                     <Button
-                                        disabled={!studentProfile.has_reported}
+                                        // disabled={!studentProfile.has_reported}
                                         style={{ marginTop: '16px' }}
                                         onClick={e => { e.preventDefault(); submitLogBook() }}
                                     >{isSendingFile && activeWeek === 5 ? <Loader message='Sending...' /> : 'Submit'}
