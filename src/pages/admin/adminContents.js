@@ -13,6 +13,7 @@ import FieldArrivalNotesPage from './fieldArrivalNotesPage';
 import FieldResultsPage from './fieldResultsPage';
 import {QuestionsPage} from './questionsPage';
 import RolesPage from './rolesPage';
+import { UsersPage } from './usersPage';
 
 const AdminContents = () => {
 
@@ -30,6 +31,9 @@ const AdminContents = () => {
               </Route>
             <Route exact path={["/manage_alumni"]}>
                 <AlumniManagementPage />
+              </Route>
+            <Route exact path={["/manage_users"]}>
+                <UsersPage />
               </Route>
             <Route exact path={["/manage_students"]}>
                 <StudentsManagementsPage />

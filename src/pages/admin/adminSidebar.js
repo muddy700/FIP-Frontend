@@ -16,6 +16,11 @@ const AdminSidebar = () => {
                 </Link>
             </li>
             <li className="list-item">
+                <Link to = "/manage_users" className="aside-link">
+                     <FaUsers style={{fontSize: '20px'}}/>  <span>All Users</span>
+                </Link>
+            </li>
+            <li className="list-item">
                 <Link to = "/manage_students" className="aside-link">
                      <FaUsers style={{fontSize: '20px'}}/>  <span>All Students</span>
                 </Link>

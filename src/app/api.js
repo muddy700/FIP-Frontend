@@ -178,6 +178,11 @@ export async function getAlumniProfile(alumniId, config) {
     return response.data
 }
 
+export async function createStaffProfile(payload, config) {
+    const response = await baseLink.post('staffs_profiles/', payload, config)
+    return response.data
+}
+
 export async function getStaffProfile(staffId, config) {
     const response = await baseLink.get(`filter/staff/${staffId}/profile`, config)
     return response.data
@@ -251,6 +256,11 @@ export async function sendCvExperienceInfo(payload, config) {
 
 export async function sendAlumniRatings(payload, config) {
     const response = await baseLink.post('alumni_ratings/', payload, config)
+    return response.data
+}
+
+export async function createAlumniProfile(payload, config) {
+    const response = await baseLink.post('alumni_profiles/', payload, config)
     return response.data
 }
 
@@ -429,6 +439,11 @@ export async function getStudentProfileInfo(studentId, config) {
     return response.data
 }
 
+export async function createStudentProfileInfo(payload, config) {
+    const response = await baseLink.post('students_profiles/', payload, config)
+    return response.data
+}
+
 export async function editStudentProfileInfo(payload, config) {
     const response = await baseLink.put(`students_profiles/${payload.id}/`, payload, config)
     return response.data
@@ -476,6 +491,11 @@ export async function getAllReportedStudentsProfiles(config) {
 
 export async function getProgramsByDepartmentId(departmentId, config) {
     const response = await baseLink.get(`filter/department/${departmentId}/programs/`, config)
+    return response.data
+}
+
+export async function getAllDepartments(config) {
+    const response = await baseLink.get('departments/', config)
     return response.data
 }
 
