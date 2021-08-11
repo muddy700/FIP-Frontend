@@ -6,11 +6,15 @@ import { apiConfigurations,
     //  selectUserData 
     } from '../../slices/userSlice'
 import Loader from '../../components/loader'
-import { createAlumniProfile, createStaffProfile, createStudentProfileInfo, createUser, createUserProfile, getAllDepartments, getAllRoles, getPrograms } from '../../app/api'
+import { createAlumniProfile, createStaffProfile, createStudentProfileInfo, createUser, createUserProfile, editUserInfo, getAllDepartments, getAllRoles, getPrograms } from '../../app/api'
+import Message from '../../components/message'
+import DataPlaceHolder from '../../components/dataPlaceHolder'
 
 export const UsersPage = () => {
   
     const initialUser = {
+        first_name: '',
+        last_name: '',
         username: '',
         email: '',
         password: '',
@@ -35,6 +39,10 @@ export const UsersPage = () => {
         gpa: '',
     }
 
+    const genders = [
+        {id: 1, name: 'Male', alias: 'M'},
+        {id: 2, name: 'Female', alias: 'F'},
+    ]
     // const user = useSelector(selectUserData)
     const config = useSelector(apiConfigurations)
     const [userInfo, setUserInfo] = useState(initialUser)
@@ -47,16 +55,17 @@ export const UsersPage = () => {
     const [designations, setDesignations] = useState([])
     const [programs, setPrograms] = useState([])
     const [departments, setDepartments] = useState([])
-    const [isfetchingData, setIsfetchingData] = useState(true)
+    const [isFetchingData, setIsFetchingData] = useState(true)
+    const [activeForm, setActiveForm] = useState('')
 
     const fetchDepartments = async () => {
-        setIsfetchingData(true)
+        setIsFetchingData(true)
         try {
           const response = await getAllDepartments(config)
             setDepartments(response)
             fetchPrograms()
         } catch (error) {
-            setIsfetchingData(false)
+            setIsFetchingData(false)
             console.log({
                 'request': 'Fetch Departments Request',
                 'Error => ': error.response.data
@@ -70,7 +79,7 @@ export const UsersPage = () => {
             setPrograms(response)
             fetchDesignations()
         } catch (error) {
-            setIsfetchingData(false)
+            setIsFetchingData(false)
             console.log({
                 'request': 'Fetch Programs Request',
                 'Error => ': error.response.data
@@ -81,10 +90,11 @@ export const UsersPage = () => {
     const fetchDesignations = async () => {
         try {
             const response = await getAllRoles(config)
-            const new_roles = response.filter(role => role.designation_name === 'student' || role.designation_name === 'alumni' || role.designation_name === 'staff')
+            const new_roles = response.filter(role => role.designation_name === 'student' || role.designation_name === 'alumni' || role.designation_name === 'academic supervisor')
             setDesignations(new_roles)
+            setIsFetchingData(false)
         } catch (error) {
-            setIsfetchingData(false)
+            setIsFetchingData(false)
             console.log('Fetching Designations ', error.response.data)
             
         }
@@ -97,28 +107,47 @@ export const UsersPage = () => {
 
     const handleUserInfoChanges = (e) => {
         clearMessages()
-        setUserInfo({
+        setUserInfo({...userInfo,
             [e.target.name]: e.target.value
         })
+        let name = e.target.name
+        let value = parseInt(e.target.value)
+        if (name === 'designation') {
+            if (value === 5) {
+                setActiveForm('staff')
+                console.log('staff called')
+            }
+            else if (value === 6) {
+                setActiveForm('student')
+                console.log('student called')
+            }
+            else if (value === 7) {
+                setActiveForm('alumni')
+                console.log('alumni called')
+            }
+            else {
+                setActiveForm('')
+            }
+        }
     }
 
     const handleStaffInfoChanges = (e) => {
         clearMessages()
-        setStaffInfo({
+        setStaffInfo({...staffInfo,
             [e.target.name]: e.target.value
         })
     }
     
     const handleStudentInfoChanges = (e) => {
         clearMessages()
-        setStudentInfo({
+        setStudentInfo({...studentInfo,
             [e.target.name]: e.target.value
         })
     }
 
     const handleAlumniInfoChanges = (e) => {
         clearMessages()
-        setAlumniInfo({
+        setAlumniInfo({...alumniInfo,
             [e.target.name]: e.target.value
         })
     }
@@ -126,7 +155,15 @@ export const UsersPage = () => {
     const userFormValidator = () => {
     let re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         const emailResult = re.test(userInfo.email)
-        if (!userInfo.username) {
+        if (!userInfo.first_name) {
+            setFormError('First name cannot be blank')
+            return false
+        }
+        else if (!userInfo.last_name) {
+            setFormError('Last name cannot be blank')
+            return false
+        }
+        else if (!userInfo.username) {
             setFormError('Username cannot be blank')
             return false
         }
@@ -151,7 +188,7 @@ export const UsersPage = () => {
             return false
         }
         else if (userInfo.phone.length < 10 ) {
-            setFormError('Enter atleast 6 characters long')
+            setFormError('Enter atleast 10 characters long')
             return false
         }
         else if (!userInfo.gender) {
@@ -162,13 +199,13 @@ export const UsersPage = () => {
             setFormError('Select Designation')
             return false
         }
-        else if (userInfo.designation === 6) {
+        else if (parseInt(userInfo.designation) === 6 && !studentFormValidator()) {
             studentFormValidator()
         }
-        else if (userInfo.designation === 7) {
+        else if (parseInt(userInfo.designation) === 7 && !alumniFormValidator()) {
             alumniFormValidator()
         }
-        else if (userInfo.designation === 5) {
+        else if (parseInt(userInfo.designation) === 5 && !staffFormValidator()) {
             staffFormValidator()
         }
         else {
@@ -189,15 +226,7 @@ export const UsersPage = () => {
     }
 
     const studentFormValidator = () => {
-        if (!studentInfo.phone) {
-            setFormError('Phone number cannot be blank')
-            return false
-        }
-        else if (studentInfo.phone.length < 10 ) {
-            setFormError('Enter atleast 6 characters long')
-            return false
-        }
-        else if (!studentInfo.year_of_study ) {
+        if (!studentInfo.year_of_study ) {
             setFormError('Year of study cannot be blank')
             return false
         }
@@ -249,13 +278,14 @@ export const UsersPage = () => {
     }
 
     const getProgramDepartment = (programId) => {
-        let program = programs.find(item => item.id === programId)
+        let program = programs.find(item => item.id === parseInt(programId))
         return program.department
     }
 
     const addStudentProfile = async (data) => {
         const payload = {
             ...studentInfo,
+            phone: userInfo.phone,
             student: data.user,
             department: getProgramDepartment(studentInfo.program)
         }
@@ -294,6 +324,20 @@ export const UsersPage = () => {
             }
     }
 
+    const addUserData = async (data) => {
+        const payload = {
+            id: data.user,
+            username: data.username,
+            first_name: userInfo.first_name,
+            last_name: userInfo.last_name
+        }
+        try {// eslint-disable-next-line
+            const response = await editUserInfo(payload, config)
+        } catch (error) {
+                console.log('Adding UserData ', error.response.data )
+            }
+    }
+
     const checkUserType = (data) => {
         if (data.designation === 6) {
             addStudentProfile(data)
@@ -312,11 +356,11 @@ export const UsersPage = () => {
     const addUser = async (e) => {
         e.preventDefault()
         const isUserFormValid = userFormValidator()
-        const {phone, gender, designation, ...rest1} = userInfo
-        const {username, email, password, ...rest2 } = userInfo;
-        const userData = {...rest1}
-
+        // console.log(userInfo)
         if (isUserFormValid) {
+            const {phone, gender, designation, ...rest1} = userInfo
+            const {username, email, password, ...rest2 } = userInfo;
+            const userData = {...rest1, username: userInfo.username.replaceAll('/', '-')}
             setIsSendingData(true)
             try {
                 const response1 = await createUser(userData)
@@ -324,6 +368,7 @@ export const UsersPage = () => {
                 try {
                     const response2 = await createUserProfile(profileData, config)
                     checkUserType(response2)
+                    addUserData(response2)
                     setUserInfo(initialUser)
                     setIsSendingData(false)
                     setSuccessMessage('User Added Successful.')
@@ -349,75 +394,229 @@ export const UsersPage = () => {
                 </Row>
             </Card.Header>
             <Card.Body>
-                <Form onSubmit={addUser}>
-      <Form.Row>
-        <Form.Group as={Col} controlId="InternshipPostInput1">
-          <Form.Label>Profession</Form.Label>
-          <Form.Control as="select"
-              size="md"
-            //   value={selectedProfession}
-            //   onChange={e => { e.preventDefault(); setselectedProfession(e.target.value); clearMessages()}}
-              name="profession">
-              <option value={null}>---Select Profession---</option>
-              {/* {professions.map(skill => (
-                <option value={skill.id}>{skill.profession_name} </option>
-              ))} */}
-          </Form.Control>
-        </Form.Group>
-                    </Form.Row>
+                {isFetchingData ?
+                    <Message variant='info'> <DataPlaceHolder /> </Message> : <>
+                        <Form onSubmit={addUser}>
+                            {/* Inputs For User Data */}
+                            <Form.Row>
+                                <Form.Group as={Col} controlId="InternshipPostInput21">
+                                    <Form.Label>First Name</Form.Label>
+                                    <FormControl
+                                        placeholder="Enter first name"
+                                        type="text"
+                                        aria-label="Message Content"
+                                        name='first_name'
+                                        value={userInfo.first_name}
+                                        aria-describedby="basic-addon2"
+                                        onChange={handleUserInfoChanges}
+                                    />
+                                </Form.Group>
+                                <Form.Group as={Col} controlId="InternshipPostInput22">
+                                    <Form.Label>Last Name</Form.Label>
+                                    <FormControl
+                                        placeholder="Enter last name"
+                                        type="text"
+                                        aria-label="Message Content"
+                                        name='last_name'
+                                        value={userInfo.last_name}
+                                        aria-describedby="basic-addon2"
+                                        onChange={handleUserInfoChanges}
+                                    />
+                                </Form.Group>
+                            </Form.Row>
+                            <Form.Row>
+                                <Form.Group as={Col} controlId="InternshipPostInput23">
+                                    <Form.Label>Username</Form.Label>
+                                    <FormControl
+                                        placeholder="Enter username"
+                                        type="text"
+                                        aria-label="Message Content"
+                                        name='username'
+                                        value={userInfo.username}
+                                        aria-describedby="basic-addon2"
+                                        onChange={handleUserInfoChanges}
+                                    />
+                                </Form.Group>
+                                <Form.Group as={Col} controlId="InternshipPostInput24">
+                                    <Form.Label>Password</Form.Label>
+                                    <FormControl
+                                        placeholder="Enter password"
+                                        type="password"
+                                        aria-label="Message Content"
+                                        name='password'
+                                        value={userInfo.password}
+                                        aria-describedby="basic-addon2"
+                                        onChange={handleUserInfoChanges}
+                                    />
+                                </Form.Group>
+                            </Form.Row>
+                            <Form.Row>
+                                <Form.Group as={Col} controlId="InternshipPostInput25">
+                                    <Form.Label>Email</Form.Label>
+                                    <FormControl
+                                        placeholder="Enter email"
+                                        type="text"
+                                        aria-label="Message Content"
+                                        name='email'
+                                        value={userInfo.email}
+                                        aria-describedby="basic-addon2"
+                                        onChange={handleUserInfoChanges}
+                                    />
+                                </Form.Group>
+                                <Form.Group as={Col} controlId="InternshipPostInput26">
+                                    <Form.Label>Phone</Form.Label>
+                                    <FormControl
+                                        placeholder="Enter phone number"
+                                        type="number"
+                                        aria-label="Message Content"
+                                        name='phone'
+                                        value={userInfo.phone}
+                                        aria-describedby="basic-addon2"
+                                        onChange={handleUserInfoChanges}
+                                    />
+                                </Form.Group>
+                            </Form.Row>
+                            <Form.Row>
+                                <Form.Group as={Col} controlId="InternshipPostInput17">
+                                    <Form.Label>Gender</Form.Label>
+                                    <Form.Control as="select"
+                                        size="md"
+                                        value={userInfo.gender}
+                                        onChange={handleUserInfoChanges}
+                                        name="gender">
+                                        <option value={null}>---Select Gender---</option>
+                                        {/* {genders && genders.map(skill => ( */}
+                                        {genders.map(item => (
+                                            <option value={item.alias}>{item.name} </option>
+                                        ))}
+                                    </Form.Control>
+                                </Form.Group>
+                                <Form.Group as={Col} controlId="InternshipPostInput18">
+                                    <Form.Label>Role</Form.Label>
+                                    <Form.Control as="select"
+                                        size="md"
+                                        value={userInfo.designation}
+                                        onChange={handleUserInfoChanges}
+                                        name="designation">
+                                        <option value={null}>---Select Role---</option>
+                                        {/* {genders && genders.map(skill => ( */}
+                                        {designations.map(item => (
+                                            <option value={item.id}>{item.designation_name} </option>
+                                        ))}
+                                    </Form.Control>
+                                </Form.Group>
+                            </Form.Row>
+
+                            {/* Inputs For Staff Data */}
+                            <Form.Row hidden={activeForm !== 'staff'}>
+                                <Form.Group as={Col} controlId="InternshipPostInput29">
+                                    <Form.Label>Department</Form.Label>
+                                    <Form.Control as="select"
+                                        size="md"
+                                        value={staffInfo.department}
+                                        onChange={handleStaffInfoChanges}
+                                        name="department">
+                                        <option value={null}>---Select Department---</option>
+                                        {/* {genders && genders.map(skill => ( */}
+                                        {departments.map(item => (
+                                            <option value={item.id}>{item.department_name} </option>
+                                        ))}
+                                    </Form.Control>
+                                </Form.Group>
+                            </Form.Row>
+
+                            {/* Inputs For Student Data */}
+                            <Form.Row hidden={activeForm !== 'student'}>
+                                <Form.Group as={Col} controlId="InternshipPostInput20">
+                                    <Form.Label>Program</Form.Label>
+                                    <Form.Control as="select"
+                                        size="md"
+                                        value={studentInfo.program}
+                                        onChange={handleStudentInfoChanges}
+                                        name="program">
+                                        <option value={null}>---Select Program---</option>
+                                        {/* {genders && genders.map(skill => ( */}
+                                        {programs.map(item => (
+                                            <option value={item.id}>{item.program_name} </option>
+                                        ))}
+                                    </Form.Control>
+                                </Form.Group>
+                                <Form.Group as={Col} controlId="InternshipPostInput221">
+                                    <Form.Label>Year of study</Form.Label>
+                                    <FormControl
+                                        placeholder="Enter year of study"
+                                        type="number"
+                                        aria-label="Message Content"
+                                        name='year_of_study'
+                                        value={studentInfo.year_of_study}
+                                        aria-describedby="basic-addon2"
+                                        onChange={handleStudentInfoChanges}
+                                    />
+                                </Form.Group>
+                            </Form.Row>
+
+                            {/* Inputs For Alumni Data */}
+                            <Form.Row hidden={activeForm !== 'alumni'}>
+                                <Form.Group as={Col} controlId="InternshipPostInput222">
+                                    <Form.Label>Program</Form.Label>
+                                    <Form.Control as="select"
+                                        size="md"
+                                        value={studentInfo.program}
+                                        onChange={handleAlumniInfoChanges}
+                                        name="program">
+                                        <option value={null}>---Select Program---</option>
+                                        {/* {genders && genders.map(skill => ( */}
+                                        {programs.map(item => (
+                                            <option value={item.id}>{item.program_name} </option>
+                                        ))}
+                                    </Form.Control>
+                                </Form.Group>
+                                <Form.Group as={Col} controlId="InternshipPostInput223">
+                                    <Form.Label>Completion Year</Form.Label>
+                                    <FormControl
+                                        placeholder="Enter completion year"
+                                        type="number"
+                                        aria-label="Message Content"
+                                        name='completion_year'
+                                        value={alumniInfo.completion_year}
+                                        aria-describedby="basic-addon2"
+                                        onChange={handleAlumniInfoChanges}
+                                    />
+                                </Form.Group>
+                                <Form.Group as={Col} controlId="InternshipPostInput224">
+                                    <Form.Label>GPA</Form.Label>
+                                    <FormControl
+                                        placeholder="Enter gpa"
+                                        type="number"
+                                        aria-label="Message Content"
+                                        name='gpa'
+                                        value={alumniInfo.gpa}
+                                        aria-describedby="basic-addon2"
+                                        onChange={handleAlumniInfoChanges}
+                                    />
+                                </Form.Group>
+                            </Form.Row>
+                            <Form.Row>
+                                <Button
+                                    type="submit"
+                                    hidden={formError || successMessage}
+                                    style={{ marginBottom: '16px', width: '100%' }}
+                                >{isSendingData ? <Loader message='sending...!' /> : 'Send'} </Button>
+                            </Form.Row>
+                            <Form.Row>
+                                <Button
+                                    hidden={!formError}
+                                    variant='danger'
+                                    style={{ width: '100%', marginBottom: '16px' }}
+                                >{formError}</Button>
+                                <Button
+                                    hidden={!successMessage}
+                                    variant='success'
+                                    style={{ width: '100%' }}
+                                >{successMessage}</Button>
+                            </Form.Row>
                     
-        <Form.Row>
-          <Form.Group as={Col} controlId="InternshipPostInput3">
-          <Form.Label>Question Body</Form.Label>
-            <FormControl as="textarea"
-                placeholder="Enter question body"
-                type="text"
-                aria-label="Message Content"
-                name="post_description"
-                // value={questionInfo.question_body}
-                aria-describedby="basic-addon2"
-                // onChange={e => { e.preventDefault(); setQuestionInfo({ ...questionInfo, question_body: e.target.value }); clearMessages() }}
-            />
-          </Form.Group>
-      </Form.Row>
-                    
-        <Form.Row>
-        <Form.Group as={Col} controlId="InternshipPostInput2">
-          <Form.Label>First Choice (A)</Form.Label>
-          <FormControl
-            placeholder="Enter First Choice"
-            type="text"
-            aria-label="Message Content"
-            // value={c1.choice}
-            aria-describedby="basic-addon2"
-            // onChange={e => { e.preventDefault(); setc1({ ...c1, choice: e.target.value}); clearMessages() }}
-            />
-          </Form.Group>
-         {/* </Form.Row> */}
-                    
-        {/* <Form.Row> */}
-        </Form.Row>
-    <Form.Row>
-            <Button 
-                type="submit"
-                hidden={formError || successMessage}
-                style={{marginBottom: '16px', width: '100%'}}
-            >{isSendingData ? <Loader message='sending...!' /> : 'Send'} </Button>
-    </Form.Row>
-    <Form.Row>
-        <Button
-            hidden={!formError}
-            variant='danger'
-            style={{width: '100%', marginBottom: '16px'}}
-        >{formError}</Button>
-        <Button
-            hidden={!successMessage}
-            variant='success'
-            style={{width: '100%'}}
-        >{successMessage}</Button>
-    </Form.Row>
-        
-                    </Form>
+                        </Form></>}
             </Card.Body>
         </Card>
     )
