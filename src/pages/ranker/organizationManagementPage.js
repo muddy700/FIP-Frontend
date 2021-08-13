@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react'
 import { Card, Button, Col, Form, Row, Alert } from 'react-bootstrap'
 import { apiConfigurations} from '../../slices/userSlice';
 import { useSelector}  from 'react-redux'
-import { createOrganizationProfile, createUser, createUserProfile, editUserInfo, getOrganizationProfiles } from '../../app/api';
+import { createOrganizationProfile, createUser, createUserProfile, editUserInfo, FetchRegions, getOrganizationProfiles } from '../../app/api';
 import Loader from '../../components/loader';
 import ContentModal from '../../components/contentModal';
 import DataPlaceHolder from '../../components/dataPlaceHolder'
@@ -40,13 +40,13 @@ const OrganizationManagementPage = () => {
     // ellipsis: 'true',
     render: text => <>{text}</>,
   },
-//   {
-//     title: 'Email',
-//     dataIndex: 'email',
-//     key: 'id',
-//     // ellipsis: 'true',
-//     render: text => <>{text}</>,
-//   },
+  {
+    title: 'Region',
+    dataIndex: 'region',
+    key: 'id',
+    // ellipsis: 'true',
+    render: text => <>{text}</>,
+  },
 //   {
 //     title: 'Phone',
 //     dataIndex: 'phone_number',
@@ -100,7 +100,8 @@ const OrganizationManagementPage = () => {
         last_name: '',
         email: '',
         password: '',
-        password2: ''
+        password2: '',
+        region: ''
     }
 
     const config = useSelector(apiConfigurations)
@@ -111,21 +112,36 @@ const OrganizationManagementPage = () => {
     const [modalShow, setModalShow] = useState(false)
     const [allOrganizations, setAllOrganizations] = useState([])
     const [isFetchingData, setIsFetchingData] = useState(false)
+    const [regions, setRegions] = useState([])
 
     const fetchAllOrganizations = async () => {
       setIsFetchingData(true)
       try {
           const list = await getOrganizationProfiles(config)
           setAllOrganizations(list)
+          fetchAllRegions()
+      } catch (error) {
+          setIsFetchingData(false)
+            console.log({
+                'Request': 'Getting Organizations Profiles Request',
+                'Error => ' : error.response.data,
+            })
+        }
+    }
+
+    const fetchAllRegions = async () => {
+      try {
+          const response = await FetchRegions()
+        //   console.log(response)
+          setRegions(response.regions)
         setIsFetchingData(false)
       } catch (error) {
           setIsFetchingData(false)
             console.log({
-                'Request': 'Getting All Students Profiles Request',
-                'Error => ' : error.response.data,
+                'Request': 'Getting All Regions Request',
+                'Error => ' : error,
             })
         }
-
     }
 
     useEffect(() => {
@@ -155,6 +171,10 @@ const OrganizationManagementPage = () => {
         }
         else if (!emailResult) {
             setOrganizationInfoErrorMessage('Enter a valid email')
+            return false;
+        }
+        else if (!organizationInfo.region) {
+            setOrganizationInfoErrorMessage('Region Cannot Be Blank!')
             return false;
         }
         else if (!organizationInfo.first_name) {
@@ -189,7 +209,8 @@ const OrganizationManagementPage = () => {
 
     const addOrganizationProfile = async (organizationId) => {
         const payload3 = {
-            organization_id: organizationId
+            organization_id: organizationId,
+            region: organizationInfo.region
         }
         try {
             const response3 = await createOrganizationProfile(payload3, config)
@@ -283,6 +304,20 @@ const OrganizationManagementPage = () => {
                         placeholder="Enter email"
                     />
                 </Form.Group>
+                    <Form.Group as={Col} controlId="InternshipPostInput17">
+                        <Form.Label>Region</Form.Label>
+                        <Form.Control as="select"
+                            size="md"
+                            value={organizationInfo.region}
+                            onChange={handleOrganizationInfoChanges}
+                            name="region">
+                            <option value={null}>---Select Region---</option>
+                            {/* {genders && genders.map(skill => ( */}
+                            {regions.map(item => (
+                                <option value={item}>{item} </option>
+                            ))}
+                        </Form.Control>
+                    </Form.Group>
             </Form.Row>
             <Form.Row>
                 <Form.Group as={Col} controlId="formGridPassword2">

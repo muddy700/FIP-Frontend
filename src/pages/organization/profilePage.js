@@ -397,6 +397,10 @@ const ProfilePage = () => {
                                                     <td>{user.email}</td>
                                                 </tr>
                                                 <tr>
+                                                    <td className="post-properties">REGION</td>
+                                                    <td>{organizationProfile.region}</td>
+                                                </tr>
+                                                <tr>
                                                     <td className="post-properties">PHONE</td>
                                                     <td>{user.phone}</td>
                                                 </tr>

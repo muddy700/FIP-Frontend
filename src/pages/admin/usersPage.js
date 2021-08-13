@@ -57,6 +57,7 @@ export const UsersPage = () => {
     const [departments, setDepartments] = useState([])
     const [isFetchingData, setIsFetchingData] = useState(true)
     const [activeForm, setActiveForm] = useState('')
+    const [requestError, setRequestError] = useState('')
 
     const fetchDepartments = async () => {
         setIsFetchingData(true)
@@ -275,6 +276,7 @@ export const UsersPage = () => {
     const clearMessages = () => {
         setFormError('')
         setSuccessMessage('')
+        setRequestError('')
     }
 
     const getProgramDepartment = (programId) => {
@@ -293,7 +295,8 @@ export const UsersPage = () => {
             const response = await createStudentProfileInfo(payload, config)
             setStudentInfo(initialStudent)
         } catch (error) {
-                console.log('Creating Student Profile ', error.response.data )
+            setRequestError('Failed To Create Student Profile')
+            console.log('Creating Student Profile ', error.response.data )
             }
     }
 
@@ -307,7 +310,8 @@ export const UsersPage = () => {
             const response = await createAlumniProfile(payload, config)
             setAlumniInfo(initialAlumni)
         } catch (error) {
-                console.log('Creating Alumni Profile ', error.response.data )
+            setRequestError('Failed To Create Alumni Profile')
+            console.log('Creating Alumni Profile ', error.response.data )
             }
     }
 
@@ -320,7 +324,8 @@ export const UsersPage = () => {
             const response = await createStaffProfile(payload, config)
             setStaffInfo(initialStaff)
         } catch (error) {
-                console.log('Creating Staff Profile ', error.response.data )
+            setRequestError('Failed To Create Satff Profile')
+            console.log('Creating Staff Profile ', error.response.data )
             }
     }
 
@@ -334,7 +339,8 @@ export const UsersPage = () => {
         try {// eslint-disable-next-line
             const response = await editUserInfo(payload, config)
         } catch (error) {
-                console.log('Adding UserData ', error.response.data )
+            setRequestError('Failed To Add UserData')
+            console.log('Adding UserData ', error.response.data )
             }
     }
 
@@ -355,6 +361,7 @@ export const UsersPage = () => {
 
     const addUser = async (e) => {
         e.preventDefault()
+        setRequestError('')
         const isUserFormValid = userFormValidator()
         // console.log(userInfo)
         if (isUserFormValid) {
@@ -373,12 +380,17 @@ export const UsersPage = () => {
                     setIsSendingData(false)
                     setSuccessMessage('User Added Successful.')
                 } catch (error) {
+                    setIsSendingData(false)
+                    setRequestError('Failed To Create User Profile')
                     console.log('Creating User Profile ', error.response.data )
                 }
             }
             catch (error) {
                 setIsSendingData(false)
-                console.log('Creating User ', error.response.data )
+                console.log('Creating User ', error.response.data)
+                if (error.response.data.username) {
+                    setRequestError('A user with that username already exists.')
+                }
             }
         }
         else {
@@ -389,6 +401,11 @@ export const UsersPage = () => {
     return (
         <Card className="dashboard-container">
             <Card.Header>
+                <Row
+                    hidden={!requestError}
+                    style={{ textAlign: 'center', display: 'grid'}}>
+                    <Message variant='danger'>{requestError}</Message>
+                </Row>
                 <Row>
                     <h3>User Form</h3>
                 </Row>

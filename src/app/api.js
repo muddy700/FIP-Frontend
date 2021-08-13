@@ -565,3 +565,8 @@ export async function createNotificationView(payload, config) {
     const response = await baseLink.post('notifications_views/', payload,  config)
     return response.data
 }
+
+export async function FetchRegions() {
+    const response = await axios.get('https://mtaa-api.herokuapp.com/api/tanzania')
+    return response.data
+}
