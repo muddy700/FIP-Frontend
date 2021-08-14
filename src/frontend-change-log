@@ -155,6 +155,7 @@ Done
 
     13/8/2021
 1. Added Implementation For Changing Year Of Study
+2. Threw Error When Email Already Exists In Creating Organization Account
 
 Planned
 
@@ -167,7 +168,7 @@ Planned
 //Check If Questions Are Correct Arranged(Correct Answer Is First Always.. Edit choice 2 change time)
 //1. Validate All Forms And Provide A Fixed Error Display Area.
 2. Allow Organizations To Upload Results(ie Practical or Oral Interview Results) From A File(ie. Excel).
-** 3.Add Loaders In API Requests(ie.. After Submit A Form)
+//3.Add Loaders In API Requests(ie.. After Submit A Form)
 4. Prevent Taken  Alumni From Signing Another Contract
     =>Assumptions : 1 Alumni has only 1 Contract In 1 organization
 //5. Disable Button For Completed Posts In Internship Report Table

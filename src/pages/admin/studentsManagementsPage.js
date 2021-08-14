@@ -120,7 +120,7 @@ function StudentsManagementsPage() {
     const [isChangingYear, setIsChangingYear] = useState('')
     const [hasYearChanged, setHasYearChanged] = useState(false)
     const [pureStudents, setPureStudents] = useState([])
-    // const [isRevertingYear, setIsRevertingYear] = useState('')
+    const [isRevertingYear, setIsRevertingYear] = useState('')
     const [hasYearReverted, setHasYearReverted] = useState(false)
 
   const fetchAllStudents = async () => {
@@ -411,40 +411,40 @@ function StudentsManagementsPage() {
     } catch (error) { console.log({ 'Error => ' : error.response.data, }) }
   }
  
-  // const revertYearOfStudy = async () => {
-  //   setIsRevertingYear('Please wait...')
-  //   //By Using Students Profiles State(pureStudents)
-  //   const withoutDiscontinued = pureStudents.filter(item => item.student_status)
-  //   // console.log('InProgress', withoutDiscontinued.length)
-  //   const withoutFirstYear = withoutDiscontinued.filter(item => item.year_of_study > 1)
-  //   // console.log('Continuous', withoutFinalist.length)
-  //   const newStudents = withoutFirstYear.map(item => {
-  //     if (item.year_of_study === item.degree_program_years) {
-  //       return item;
-  //     }
-  //     else {
-  //       return {...item, year_of_study: item.year_of_study - 1}
-  //     }
-  //   })
-  //   const dataWithoutFiles = newStudents.map(item => {
-  //     let { field_report,
-  //       week_1_logbook,
-  //       week_2_logbook,
-  //       week_3_logbook,
-  //       week_4_logbook,
-  //       week_5_logbook,
-  //       ...rest } = item;
-  //     return rest
-  //   })
-  //   try {
-  //     const responses = await editMultipleStudentsProfiles(dataWithoutFiles, config)
-  //     console.log(responses.length)
-  //     setAllStudents(newStudents)
-  //     setPureStudents(newStudents)
-  //     setIsRevertingYear('')
-  //     setHasYearReverted(true)
-  //   } catch (error) { console.log({ 'Error => ' : error.response.data, }) }
-  // }
+  const revertYearOfStudy = async () => {
+    setIsRevertingYear('Please wait...')
+    //By Using Students Profiles State(pureStudents)
+    const withoutDiscontinued = pureStudents.filter(item => item.student_status)
+    // console.log('InProgress', withoutDiscontinued.length)
+    const withoutFirstYear = withoutDiscontinued.filter(item => item.year_of_study > 1)
+    // console.log('Continuous', withoutFinalist.length)
+    const newStudents = withoutFirstYear.map(item => {
+      // if (item.year_of_study === item.degree_program_years) {
+      //   return item;
+      // }
+      // else {
+        return {...item, year_of_study: item.year_of_study - 1}
+      // }
+    })
+    const dataWithoutFiles = newStudents.map(item => {
+      let { field_report,
+        week_1_logbook,
+        week_2_logbook,
+        week_3_logbook,
+        week_4_logbook,
+        week_5_logbook,
+        ...rest } = item;
+      return rest
+    })
+    try {
+      const responses = await editMultipleStudentsProfiles(dataWithoutFiles, config)
+      console.log(responses.length)
+      setAllStudents(newStudents)
+      setPureStudents(newStudents)
+      setIsRevertingYear('')
+      setHasYearReverted(true)
+    } catch (error) { console.log({ 'Error => ' : error.response.data, }) }
+  }
 
   return (
     <Card >
@@ -464,19 +464,21 @@ function StudentsManagementsPage() {
               onConfirm={e => { e.preventDefault(); changeYearOfStudy() }}>
                 <Button
                   disabled={allStudents.length <= 0 || (allStudents.length !== pureStudents.length)}
+                  // disabled={hasYearChanged}
                 >{isChangingYear ? <Loader message={isChangingYear} /> : 'Change year of study'}
                 </Button>
             </Popconfirm>
-            {/* <Popconfirm
+            <Popconfirm
               title="Are you sure？"
               icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
               onConfirm={e => { e.preventDefault(); revertYearOfStudy() }}>
                 <Button
                   style={{marginLeft: '16px'}}
-                  disabled={allStudents.length === pureStudents.length}
+                  // disabled={allStudents.length === pureStudents.length}
+                  // disabled={hasYearReverted || !hasYearChanged}
                 >{isRevertingYear ? <Loader message={isRevertingYear} /> : 'Rollback'}
                 </Button>
-            </Popconfirm> */}
+            </Popconfirm>
             <Row style={{paddingTop: '2%'}}>
               <Alert
                 onClose={() => {setHasYearChanged(false); setHasYearReverted(false)}}

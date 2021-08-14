@@ -508,6 +508,10 @@ function MyStudentsPage() {
       const academicMarksIsNaN = excelData.find(item => isNaN(item.academic_supervisor_marks) )
       const fieldMarksIsNaN = excelData.find(item => isNaN(item.field_supervisor_marks))
     
+      const reportMarksIsInvalid = excelData.find(item => (parseFloat(item.report_marks) > 100) || (parseFloat(item.report_marks) < 0) )
+      const academicMarksIsInvalid = excelData.find(item => (parseFloat(item.academic_supervisor_marks) > 100) || (parseFloat(item.academic_supervisor_marks) < 0) )
+      const fieldMarksIsInvalid = excelData.find(item => (parseFloat(item.field_supervisor_marks) > 100) || (parseFloat(item.field_supervisor_marks) < 0) )
+    
       // if (!reportMarksIsNaN.report_marks && (!academicMarksIsNaN.academic_supervisor_marks && !fieldMarksIsNaN.field_supervisor_marks) ) {
       //   setExcelError(``)
       //   setExcelFile(null)
@@ -529,6 +533,24 @@ function MyStudentsPage() {
       else if (fieldMarksIsNaN && fieldMarksIsNaN.field_supervisor_marks) {
       // else if (!fieldMarksIsNaN.undefined && fieldMarksIsNaN) {
         setExcelError(`"${fieldMarksIsNaN.registration_number}" has invalid "field_marks" => "${fieldMarksIsNaN.field_supervisor_marks}"`)
+        setExcelFile(null)
+        return false
+      }
+      else if (reportMarksIsInvalid && reportMarksIsInvalid.report_marks) {
+      // else if (!fieldMarksIsNaN.undefined && fieldMarksIsNaN) {
+        setExcelError(`"${reportMarksIsInvalid.registration_number}" has invalid "report_marks" => "${reportMarksIsInvalid.report_marks}"`)
+        setExcelFile(null)
+        return false
+      }
+      else if (academicMarksIsInvalid && academicMarksIsInvalid.academic_supervisor_marks) {
+      // else if (!fieldMarksIsNaN.undefined && fieldMarksIsNaN) {
+        setExcelError(`"${academicMarksIsInvalid.registration_number}" has invalid "academic_marks" => "${academicMarksIsInvalid.academic_supervisor_marks}"`)
+        setExcelFile(null)
+        return false
+      }
+      else if (fieldMarksIsInvalid && fieldMarksIsInvalid.field_supervisor_marks) {
+      // else if (!fieldMarksIsNaN.undefined && fieldMarksIsNaN) {
+        setExcelError(`"${fieldMarksIsInvalid.registration_number}" has invalid "field_marks" => "${fieldMarksIsInvalid.field_supervisor_marks}"`)
         setExcelFile(null)
         return false
       }
@@ -556,46 +578,50 @@ function MyStudentsPage() {
         return false
       }
       else if (!(excelData[0].hasOwnProperty('registration_number'))) {
-        setExcelError('"registration_number" column is missing.')
+        setExcelError('"registration_number" column is missing or first row has no value for this column.')
         setExcelFile(null)
         return false
       }
       else if (!(excelData[0].hasOwnProperty('report_marks'))) {
-        setExcelError('"report_marks" column is missing.')
+        setExcelError('"report_marks" column is missing or first row has no value for this column.')
         setExcelFile(null)
         return false
       }
       else if (!(excelData[0].hasOwnProperty('academic_supervisor_marks'))) {
-        setExcelError('"academic_supervisor_marks" column is missing.')
+        setExcelError('"academic_supervisor_marks" column is missing or first row has no value for this column.')
         setExcelFile(null)
         return false
       }
       else if (!(excelData[0].hasOwnProperty('field_supervisor_marks'))) {
-        setExcelError('"field_supervisor_marks" column is missing')
+        setExcelError('"field_supervisor_marks" column is missing or first row has no value for this column.')
         setExcelFile(null)
         return false
       }
       else if ((!regNoIsMissing && !reportMarksIsMissing) && (!fieldMarksIsMissing && !academicMarksIsMissing)) {
         return checkDataTypes(convertDataIntoFloat(excelData))
       }
-      else if ((regNoIsMissing && regNoIsMissing.hasOwnProperty('registration_number'))  && !regNoIsMissing.registration_number) {
+      // else if ((regNoIsMissing && regNoIsMissing.hasOwnProperty('registration_number'))  && !regNoIsMissing.registration_number) {
+      else if (regNoIsMissing && !regNoIsMissing.registration_number) {
       // else if (!regNoIsMissing.hasOwnProperty('undefined') && (regNoIsMissing && !regNoIsMissing.registration_number)) {
         setExcelError('Some data are missing registration number.')
         setExcelFile(null)
         return false
       }
-      else if (reportMarksIsMissing && reportMarksIsMissing.hasOwnProperty('report_marks') && !reportMarksIsMissing.report_marks) {
+      // else if (reportMarksIsMissing && reportMarksIsMissing.hasOwnProperty('report_marks') && !reportMarksIsMissing.report_marks) {
+      else if (reportMarksIsMissing && !reportMarksIsMissing.report_marks) {
       // else if (!reportMarksIsMissing.undefined && (reportMarksIsMissing && !reportMarksIsMissing.report_marks)) {
         setExcelError(`"${reportMarksIsMissing.registration_number}" is missing "report_marks".`)
         setExcelFile(null)
         return false
       }
-      else if ((academicMarksIsMissing && academicMarksIsMissing.hasOwnProperty('academic_supervisor_marks')) && !academicMarksIsMissing.academic_supervisor_marks) {
+      // else if ((academicMarksIsMissing && academicMarksIsMissing.hasOwnProperty('academic_supervisor_marks')) && !academicMarksIsMissing.academic_supervisor_marks) {
+      else if (academicMarksIsMissing && !academicMarksIsMissing.academic_supervisor_marks) {
         setExcelError(`"${academicMarksIsMissing.registration_number}" is missing "academic_supervisor_marks".`)
         setExcelFile(null)
         return false
       }
-      else if ((fieldMarksIsMissing && fieldMarksIsMissing.hasOwnProperty('field_supervisor_marks')) && !fieldMarksIsMissing.field_supervisor_marks) {
+      // else if ((fieldMarksIsMissing && fieldMarksIsMissing.hasOwnProperty('field_supervisor_marks')) && !fieldMarksIsMissing.field_supervisor_marks) {
+      else if (fieldMarksIsMissing && !fieldMarksIsMissing.field_supervisor_marks) {
         setExcelError(`"${fieldMarksIsMissing.registration_number}" is missing "field_supervisor_marks".`)
         setExcelFile(null)
         return false
@@ -664,6 +690,7 @@ function MyStudentsPage() {
       } catch (error) {
         console.log('Sending Uploaded Field marks ', error.response.data)
         setIsSendingExcelData(false)
+        setExcelError('Some Error Occured.')
       }
     }
     

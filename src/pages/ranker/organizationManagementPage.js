@@ -272,7 +272,12 @@ const OrganizationManagementPage = () => {
             } catch (error) {
                 console.log('Create Organization Account ', error.response.data)
                 setisSendingOrganizationInfo(false)
-                setOrganizationInfoErrorMessage('Ooops...!, Some Error Occured. Try Again.')
+                if (error.response.data.username) {
+                    setOrganizationInfoErrorMessage('An email already exists.')
+                }
+                else {
+                    setOrganizationInfoErrorMessage('Ooops...!, Some Error Occured. Try Again.')
+                }
             }
         }
         else {
