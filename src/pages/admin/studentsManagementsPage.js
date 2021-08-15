@@ -5,7 +5,7 @@ import { QuestionCircleOutlined } from '@ant-design/icons';
 import { Button, Row, Col, Card, Alert} from 'react-bootstrap'
 import Message from '../../components/message'
 import { useSelector}  from 'react-redux'
-import { editMultipleStudentsProfiles, getAllStudents } from '../../app/api';
+import { editFieldInfo, editMultipleStudentsProfiles, getAllStudents, getFieldInfo } from '../../app/api';
 import { apiConfigurations} from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 import Loader from '../../components/loader'
@@ -122,6 +122,8 @@ function StudentsManagementsPage() {
     const [pureStudents, setPureStudents] = useState([])
     const [isRevertingYear, setIsRevertingYear] = useState('')
     const [hasYearReverted, setHasYearReverted] = useState(false)
+  const [fieldData, setFieldData] = useState({})
+  const [hasErrorOccured, setHasErrorOccured] = useState('')
 
   const fetchAllStudents = async () => {
       setIsFetchingData(true)
@@ -134,15 +136,25 @@ function StudentsManagementsPage() {
         })
         setAllStudents(valid_data)
         setPureStudents(valid_data)
+        fetchFieldData()
+      } catch (error) {
+        setIsFetchingData(false)
+        console.log({
+          'Request': 'Getting All Students Profiles Request',
+          'Error => ' : error.response.data,
+        })
+      }
+    }
+    
+    const fetchFieldData = async () => {
+      try {
+        const response = await getFieldInfo(config)
+        setFieldData(response[0])
         setIsFetchingData(false)
       } catch (error) {
-          setIsFetchingData(false)
-            console.log({
-                'Request': 'Getting All Students Profiles Request',
-                'Error => ' : error.response.data,
-            })
-        }
-
+        setIsFetchingData(false)
+        console.log({ 'Error => ': error.response.data })
+      }
     }
 
     useEffect(() => {
@@ -372,9 +384,30 @@ function StudentsManagementsPage() {
         </Col>
     </Row></>
 
-  
+  const changeLastDate = async () => {
+    setIsChangingYear('please wait...')
+    const payload = {
+      ...fieldData,
+      last_date_year_of_study_changed: new Date().toISOString()
+    }
+    // console.log(payload)
+    try {
+      const response = await editFieldInfo(payload, config)
+      setFieldData({
+        ...fieldData,
+        last_date_year_of_study_changed: response.last_date_year_of_study_changed
+      })
+      setHasYearChanged(true)
+      setIsChangingYear('')
+    } catch (error) {
+      console.log('Error => ', error.response.data)
+      setIsChangingYear('')
+      setHasErrorOccured('Editing Last Date')
+    }
+  }
+
   const changeYearOfStudy = async () => {
-    setIsChangingYear('Please wait...')
+    setIsChangingYear('please wait...')
     //By Using Students Profiles State(allStudents)
     const withoutDiscontinued = allStudents.filter(item => item.student_status)
     // console.log('InProgress', withoutDiscontinued.length)
@@ -404,11 +437,18 @@ function StudentsManagementsPage() {
         })
         setAllStudents(newStudents)
         setPureStudents(valid_data)
-        setIsChangingYear('')
-        setHasYearChanged(true)
+        changeLastDate()
         
-      } catch (error) { console.log({'Error => ' : error.response.data,}) }
-    } catch (error) { console.log({ 'Error => ' : error.response.data, }) }
+      } catch (error) {
+        console.log({ 'Error => ': error.response.data, });
+        setIsChangingYear('')
+        setHasErrorOccured('Getting Students Profiles')
+      }
+    } catch (error) {
+      console.log({ 'Error => ': error.response.data, });
+      setIsChangingYear('')
+      setHasErrorOccured('Editing Students Profiles')
+    }
   }
  
   const revertYearOfStudy = async () => {
@@ -446,6 +486,16 @@ function StudentsManagementsPage() {
     } catch (error) { console.log({ 'Error => ' : error.response.data, }) }
   }
 
+  const monthDifference = () => {
+    const d1 = new Date(fieldData.last_date_year_of_study_changed)
+    const d2 = new Date()
+    var months;
+    months = (d2.getFullYear() - d1.getFullYear()) * 12;
+    months -= d1.getMonth();
+    months += d2.getMonth();
+    return months >= 12 ? false : true;
+  }
+  
   return (
     <Card >
         <Card.Header >
@@ -463,8 +513,7 @@ function StudentsManagementsPage() {
               icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
               onConfirm={e => { e.preventDefault(); changeYearOfStudy() }}>
                 <Button
-                  disabled={allStudents.length <= 0 || (allStudents.length !== pureStudents.length)}
-                  // disabled={hasYearChanged}
+                  disabled={monthDifference()}
                 >{isChangingYear ? <Loader message={isChangingYear} /> : 'Change year of study'}
                 </Button>
             </Popconfirm>
@@ -474,11 +523,18 @@ function StudentsManagementsPage() {
               onConfirm={e => { e.preventDefault(); revertYearOfStudy() }}>
                 <Button
                   style={{marginLeft: '16px'}}
-                  // disabled={allStudents.length === pureStudents.length}
-                  // disabled={hasYearReverted || !hasYearChanged}
                 >{isRevertingYear ? <Loader message={isRevertingYear} /> : 'Rollback'}
                 </Button>
             </Popconfirm>
+            <Row style={{paddingTop: '2%'}}>
+              <Alert
+                onClose={() => {setHasErrorOccured('')}}
+                dismissible
+                variant='danger'
+                style={{textAlign: 'center'}}
+                hidden={!hasErrorOccured}
+                >Ooops....!, some error occured. Please try again.</Alert>
+            </Row>
             <Row style={{paddingTop: '2%'}}>
               <Alert
                 onClose={() => {setHasYearChanged(false); setHasYearReverted(false)}}
@@ -489,6 +545,9 @@ function StudentsManagementsPage() {
                 >{hasYearChanged ? 'Year of study has changed successfull.' :
                   hasYearReverted ? 'Process rolledback successfull.' : ''}</Alert>
             </Row>
+            {/* <Row>
+              <span> {fieldData.last_date_year_of_study_changed} </span>
+            </Row> */}
               <Table
                 columns={columns}
                 dataSource={allStudents}
