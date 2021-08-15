@@ -104,6 +104,11 @@ const FieldReports = () => {
           week_3_logbook,
           week_4_logbook,
           week_5_logbook,
+          week_6_logbook,
+          week_7_logbook,
+          week_8_logbook,
+          week_9_logbook,
+          week_10_logbook,
           ...rest } = profile[0];
         const payload = {
           ...rest, has_reported: false, organization: 38, date_reported: null

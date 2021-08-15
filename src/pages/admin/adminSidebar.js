@@ -17,7 +17,7 @@ const AdminSidebar = () => {
             </li>
             <li className="list-item">
                 <Link to = "/manage_users" className="aside-link">
-                     <FaUsers style={{fontSize: '20px'}}/>  <span>All Users</span>
+                     <FaUsers style={{fontSize: '20px'}}/>  <span>Add User</span>
                 </Link>
             </li>
             <li className="list-item">
@@ -42,7 +42,7 @@ const AdminSidebar = () => {
             </li> */}
             <li className="list-item">
                 <Link to = "/questions" className="aside-link">
-                     <Icon glyph="docs-fill" size={32} /> <span>Questions</span>
+                     <Icon glyph="docs-fill" size={32} /> <span>Add Question</span>
                 </Link>
             </li>
             {/* <li className="list-item">

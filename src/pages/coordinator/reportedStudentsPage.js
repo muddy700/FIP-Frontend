@@ -186,6 +186,11 @@ function ReportedStudentsPage() {
         week_3_logbook,
         week_4_logbook,
         week_5_logbook,
+        week_6_logbook,
+        week_7_logbook,
+        week_8_logbook,
+        week_9_logbook,
+        week_10_logbook,
         ...rest } = selectedStudent;
         const payload = {
             ...rest, academic_supervisor: selectedSupervisor,
@@ -316,6 +321,11 @@ function ReportedStudentsPage() {
           week_3_logbook,
           week_4_logbook,
           week_5_logbook,
+          week_6_logbook,
+          week_7_logbook,
+          week_8_logbook,
+          week_9_logbook,
+          week_10_logbook,
             ...rest } = item;
         return { ...rest, student_status: false }
       })
@@ -428,7 +438,12 @@ function ReportedStudentsPage() {
           week_3_logbook,
           week_4_logbook,
           week_5_logbook,
-        ...rest } = item;
+          week_6_logbook,
+          week_7_logbook,
+          week_8_logbook,
+          week_9_logbook,
+          week_10_logbook,
+          ...rest } = item;
       return { ...rest, academic_supervisor: targetInfo.supervisor }
     })
 

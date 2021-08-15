@@ -255,6 +255,11 @@ function MyStudentsPage() {
         week_3_logbook,
         week_4_logbook,
         week_5_logbook,
+        week_6_logbook,
+        week_7_logbook,
+        week_8_logbook,
+        week_9_logbook,
+        week_10_logbook,
         academic_supervisor_marks, field_supervisor_marks,
         ...rest } = selectedStudent
       const payload = {
@@ -375,6 +380,11 @@ function MyStudentsPage() {
         week_3_logbook,
         week_4_logbook,
         week_5_logbook,
+        week_6_logbook,
+        week_7_logbook,
+        week_8_logbook,
+        week_9_logbook,
+        week_10_logbook,
         report_marks,
         ...rest } = selectedStudent
     
@@ -666,6 +676,11 @@ function MyStudentsPage() {
         week_3_logbook,
         week_4_logbook,
         week_5_logbook,
+        week_6_logbook,
+        week_7_logbook,
+        week_8_logbook,
+        week_9_logbook,
+        week_10_logbook,
         ...rest } = item;
       return rest
     })

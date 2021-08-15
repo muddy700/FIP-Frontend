@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux'
 import Loader from '../../components/loader'
 import Message from '../../components/message'
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
-import { getStudentProfileInfo, sendFieldReport } from '../../app/api'
+import { getFieldInfo, getStudentProfileInfo, sendFieldReport } from '../../app/api'
 import DataPlaceHolder  from '../../components/dataPlaceHolder'
 
 export const FieldInfoPage = () => {
@@ -18,16 +18,29 @@ export const FieldInfoPage = () => {
     const [fileError, setFileError] = useState('')
     const [isSendingReport, setIsSendingReport] = useState(false)
     const [isFetchingData, setIsFetchingData] = useState(false)
+    const [fieldData, setFieldData] = useState({})
 
     const getStudentProfile = async () => {
         setIsFetchingData(true)
         try {
             const response = await getStudentProfileInfo(user.userId, config)
             setStudentProfile(response[0])
-            setIsFetchingData(false)
+            fetchFieldData()
         } catch (error) {
             console.log('Getting Student Profile Info ', error.response.data)
         }
+    }
+
+                
+    const fetchFieldData = async () => {
+      try {
+        const response = await getFieldInfo(config)
+        setFieldData(response[0])
+        setIsFetchingData(false)
+      } catch (error) {
+        setIsFetchingData(false)
+        console.log({ 'Error => ': error.response.data })
+      }
     }
 
     useEffect(() => {
@@ -98,6 +111,42 @@ export const FieldInfoPage = () => {
         }
     }
     
+    const checkLastLogbook = () => {
+        if (fieldData.number_of_weeks === 1 && !studentProfile.week_1_logbook) {
+            return true
+        }
+        else if (fieldData.number_of_weeks === 2 && !studentProfile.week_2_logbook) {
+            return true
+        }
+        else if (fieldData.number_of_weeks === 3 && !studentProfile.week_3_logbook) {
+            return true
+        }
+        else if (fieldData.number_of_weeks === 4 && !studentProfile.week_4_logbook) {
+            return true
+        }
+        else if (fieldData.number_of_weeks === 5 && !studentProfile.week_5_logbook) {
+            return true
+        }
+        else if (fieldData.number_of_weeks === 6 && !studentProfile.week_6_logbook) {
+            return true
+        }
+        else if (fieldData.number_of_weeks === 7 && !studentProfile.week_7_logbook) {
+            return true
+        }
+        else if (fieldData.number_of_weeks === 8 && !studentProfile.week_8_logbook) {
+            return true
+        }
+        else if (fieldData.number_of_weeks === 9 && !studentProfile.week_9_logbook) {
+            return true
+        }
+        else if (fieldData.number_of_weeks === 10 && !studentProfile.week_10_logbook) {
+            return true
+        }
+        else {
+            return false
+        }
+    }
+
     return (
         <Card >
         <Card.Header >
@@ -120,7 +169,7 @@ export const FieldInfoPage = () => {
                                 <span><b>Field Report: </b></span>
                             </Col>
                             {
-                                !studentProfile.week_5_logbook ?
+                                checkLastLogbook() ?
                                 <Col md={4}>
                                     <Message variant='info'>You must upload all logbooks so as to be able to upload your field report.</Message>
                                 </Col> :

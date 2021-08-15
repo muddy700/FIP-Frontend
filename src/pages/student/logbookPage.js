@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux'
 import Loader from '../../components/loader'
 import Message from '../../components/message'
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
-import { getStudentProfileInfo, sendFieldReport } from '../../app/api'
+import { getFieldInfo, getStudentProfileInfo, sendFieldReport } from '../../app/api'
 import DataPlaceHolder  from '../../components/dataPlaceHolder'
 
 function LogBookPage() {
@@ -19,6 +19,7 @@ function LogBookPage() {
     const [isSendingFile, setIsSendingFile] = useState(false)
     const [isFetchingData, setIsFetchingData] = useState(false)
     const [activeWeek, setActiveWeek] = useState(1)
+    const [fieldData, setFieldData] = useState({})
 
     const getStudentProfile = async () => {
         setIsFetchingData(true)
@@ -26,10 +27,21 @@ function LogBookPage() {
             const response = await getStudentProfileInfo(user.userId, config)
             setStudentProfile(response[0])
             checkActiveWeek(response[0])
-            setIsFetchingData(false)
+            fetchFieldData()
         } catch (error) {
             console.log('Getting Student Profile Info ', error.response.data)
         }
+    }
+            
+    const fetchFieldData = async () => {
+      try {
+        const response = await getFieldInfo(config)
+        setFieldData(response[0])
+        setIsFetchingData(false)
+      } catch (error) {
+        setIsFetchingData(false)
+        console.log({ 'Error => ': error.response.data })
+      }
     }
 
     const checkActiveWeek = (profile) => {
@@ -47,6 +59,21 @@ function LogBookPage() {
             }
             else if (!profile.week_5_logbook) {
                 setActiveWeek(5)
+            }
+            else if (!profile.week_6_logbook) {
+                setActiveWeek(6)
+            }
+            else if (!profile.week_7_logbook) {
+                setActiveWeek(7)
+            }
+            else if (!profile.week_8_logbook) {
+                setActiveWeek(8)
+            }
+            else if (!profile.week_9_logbook) {
+                setActiveWeek(9)
+            }
+            else if (!profile.week_10_logbook) {
+                setActiveWeek(10)
             }
             else {
                 setActiveWeek(0)
@@ -168,7 +195,7 @@ function LogBookPage() {
                             }
                         </Row>
 
-                        <Row style={{ marginBottom: '16px' }} hidden={!studentProfile.week_1_logbook}>
+                        <Row style={{ marginBottom: '16px' }} hidden={!studentProfile.week_1_logbook || fieldData.number_of_weeks < 2}>
                         {/* <Row style={{ marginBottom: '16px' }} hidden={activeWeek < 2}> */}
                             <Col md={2}>
                                 <span><b>Week 2: </b></span>
@@ -196,7 +223,7 @@ function LogBookPage() {
                             }
                         </Row>
 
-                        <Row style={{ marginBottom: '16px' }} hidden={!studentProfile.week_2_logbook}>
+                        <Row style={{ marginBottom: '16px' }} hidden={!studentProfile.week_2_logbook || fieldData.number_of_weeks < 3}>
                         {/* <Row style={{ marginBottom: '16px' }} hidden={activeWeek < 3}> */}
                             <Col md={2}>
                                 <span><b>Week 3: </b></span>
@@ -224,7 +251,7 @@ function LogBookPage() {
                             }
                         </Row>
 
-                        <Row style={{ marginBottom: '16px' }} hidden={!studentProfile.week_3_logbook}>
+                        <Row style={{ marginBottom: '16px' }} hidden={!studentProfile.week_3_logbook || fieldData.number_of_weeks < 4}>
                         {/* <Row style={{ marginBottom: '16px' }} hidden={activeWeek < 4}> */}
                             <Col md={2}>
                                 <span><b>Week 4: </b></span>
@@ -252,7 +279,7 @@ function LogBookPage() {
                             }
                         </Row>
 
-                        <Row style={{ marginBottom: '16px' }} hidden={!studentProfile.week_4_logbook}>
+                        <Row style={{ marginBottom: '16px' }} hidden={!studentProfile.week_4_logbook || fieldData.number_of_weeks < 5}>
                         {/* <Row style={{ marginBottom: '16px' }} hidden={activeWeek < 5}> */}
                             <Col md={2}>
                                 <span><b>Week 5: </b></span>
@@ -271,6 +298,146 @@ function LogBookPage() {
                                         style={{ marginTop: '16px' }}
                                         onClick={e => { e.preventDefault(); submitLogBook() }}
                                     >{isSendingFile && activeWeek === 5 ? <Loader message='Sending...' /> : 'Submit'}
+                                    </Button> &nbsp; &nbsp;
+                                    <Button
+                                        style={{ marginTop: '16px' }}
+                                        hidden={!fileError}
+                                        variant='danger'>{fileError}</Button>
+                                </Col>
+                            }
+                        </Row>
+
+                        <Row style={{ marginBottom: '16px' }} hidden={!studentProfile.week_5_logbook || fieldData.number_of_weeks < 6}>
+                        {/* <Row style={{ marginBottom: '16px' }} hidden={activeWeek < 5}> */}
+                            <Col md={2}>
+                                <span><b>Week 6: </b></span>
+                            </Col>
+                            {studentProfile.week_6_logbook !== null ?
+                                <Col md={4}>
+                                    <Message variant='success'>Uploaded Successfull.</Message>
+                                </Col> :
+                                <Col md={6}>
+                                    <Form.Control
+                                        type="file"
+                                        onChange={handleLogBookFile}
+                                        accept="application/pdf" />
+                                    <Button
+                                        // disabled={!studentProfile.has_reported}
+                                        style={{ marginTop: '16px' }}
+                                        onClick={e => { e.preventDefault(); submitLogBook() }}
+                                    >{isSendingFile && activeWeek === 6 ? <Loader message='Sending...' /> : 'Submit'}
+                                    </Button> &nbsp; &nbsp;
+                                    <Button
+                                        style={{ marginTop: '16px' }}
+                                        hidden={!fileError}
+                                        variant='danger'>{fileError}</Button>
+                                </Col>
+                            }
+                        </Row>
+
+                        <Row style={{ marginBottom: '16px' }} hidden={!studentProfile.week_6_logbook || fieldData.number_of_weeks < 7}>
+                        {/* <Row style={{ marginBottom: '16px' }} hidden={activeWeek < 5}> */}
+                            <Col md={2}>
+                                <span><b>Week 7: </b></span>
+                            </Col>
+                            {studentProfile.week_7_logbook !== null ?
+                                <Col md={4}>
+                                    <Message variant='success'>Uploaded Successfull.</Message>
+                                </Col> :
+                                <Col md={6}>
+                                    <Form.Control
+                                        type="file"
+                                        onChange={handleLogBookFile}
+                                        accept="application/pdf" />
+                                    <Button
+                                        // disabled={!studentProfile.has_reported}
+                                        style={{ marginTop: '16px' }}
+                                        onClick={e => { e.preventDefault(); submitLogBook() }}
+                                    >{isSendingFile && activeWeek === 7 ? <Loader message='Sending...' /> : 'Submit'}
+                                    </Button> &nbsp; &nbsp;
+                                    <Button
+                                        style={{ marginTop: '16px' }}
+                                        hidden={!fileError}
+                                        variant='danger'>{fileError}</Button>
+                                </Col>
+                            }
+                        </Row>
+
+                        <Row style={{ marginBottom: '16px' }} hidden={!studentProfile.week_7_logbook || fieldData.number_of_weeks < 8}>
+                        {/* <Row style={{ marginBottom: '16px' }} hidden={activeWeek < 5}> */}
+                            <Col md={2}>
+                                <span><b>Week 8: </b></span>
+                            </Col>
+                            {studentProfile.week_8_logbook !== null ?
+                                <Col md={4}>
+                                    <Message variant='success'>Uploaded Successfull.</Message>
+                                </Col> :
+                                <Col md={6}>
+                                    <Form.Control
+                                        type="file"
+                                        onChange={handleLogBookFile}
+                                        accept="application/pdf" />
+                                    <Button
+                                        // disabled={!studentProfile.has_reported}
+                                        style={{ marginTop: '16px' }}
+                                        onClick={e => { e.preventDefault(); submitLogBook() }}
+                                    >{isSendingFile && activeWeek === 8 ? <Loader message='Sending...' /> : 'Submit'}
+                                    </Button> &nbsp; &nbsp;
+                                    <Button
+                                        style={{ marginTop: '16px' }}
+                                        hidden={!fileError}
+                                        variant='danger'>{fileError}</Button>
+                                </Col>
+                            }
+                        </Row>
+
+                        <Row style={{ marginBottom: '16px' }} hidden={!studentProfile.week_8_logbook || fieldData.number_of_weeks < 9}>
+                        {/* <Row style={{ marginBottom: '16px' }} hidden={activeWeek < 5}> */}
+                            <Col md={2}>
+                                <span><b>Week 9: </b></span>
+                            </Col>
+                            {studentProfile.week_9_logbook !== null ?
+                                <Col md={4}>
+                                    <Message variant='success'>Uploaded Successfull.</Message>
+                                </Col> :
+                                <Col md={6}>
+                                    <Form.Control
+                                        type="file"
+                                        onChange={handleLogBookFile}
+                                        accept="application/pdf" />
+                                    <Button
+                                        // disabled={!studentProfile.has_reported}
+                                        style={{ marginTop: '16px' }}
+                                        onClick={e => { e.preventDefault(); submitLogBook() }}
+                                    >{isSendingFile && activeWeek === 9 ? <Loader message='Sending...' /> : 'Submit'}
+                                    </Button> &nbsp; &nbsp;
+                                    <Button
+                                        style={{ marginTop: '16px' }}
+                                        hidden={!fileError}
+                                        variant='danger'>{fileError}</Button>
+                                </Col>
+                            }
+                        </Row>
+
+                        <Row style={{ marginBottom: '16px' }} hidden={!studentProfile.week_9_logbook || fieldData.number_of_weeks < 10}>
+                        {/* <Row style={{ marginBottom: '16px' }} hidden={activeWeek < 5}> */}
+                            <Col md={2}>
+                                <span><b>Week 10: </b></span>
+                            </Col>
+                            {studentProfile.week_10_logbook !== null ?
+                                <Col md={4}>
+                                    <Message variant='success'>Uploaded Successfull.</Message>
+                                </Col> :
+                                <Col md={6}>
+                                    <Form.Control
+                                        type="file"
+                                        onChange={handleLogBookFile}
+                                        accept="application/pdf" />
+                                    <Button
+                                        // disabled={!studentProfile.has_reported}
+                                        style={{ marginTop: '16px' }}
+                                        onClick={e => { e.preventDefault(); submitLogBook() }}
+                                    >{isSendingFile && activeWeek === 10 ? <Loader message='Sending...' /> : 'Submit'}
                                     </Button> &nbsp; &nbsp;
                                     <Button
                                         style={{ marginTop: '16px' }}
