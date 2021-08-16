@@ -133,6 +133,7 @@ export const HomePage = () => {
             if (user.designation === 'alumni') {
                 removeLoggedAlumni()
           }
+
           history.push('/')
         } catch (error) {
             console.log({

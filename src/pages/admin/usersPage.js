@@ -28,7 +28,7 @@ export const UsersPage = () => {
     }
 
     const initialStudent = {
-        phone: '',
+        phone_number: '',
         year_of_study: '',
         program: ''
     }
@@ -287,7 +287,7 @@ export const UsersPage = () => {
     const addStudentProfile = async (data) => {
         const payload = {
             ...studentInfo,
-            phone: userInfo.phone,
+            phone_number: userInfo.phone,
             student: data.user,
             department: getProgramDepartment(studentInfo.program)
         }

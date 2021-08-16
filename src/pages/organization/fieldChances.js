@@ -228,6 +228,10 @@ const FieldChances = () => {
             setFormErrorMessage('Enter Capacity')
             return false
         }
+        else if (postMode === 'all' && fieldPostInfo.post_capacity <= 0) {
+            setFormErrorMessage('Enter valid Capacity')
+            return false
+        }
         else if (!fieldPostInfo.expiry_date) {
             setFormErrorMessage('Select Expiry Date')
             return false

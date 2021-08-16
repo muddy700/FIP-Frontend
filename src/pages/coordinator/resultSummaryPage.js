@@ -32,13 +32,13 @@ function ResultSummaryPage() {
 //     dataIndex: 'organization_name',
 //     // render: text => <Button variant='link'>{text}</Button>,
 //   },
-//   {
-//     title: 'Student Phone',
-//     key: 'id',
-//     // ellipsis: 'true',
-//     dataIndex: 'phone_number',
-//     render: text => <>{text}</>,
-//   },
+  {
+    title: 'Year of study',
+    key: 'id',
+    // ellipsis: 'true',
+    dataIndex: 'year_of_study',
+    render: text => <>{text}</>,
+  },
 //   {
 //     title: 'Report Marks',
 //     key: 'id',
@@ -196,7 +196,7 @@ function ResultSummaryPage() {
       prepareData(studentsProfiles)
     }
     else {
-      const matched_students = studentsProfiles.filter(item => item.year_of_study === year)
+      const matched_students = studentsProfiles.filter(item => item.year_of_study === parseInt(year))
       setDisplayArray(matched_students)
       prepareData(matched_students)
      }

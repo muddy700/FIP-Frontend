@@ -142,6 +142,116 @@ function StudentsLogBooks() {
                 >View</Button> :
                 <span>Not uploaded</span>}</>,
   },
+  {
+    title: 'Week-6',
+    key: 'id',
+    dataIndex: 'week_6_logbook',
+    render: (text, record) => <>{record.week_6_logbook ?
+                <Button
+                    onClick={e =>
+                    {
+                        e.preventDefault();
+                        setModalShow(true);
+                        setModalTitle(`Reg No: ${record.registration_number}, Week: 6, Logbook`)
+                        setModalContent(<object
+                            type="application/pdf"
+                            data={record.week_6_logbook}
+                            width="100%"
+                            height="400px"
+                        >{record.registration_number}</object>)
+                    }}
+                    variant="link"
+                >View</Button> :
+                <span>Not uploaded</span>}</>,
+  },
+  {
+    title: 'Week-7',
+    key: 'id',
+    dataIndex: 'week_7_logbook',
+    render: (text, record) => <>{record.week_7_logbook ?
+                <Button
+                    onClick={e =>
+                    {
+                        e.preventDefault();
+                        setModalShow(true);
+                        setModalTitle(`Reg No: ${record.registration_number}, Week: 7, Logbook`)
+                        setModalContent(<object
+                            type="application/pdf"
+                            data={record.week_7_logbook}
+                            width="100%"
+                            height="400px"
+                        >{record.registration_number}</object>)
+                    }}
+                    variant="link"
+                >View</Button> :
+                <span>Not uploaded</span>}</>,
+  },
+  {
+    title: 'Week-8',
+    key: 'id',
+    dataIndex: 'week_8_logbook',
+    render: (text, record) => <>{record.week_8_logbook ?
+                <Button
+                    onClick={e =>
+                    {
+                        e.preventDefault();
+                        setModalShow(true);
+                        setModalTitle(`Reg No: ${record.registration_number}, Week: 8, Logbook`)
+                        setModalContent(<object
+                            type="application/pdf"
+                            data={record.week_8_logbook}
+                            width="100%"
+                            height="400px"
+                        >{record.registration_number}</object>)
+                    }}
+                    variant="link"
+                >View</Button> :
+                <span>Not uploaded</span>}</>,
+  },
+  {
+    title: 'Week-9',
+    key: 'id',
+    dataIndex: 'week_9_logbook',
+    render: (text, record) => <>{record.week_9_logbook ?
+                <Button
+                    onClick={e =>
+                    {
+                        e.preventDefault();
+                        setModalShow(true);
+                        setModalTitle(`Reg No: ${record.registration_number}, Week: 9, Logbook`)
+                        setModalContent(<object
+                            type="application/pdf"
+                            data={record.week_9_logbook}
+                            width="100%"
+                            height="400px"
+                        >{record.registration_number}</object>)
+                    }}
+                    variant="link"
+                >View</Button> :
+                <span>Not uploaded</span>}</>,
+  },
+  {
+    title: 'Week-10',
+    key: 'id',
+    dataIndex: 'week_10_logbook',
+    render: (text, record) => <>{record.week_10_logbook ?
+                <Button
+                    onClick={e =>
+                    {
+                        e.preventDefault();
+                        setModalShow(true);
+                        setModalTitle(`Reg No: ${record.registration_number}, Week: 10, Logbook`)
+                        setModalContent(<object
+                            type="application/pdf"
+                            data={record.week_10_logbook}
+                            width="100%"
+                            height="400px"
+                        >{record.registration_number}</object>)
+                    }}
+                    variant="link"
+                >View</Button> :
+                <span>Not uploaded</span>}</>,
+  },
     ];
 
     const user = useSelector(selectUserData)
