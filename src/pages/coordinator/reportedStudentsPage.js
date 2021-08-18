@@ -508,34 +508,34 @@ function ReportedStudentsPage() {
           <Message variant='info' >List of students arrival notes</Message>
         </Card.Header>
             <Card.Body style={{ overflowX: 'scroll' }}  >
-                <Row style={{marginBottom: '16px'}}>
-                    <Button onClick={e => { e.preventDefault(); showAllStudents() }}>All </Button> &nbsp; &nbsp;
-                    <Button onClick={e => { e.preventDefault(); showAssignedStudents() }}>Assigned</Button> &nbsp; &nbsp;
-                    <Button onClick={e => { e.preventDefault(); showUnassignedStudents() }}>Unassigned </Button> &nbsp; &nbsp;
-                    <Col md={{ span: 3 }}>
+                <Row style={{marginBottom: '16px'}}>Filters: &nbsp; 
+                    <Button onClick={e => { e.preventDefault(); showAllStudents() }}>All students</Button> &nbsp; &nbsp;
+                    <Button onClick={e => { e.preventDefault(); showAssignedStudents() }}>Assigned students</Button> &nbsp; &nbsp;
+                    <Button onClick={e => { e.preventDefault(); showUnassignedStudents() }}>Unassigned students</Button> &nbsp; &nbsp;
+                    <Col >
                         <Form.Control as="select"
                         size="md"
                         onChange={e => { showBySupervisor(e.target.value)}}
                         name="academic_supervisor">
-                        <option value='all'>---by supervisor---</option>
+                        <option value='all'>by supervisor</option>
                         {academicSupervisors.map(person => (
                             <option value={person.user}>{person.first_name} {person.last_name} </option>
                         ))}
                         </Form.Control>
                     </Col>
-                    <Col md={{ span: 3 }}>
+                    <Col >
                         <Form.Control as="select"
                         size="md"
                         onChange={e => { showByOrganization(e.target.value)}}
                         name="academic_supervisor">
-                        <option value='all'>---by organization---</option>
+                        <option value='all'>by organization</option>
                         {organizationList.map(person => (
                             <option value={person.user}>{person.first_name}</option>
                         ))}
                         </Form.Control>
                     </Col>
           </Row>
-          <Row>
+          <Row>Actions:  &nbsp;
               <Button onClick={e => { e.preventDefault(); setAssignByOrganization(true)}}>Assign by organization </Button> &nbsp; &nbsp;
               <Button onClick={e => { e.preventDefault(); setModalShow2(true) }}>Upload discontinued </Button> &nbsp; &nbsp;
           </Row>

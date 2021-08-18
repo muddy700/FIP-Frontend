@@ -531,7 +531,9 @@ function StudentsManagementsPage() {
               title="Are you sure？"
               icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
               onConfirm={e => { e.preventDefault(); revertYearOfStudy() }}>
-                <Button
+              <Button
+                //To Activate This Button => Comment The Line Bellow With Hidden Property
+                hidden
                   style={{marginLeft: '16px'}}
                 >{isRevertingYear ? <Loader message={isRevertingYear} /> : 'Rollback'}
                 </Button>

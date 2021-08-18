@@ -4,14 +4,15 @@ import { Table } from 'antd';
 import { Button, Card } from 'react-bootstrap'
 import Message from '../../components/message'
 import { useSelector}  from 'react-redux'
-import { getStudentsByAcademicSupervisor} from '../../app/api';
+import { getFieldInfo, getStudentsByAcademicSupervisor} from '../../app/api';
 import { apiConfigurations, selectUserData } from '../../slices/userSlice';
 import ContentModal from '../../components/contentModal';
 import DataPlaceHolder from '../../components/dataPlaceHolder'
 
 function StudentsLogBooks() {
   const [page, setPage] = useState(1)
-
+  const [fieldData, setFieldData] = useState({})
+ 
   const columns = [
   {
     title: 'S/No',
@@ -57,6 +58,7 @@ function StudentsLogBooks() {
   {
     title: 'Week-2',
     key: 'id',
+    hidden: fieldData.number_of_weeks >= 2 ? false : true,
     dataIndex: 'week_2_logbook',
     render: (text, record) => <>{record.week_2_logbook ?
                 <Button
@@ -79,6 +81,7 @@ function StudentsLogBooks() {
   {
     title: 'Week-3',
     key: 'id',
+    hidden: fieldData.number_of_weeks >= 3 ? false : true,
     dataIndex: 'week_3_logbook',
     render: (text, record) => <>{record.week_3_logbook ?
                 <Button
@@ -101,6 +104,7 @@ function StudentsLogBooks() {
   {
     title: 'Week-4',
     key: 'id',
+    hidden: fieldData.number_of_weeks >= 4 ? false : true,
     dataIndex: 'week_4_logbook',
     render: (text, record) => <>{record.week_4_logbook ?
                 <Button
@@ -123,6 +127,7 @@ function StudentsLogBooks() {
   {
     title: 'Week-5',
     key: 'id',
+    hidden: fieldData.number_of_weeks >= 5 ? false : true,
     dataIndex: 'week_5_logbook',
     render: (text, record) => <>{record.week_5_logbook ?
                 <Button
@@ -145,6 +150,7 @@ function StudentsLogBooks() {
   {
     title: 'Week-6',
     key: 'id',
+    hidden: fieldData.number_of_weeks >= 6 ? false : true,
     dataIndex: 'week_6_logbook',
     render: (text, record) => <>{record.week_6_logbook ?
                 <Button
@@ -164,9 +170,12 @@ function StudentsLogBooks() {
                 >View</Button> :
                 <span>Not uploaded</span>}</>,
   },
-  {
+      {
+          
     title: 'Week-7',
+    // title: fieldData.number_of_weeks > 6 ? 'yes' : 'no',
     key: 'id',
+    hidden: fieldData.number_of_weeks >= 7 ? false : true,
     dataIndex: 'week_7_logbook',
     render: (text, record) => <>{record.week_7_logbook ?
                 <Button
@@ -189,6 +198,7 @@ function StudentsLogBooks() {
   {
     title: 'Week-8',
     key: 'id',
+    hidden: fieldData.number_of_weeks >= 8 ? false : true,
     dataIndex: 'week_8_logbook',
     render: (text, record) => <>{record.week_8_logbook ?
                 <Button
@@ -211,6 +221,7 @@ function StudentsLogBooks() {
   {
     title: 'Week-9',
     key: 'id',
+    hidden: fieldData.number_of_weeks >= 9 ? false : true,
     dataIndex: 'week_9_logbook',
     render: (text, record) => <>{record.week_9_logbook ?
                 <Button
@@ -233,6 +244,7 @@ function StudentsLogBooks() {
   {
     title: 'Week-10',
     key: 'id',
+    hidden: fieldData.number_of_weeks >= 10 ? false : true,
     dataIndex: 'week_10_logbook',
     render: (text, record) => <>{record.week_10_logbook ?
                 <Button
@@ -252,7 +264,7 @@ function StudentsLogBooks() {
                 >View</Button> :
                 <span>Not uploaded</span>}</>,
   },
-    ];
+    ].filter(col => !col.hidden);
 
     const user = useSelector(selectUserData)
     const config = useSelector(apiConfigurations)
@@ -261,6 +273,7 @@ function StudentsLogBooks() {
     const [modalTitle, setModalTitle] = useState('')
     const [modalContent, setModalContent] = useState('')
     const [studentsProfiles, setStudentsProfiles] = useState([])
+    // const [fieldData, setFieldData] = useState({})
 
   
   const fetchStudentsProfiles = async () => {
@@ -272,11 +285,22 @@ function StudentsLogBooks() {
             return {...item, registration_number: item.registration_number.replaceAll('-', '/')}
           })
           const inprogress_students = valid_data.filter(item => item.student_status)
-        setStudentsProfiles(inprogress_students)
-        setIsFetchingData(false)
+            setStudentsProfiles(inprogress_students)
+            fetchFieldData()
         } catch (error) {
             console.log(
                 'Fetching Students By Academic Supervisor ', error.response.data ) }
+    }
+
+    const fetchFieldData = async () => {
+      try {
+        const response = await getFieldInfo(config)
+        setFieldData(response[0])
+        setIsFetchingData(false)
+      } catch (error) {
+        setIsFetchingData(false)
+        console.log({ 'Error => ': error.response.data })
+      }
     }
 
     useEffect(() => {
@@ -287,7 +311,7 @@ function StudentsLogBooks() {
     return (
     <Card >
         <Card.Header >
-          <Message variant='info' >List of your students logbooks</Message>
+                <Message variant='info' >List of your students logbooks</Message>
         </Card.Header>
             <Card.Body style={{ overflowX: 'scroll' }}  >
           {isFetchingData ?
